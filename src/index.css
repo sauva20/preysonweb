@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --burnt-orange: #C66A2B;
+  --army-green: #4E5B45;
+  --jet-black: #1D1D1D;
+  --light-bg: #EAEAEA;
+  --white: #F4F0E6;
+  --pure-white: #FFFFFF;
+  
+  /* Semantic Variables */
+  --bg-primary: var(--white);
+  --text-primary: var(--jet-black);
+  --nav-bg: var(--white);
+  --nav-text: var(--army-green);
+  --nav-border: rgba(0, 0, 0, 0.05);
+
+  --font-primary: 'Barlow', sans-serif;
+  --font-heading: 'Barlow Condensed', sans-serif;
+}
+
+body.dark-mode {
+  --bg-primary: var(--jet-black);
+  --text-primary: var(--white);
+  --nav-bg: rgba(29, 29, 29, 0.95);
+  --nav-text: var(--white);
+  --nav-border: rgba(255, 255, 255, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 24px;
+  background-color: transparent;
+  border: 1px solid var(--pure-white);
+  color: var(--pure-white);
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  background-color: var(--pure-white);
+  color: var(--jet-black);
+}
+
+.btn-primary {
+  background-color: var(--burnt-orange);
+  border-color: var(--burnt-orange);
+}
+
+.btn-primary:hover {
+  background-color: transparent;
+  color: var(--burnt-orange);
+}

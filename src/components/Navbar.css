@@ -1,0 +1,227 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 4rem;
+  background-color: var(--nav-bg);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  border-bottom: 1px solid var(--nav-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex: 1;
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  color: var(--nav-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-links a {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: color 0.3s;
+  color: var(--nav-text);
+}
+
+.nav-links a:hover {
+  color: var(--burnt-orange);
+}
+
+.navbar-center {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+
+.brand-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.brand-preyson {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 2.5rem;
+  color: var(--nav-text);
+  letter-spacing: -0.5px;
+}
+
+.brand-moto {
+  font-family: var(--font-primary);
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--nav-text);
+  letter-spacing: 5px;
+  margin-right: -5px;
+  margin-top: 2px;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.login-link {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  transition: color 0.3s;
+  color: var(--nav-text);
+}
+
+.login-link:hover {
+  color: var(--burnt-orange);
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--nav-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s;
+}
+
+.icon-btn:hover {
+  color: var(--burnt-orange);
+}
+
+/* --- RESPONSIVE MEDIA QUERIES --- */
+
+/* Tablet & Mobile (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .navbar {
+    padding: 1rem 2rem;
+  }
+
+  .nav-links {
+    display: none; /* Hide inline links */
+  }
+  
+  .login-link {
+    display: none; /* Hide login text, move to drawer */
+  }
+
+  .brand-preyson {
+    font-size: 2rem;
+  }
+  
+  .brand-moto {
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+  }
+}
+
+
+
+/* Mobile Menu Drawer Styles */
+.mobile-menu-drawer {
+  position: fixed;
+  top: 0;
+  left: -300px;
+  width: 300px;
+  height: 100vh;
+  background-color: var(--bg-primary);
+  z-index: 200;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  transition: left 0.3s ease;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+
+.mobile-menu-drawer.open {
+  left: 0;
+}
+
+.mobile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+}
+
+.mobile-menu-header .brand-preyson {
+  font-size: 1.5rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--nav-text);
+  cursor: pointer;
+}
+
+.mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.mobile-nav-links a {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--nav-text);
+  transition: color 0.3s;
+}
+
+.mobile-nav-links a:hover {
+  color: var(--burnt-orange);
+}
+
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 150;
+}
+
+/* Mobile specific */
+@media (max-width: 600px) {
+  .navbar {
+    padding: 1rem 1rem;
+  }
+  
+  .brand-preyson {
+    font-size: 1.6rem;
+  }
+  
+  .brand-moto {
+    display: none; /* Hide MOTO COMPANY text on very small screens to save space */
+  }
+}
