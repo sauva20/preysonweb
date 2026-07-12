@@ -1,0 +1,151 @@
+.admin-topbar {
+  padding: 16px 24px;
+  background-color: var(--admin-surface);
+  border-bottom: 1px solid var(--admin-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--admin-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.icon-btn:hover {
+  color: var(--admin-text);
+}
+
+.welcome-text {
+  font-size: 14px;
+  color: var(--admin-text-muted);
+}
+
+.welcome-text strong {
+  color: var(--admin-text);
+}
+
+.topbar-center {
+  flex: 0 1 400px;
+}
+
+.search-container {
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--admin-text-muted);
+}
+
+.search-input {
+  width: 100%;
+  background-color: var(--admin-bg);
+  border: 1px solid var(--admin-border-dark);
+  border-radius: 4px;
+  padding: 10px 16px 10px 40px;
+  color: var(--admin-text);
+  font-family: inherit;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--admin-accent);
+  background-color: var(--admin-surface);
+}
+
+.search-input::placeholder {
+  color: var(--admin-text-muted);
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.notification-btn {
+  position: relative;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: #ef4444; /* Red dot */
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  height: 16px;
+  min-width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  padding: 0 4px;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
+.user-role {
+  font-size: 10px;
+  color: var(--admin-text-muted);
+  letter-spacing: 0.5px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background-color: var(--admin-surface-hover);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--admin-text-muted);
+  border: 2px solid var(--admin-border-dark);
+}
+
+@media (max-width: 768px) {
+  .topbar-center {
+    display: none;
+  }
+  .user-info {
+    display: none;
+  }
+}

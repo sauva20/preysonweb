@@ -1,0 +1,30 @@
+.banner-section {
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 60px;
+}
+
+.banner-container {
+  display: flex;
+  width: 100%;
+  height: 60vh;
+  min-height: 400px;
+}
+
+.banner-image {
+  flex: 1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@media (max-width: 768px) {
+  .banner-container {
+    flex-direction: column;
+    height: auto;
+  }
+  .banner-image {
+    width: 100%;
+    height: 300px;
+  }
+}

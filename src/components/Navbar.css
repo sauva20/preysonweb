@@ -2,28 +2,49 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.2rem 4rem;
-  background-color: var(--nav-bg);
-  position: fixed;
+  padding: 1.5rem 4rem;
+  background-color: transparent;
+  position: fixed; 
   top: 0;
   left: 0;
   width: 100%;
   z-index: 100;
-  border-bottom: 1px solid var(--nav-border);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  border-bottom: none;
+  transition: all 0.3s ease;
+}
+
+.navbar.scrolled {
+  background-color: var(--nav-scrolled-bg);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  padding: 1rem 4rem;
+}
+
+.navbar.scrolled .nav-links a {
+  color: var(--nav-scrolled-text);
+}
+
+.navbar.scrolled .nav-links a:hover {
+  opacity: 0.7;
+}
+
+.navbar.scrolled .icon-btn {
+  color: var(--nav-scrolled-text);
+}
+
+.navbar.scrolled .menu-btn {
+  color: var(--nav-scrolled-text);
 }
 
 .navbar-left {
   display: flex;
   align-items: center;
-  gap: 2rem;
   flex: 1;
 }
 
 .menu-btn {
   background: none;
   border: none;
-  color: var(--nav-text);
+  color: #fff;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -32,20 +53,22 @@
 .nav-links {
   display: flex;
   gap: 2rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .nav-links a {
-  font-family: var(--font-heading);
-  font-size: 1.1rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  font-family: sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  text-decoration: none;
   transition: color 0.3s;
-  color: var(--nav-text);
 }
 
 .nav-links a:hover {
-  color: var(--burnt-orange);
+  color: #e0e0e0;
 }
 
 .navbar-center {
@@ -55,29 +78,10 @@
   justify-content: center;
 }
 
-.brand-logo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1;
-}
-
-.brand-preyson {
-  font-family: var(--font-primary);
-  font-weight: 700;
-  font-size: 2.5rem;
-  color: var(--nav-text);
-  letter-spacing: -0.5px;
-}
-
-.brand-moto {
-  font-family: var(--font-primary);
-  font-weight: 600;
-  font-size: 0.8rem;
-  color: var(--nav-text);
-  letter-spacing: 5px;
-  margin-right: -5px;
-  margin-top: 2px;
+.brand-logo img {
+  max-height: 80px;
+  width: auto;
+  object-fit: contain;
 }
 
 .navbar-right {
@@ -88,31 +92,26 @@
   flex: 1;
 }
 
-.login-link {
-  font-family: var(--font-heading);
-  font-size: 1.1rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-  transition: color 0.3s;
-  color: var(--nav-text);
-}
-
-.login-link:hover {
-  color: var(--burnt-orange);
-}
-
 .icon-btn {
   background: none;
   border: none;
-  color: var(--nav-text);
+  color: #fff;
   cursor: pointer;
   display: flex;
   align-items: center;
-  transition: color 0.3s;
+  transition: opacity 0.3s;
 }
 
 .icon-btn:hover {
-  color: var(--burnt-orange);
+  opacity: 0.7;
+}
+
+.desktop-only {
+  display: flex;
+}
+
+.mobile-only {
+  display: none;
 }
 
 /* --- RESPONSIVE MEDIA QUERIES --- */
@@ -123,25 +122,18 @@
     padding: 1rem 2rem;
   }
 
-  .nav-links {
-    display: none; /* Hide inline links */
+  .desktop-only {
+    display: none;
   }
   
-  .login-link {
-    display: none; /* Hide login text, move to drawer */
+  .mobile-only {
+    display: flex;
   }
 
-  .brand-preyson {
-    font-size: 2rem;
-  }
-  
-  .brand-moto {
-    font-size: 0.7rem;
-    letter-spacing: 3px;
+  .brand-logo img {
+    max-height: 60px;
   }
 }
-
-
 
 /* Mobile Menu Drawer Styles */
 .mobile-menu-drawer {
@@ -150,7 +142,7 @@
   left: -300px;
   width: 300px;
   height: 100vh;
-  background-color: var(--bg-primary);
+  background-color: #fff;
   z-index: 200;
   padding: 2rem;
   display: flex;
@@ -170,14 +162,14 @@
   margin-bottom: 3rem;
 }
 
-.mobile-menu-header .brand-preyson {
-  font-size: 1.5rem;
+.mobile-logo {
+  max-height: 40px;
 }
 
 .close-btn {
   background: none;
   border: none;
-  color: var(--nav-text);
+  color: #000;
   cursor: pointer;
 }
 
@@ -185,20 +177,22 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .mobile-nav-links a {
-  font-family: var(--font-heading);
-  font-size: 1.5rem;
-  font-weight: 600;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--nav-text);
+  font-family: sans-serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: #000;
   transition: color 0.3s;
 }
 
 .mobile-nav-links a:hover {
-  color: var(--burnt-orange);
+  color: #666;
 }
 
 .mobile-menu-overlay {
@@ -211,17 +205,8 @@
   z-index: 150;
 }
 
-/* Mobile specific */
 @media (max-width: 600px) {
   .navbar {
     padding: 1rem 1rem;
-  }
-  
-  .brand-preyson {
-    font-size: 1.6rem;
-  }
-  
-  .brand-moto {
-    display: none; /* Hide MOTO COMPANY text on very small screens to save space */
   }
 }

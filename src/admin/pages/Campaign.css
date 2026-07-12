@@ -1,0 +1,332 @@
+.campaign-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px);
+}
+
+.campaign-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+
+.campaign-titles h2 {
+  font-family: var(--font-heading, 'Barlow Condensed', sans-serif);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--admin-text);
+  letter-spacing: 1px;
+}
+
+.campaign-titles p {
+  color: var(--admin-text-muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.add-block-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  padding: 8px 16px;
+  border-radius: 6px;
+}
+
+.add-block-menu span {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--admin-text-muted);
+  margin-right: 8px;
+}
+
+.add-mini-btn {
+  background-color: var(--admin-bg);
+  border: 1px solid var(--admin-border-dark);
+  color: var(--admin-text);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-mini-btn:hover {
+  background-color: var(--admin-accent);
+  color: #fff;
+  border-color: var(--admin-accent);
+}
+
+.save-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--admin-accent);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.save-btn:hover {
+  background-color: #a85a24;
+}
+
+.campaign-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Canvas */
+.builder-canvas {
+  flex: 1;
+  background-color: #fff; /* White bg for preview accuracy */
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Match body dark-mode for accurate preview if needed */
+body.dark-mode .builder-canvas {
+  background-color: #000;
+}
+
+.blocks-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.empty-canvas {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--admin-text-muted);
+  text-align: center;
+}
+
+/* WYSIWYG Block */
+.wysiwyg-block {
+  position: relative;
+  /* Prevent interaction with child links/buttons while dragging/editing */
+}
+
+.wysiwyg-block.dragging {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
+
+.wysiwyg-content {
+  pointer-events: none; /* Make children non-interactive in builder */
+}
+
+.wysiwyg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 2px dashed var(--admin-accent);
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 16px;
+  pointer-events: auto; /* Allow interaction with overlay buttons */
+}
+
+.wysiwyg-controls {
+  display: flex;
+  gap: 8px;
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  padding: 8px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.control-btn {
+  background: none;
+  border: none;
+  color: var(--admin-text-muted);
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.control-btn:hover {
+  background-color: var(--admin-bg);
+  color: var(--admin-text);
+}
+
+.control-btn.drag-handle {
+  cursor: grab;
+}
+
+.control-btn.drag-handle:active {
+  cursor: grabbing;
+}
+
+.control-btn.delete-btn:hover {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* Modals */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-modal {
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  width: 500px;
+  max-width: 90vw;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--admin-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  font-size: 16px;
+  color: var(--admin-text);
+  font-weight: 700;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  color: var(--admin-text-muted);
+  cursor: pointer;
+}
+
+.close-modal-btn:hover {
+  color: var(--admin-text);
+}
+
+.modal-body {
+  padding: 24px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--admin-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancel-btn {
+  background: transparent;
+  border: 1px solid var(--admin-border-dark);
+  color: var(--admin-text);
+  padding: 10px 16px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.save-modal-btn {
+  background: var(--admin-accent);
+  border: none;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.save-modal-btn:hover {
+  background: #a85a24;
+}
+
+/* Forms */
+.config-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group.row-align {
+  flex-direction: row;
+  align-items: center;
+}
+
+.form-group label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--admin-text-muted);
+  letter-spacing: 0.5px;
+}
+
+.form-group input[type="text"],
+.form-group select {
+  background-color: var(--admin-bg);
+  border: 1px solid var(--admin-border-dark);
+  color: var(--admin-text);
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-group input[type="text"]:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--admin-accent);
+}
+
+.help-text {
+  font-size: 11px;
+  color: var(--admin-text-muted);
+}

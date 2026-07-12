@@ -1,0 +1,204 @@
+.products-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.products-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.page-titles h2 {
+  font-family: var(--font-heading, 'Barlow Condensed', sans-serif);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--admin-text);
+  letter-spacing: 1px;
+}
+
+.page-titles p {
+  color: var(--admin-text-muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.add-product-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--admin-accent);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-product-btn:hover {
+  background-color: #a85a24;
+}
+
+.products-table-container {
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.products-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.products-table th {
+  background-color: var(--admin-bg);
+  color: var(--admin-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 12px 20px;
+  text-align: left;
+  border-bottom: 1px solid var(--admin-border-dark);
+}
+
+.products-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--admin-border);
+  vertical-align: middle;
+}
+
+.products-table tr:last-child td {
+  border-bottom: none;
+}
+
+.products-table tr:hover td {
+  background-color: var(--admin-surface-hover);
+}
+
+.table-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--admin-bg);
+  border: 1px solid var(--admin-border-dark);
+}
+
+.table-product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.table-product-info h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
+.table-sku {
+  font-size: 11px;
+  color: var(--admin-text-muted);
+  font-family: monospace;
+}
+
+.table-barcode {
+  background-color: #fff; /* Barcodes need high contrast */
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  mix-blend-mode: screen; /* In dark mode, this might look weird, so let's just make it white bg */
+}
+
+body.dark-mode .table-barcode {
+  background-color: #eee;
+}
+
+.table-price {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
+.stock-pill {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.stock-pill.low-stock {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  padding: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn.edit {
+  color: var(--admin-text-muted);
+}
+
+.action-btn.edit:hover {
+  background-color: var(--admin-bg);
+  color: var(--admin-text);
+}
+
+.action-btn.delete {
+  color: var(--admin-text-muted);
+}
+
+.action-btn.delete:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.empty-table {
+  text-align: center;
+  color: var(--admin-text-muted);
+  padding: 40px !important;
+}
+
+/* Modals */
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.form-group.half {
+  flex: 1;
+}
+
+.live-barcode-preview {
+  margin-top: 8px;
+  padding: 12px;
+  background-color: #fff;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  border: 1px dashed var(--admin-border-dark);
+}
