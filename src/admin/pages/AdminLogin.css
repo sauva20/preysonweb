@@ -128,7 +128,7 @@
   color: var(--text-secondary);
 }
 
-.input-wrapper input {
+.admin-login-form .input-wrapper input {
   width: 100%;
   padding: 1rem 1rem 1rem 3rem;
   background-color: var(--bg-secondary);
@@ -140,13 +140,13 @@
   transition: all 0.3s ease;
 }
 
-.input-wrapper input:focus {
+.admin-login-form .input-wrapper input:focus {
   outline: none;
   border-color: #1a2b4c;
   box-shadow: 0 0 0 3px rgba(26, 43, 76, 0.1);
 }
 
-body.dark-mode .input-wrapper input:focus {
+body.dark-mode .admin-login-form .input-wrapper input:focus {
   border-color: #8ab4f8;
   box-shadow: 0 0 0 3px rgba(138, 180, 248, 0.1);
 }

@@ -1,12 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Trash2, Minus, Plus } from 'lucide-react';
 import { useProducts } from '../../context/ProductContext';
+import { useOrders } from '../../context/OrderContext';
+import { useCurrency } from '../../context/CurrencyContext';
+import CashModal from '../components/CashModal';
+import QrisModal from '../components/QrisModal';
 import './POS.css';
 
 export default function POS() {
-  const { products } = useProducts();
+  const { products, categories } = useProducts();
+  const { addOrder } = useOrders();
+  const { formatPrice } = useCurrency();
   const [cartItems, setCartItems] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState('CASH');
+  const [activeCategory, setActiveCategory] = useState('ALL');
+  const [isCashModalOpen, setIsCashModalOpen] = useState(false);
+  const [isQrisModalOpen, setIsQrisModalOpen] = useState(false);
   
   // Barcode Scanner State
   const [scanBuffer, setScanBuffer] = useState('');
@@ -53,8 +62,16 @@ export default function POS() {
   };
 
   const addToCart = (product) => {
+    if (product.stock <= 0) {
+      alert('Out of stock!');
+      return;
+    }
     const existing = cartItems.find(item => item.id === product.id);
     if (existing) {
+      if (existing.quantity >= product.stock) {
+        alert(`Cannot add more. Only ${product.stock} in stock.`);
+        return;
+      }
       setCartItems(cartItems.map(item => 
         item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
       ));
@@ -71,6 +88,10 @@ export default function POS() {
     setCartItems(cartItems.map(item => {
       if (item.id === id) {
         const newQ = item.quantity + delta;
+        if (newQ > item.stock) {
+           alert(`Cannot add more. Only ${item.stock} in stock.`);
+           return item;
+        }
         return { ...item, quantity: Math.max(1, newQ) };
       }
       return item;
@@ -79,6 +100,45 @@ export default function POS() {
 
   const handleRemove = (id) => {
     setCartItems(cartItems.filter(item => item.id !== id));
+  };
+
+  const handleCharge = () => {
+    if (cartItems.length === 0) return;
+
+    if (paymentMethod === 'CASH') {
+      setIsCashModalOpen(true);
+    } else if (paymentMethod === 'QRIS') {
+      setIsQrisModalOpen(true);
+    } else {
+      processOrder({}); // Process without customer details for other methods
+    }
+  };
+
+  const processOrder = async (details = {}) => {
+    try {
+      await addOrder({
+        items: cartItems.map(item => ({
+          productId: item.id,
+          quantity: item.quantity,
+          price: item.price
+        })),
+        subtotal,
+        tax,
+        total,
+        source: 'POS',
+        paymentMethod,
+        status: 'Completed',
+        customerName: details.customerName || '',
+        customerEmail: details.customerEmail || ''
+      });
+
+      setCartItems([]);
+      setIsCashModalOpen(false);
+      setIsQrisModalOpen(false);
+      alert('Transaction Successful! Added to Orders.');
+    } catch (err) {
+      alert('Failed to process transaction.');
+    }
   };
 
   return (
@@ -104,14 +164,49 @@ export default function POS() {
         </div>
 
         <div className="pos-filters">
-          <button className="pos-filter-btn active">ALL ITEMS</button>
-          <button className="pos-filter-btn">TOP SALE WK</button>
-          <button className="pos-filter-btn">GLOVES</button>
-          <button className="pos-filter-btn">TEES</button>
+          <button 
+            className={`pos-filter-btn ${activeCategory === 'ALL' ? 'active' : ''}`}
+            onClick={() => setActiveCategory('ALL')}
+          >
+            ALL ITEMS
+          </button>
+          <button 
+            className={`pos-filter-btn ${activeCategory === 'TOP_WK' ? 'active' : ''}`}
+            onClick={() => setActiveCategory('TOP_WK')}
+          >
+            TOP SALE WK
+          </button>
+          <button 
+            className={`pos-filter-btn ${activeCategory === 'TOP_MO' ? 'active' : ''}`}
+            onClick={() => setActiveCategory('TOP_MO')}
+          >
+            TOP SALE MO
+          </button>
+          {categories.map(c => (
+            <button 
+              key={c.id} 
+              className={`pos-filter-btn ${activeCategory === c.id ? 'active' : ''}`}
+              onClick={() => setActiveCategory(c.id)}
+            >
+              {c.name.toUpperCase()}
+            </button>
+          ))}
         </div>
 
         <div className="pos-product-grid">
-          {products.map(product => (
+          {products
+            .filter(p => {
+              if (activeCategory === 'ALL') return true;
+              if (activeCategory === 'TOP_WK' || activeCategory === 'TOP_MO') return true;
+              return p.categoryId === activeCategory;
+            })
+            .sort((a, b) => {
+              if (activeCategory === 'TOP_WK' || activeCategory === 'TOP_MO') {
+                return b.sold - a.sold;
+              }
+              return 0;
+            })
+            .map(product => (
             <div className="pos-product-card" key={product.id} onClick={() => addToCart(product)}>
               <div 
                 className={`pos-card-image ${!product.image ? 'bg-gray' : ''}`}
@@ -126,7 +221,7 @@ export default function POS() {
                 <h4>{product.name}</h4>
                 <div className="pos-card-footer">
                   <span className="sku">{product.sku}</span>
-                  <span className="price">${product.price.toFixed(2)}</span>
+                  <span className="price">{formatPrice(product.price)}</span>
                 </div>
               </div>
             </div>
@@ -148,7 +243,7 @@ export default function POS() {
             <div className="cart-item" key={item.id}>
               <div className="cart-item-row">
                 <h4>{item.name}</h4>
-                <span className="item-price">${(item.price * item.quantity).toFixed(2)}</span>
+                <span className="item-price">{formatPrice(item.price * item.quantity)}</span>
               </div>
               <div className="cart-item-meta">
                 SIZE: {item.size} | {item.sku}
@@ -189,28 +284,48 @@ export default function POS() {
           <div className="cart-summary">
             <div className="summary-row">
               <span>SUBTOTAL</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span>{formatPrice(subtotal)}</span>
             </div>
             <div className="summary-row">
               <span>DISCOUNT</span>
-              <span>-$0.00</span>
+              <span>{formatPrice(0)}</span>
             </div>
             <div className="summary-divider"></div>
             <div className="summary-row">
               <span>TAX (8%)</span>
-              <span>${tax.toFixed(2)}</span>
+              <span>{formatPrice(tax)}</span>
             </div>
             <div className="summary-row total-row">
               <span>TOTAL</span>
-              <span className="total-amount">${total.toFixed(2)}</span>
+              <span className="total-amount">{formatPrice(total)}</span>
             </div>
           </div>
 
-          <button className="charge-btn">
+          <button className="charge-btn" onClick={handleCharge} disabled={cartItems.length === 0}>
             CHARGE &rarr;
           </button>
         </div>
       </div>
+
+      <CashModal 
+        isOpen={isCashModalOpen}
+        onClose={() => setIsCashModalOpen(false)}
+        onConfirm={processOrder}
+        cartItems={cartItems}
+        subtotal={subtotal}
+        tax={tax}
+        total={total}
+      />
+
+      <QrisModal 
+        isOpen={isQrisModalOpen}
+        onClose={() => setIsQrisModalOpen(false)}
+        onConfirm={processOrder}
+        cartItems={cartItems}
+        subtotal={subtotal}
+        tax={tax}
+        total={total}
+      />
     </div>
   );
 }

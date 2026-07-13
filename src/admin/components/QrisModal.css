@@ -1,0 +1,238 @@
+.qris-modal-backdrop {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.qris-modal {
+  display: flex;
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 4px;
+  width: 90%;
+  max-width: 800px;
+  height: 90vh;
+  max-height: 600px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  overflow: hidden;
+  font-family: var(--font-main, sans-serif);
+  color: var(--admin-text);
+}
+
+/* LEFT PANEL */
+.qris-modal-left {
+  flex: 1;
+  background-color: var(--admin-bg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--admin-border);
+}
+
+.qris-items-list {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 24px;
+}
+
+.qris-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  border-bottom: 1px dashed var(--admin-border);
+  padding-bottom: 8px;
+}
+
+.qris-item-info h4 {
+  margin: 0 0 4px 0;
+  font-family: var(--font-heading, 'Barlow Condensed', sans-serif);
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.qris-item-info span {
+  font-size: 10px;
+  color: var(--admin-text-muted);
+}
+
+.qris-item-price {
+  font-family: var(--font-heading, 'Barlow Condensed', sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.qris-customer-details .form-group {
+  margin-bottom: 16px;
+}
+
+.qris-customer-details .form-group label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--admin-text-muted);
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.qris-customer-details .form-group input {
+  width: 100%;
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  padding: 10px;
+  color: var(--admin-text);
+  border-radius: 2px;
+  font-size: 12px;
+  outline: none;
+}
+
+.qris-customer-details .form-group input:focus {
+  border-color: var(--admin-accent);
+}
+
+.qris-modal-totals {
+  border-top: 1px solid var(--admin-border);
+  padding-top: 16px;
+}
+
+/* RIGHT PANEL */
+.qris-modal-right {
+  width: 350px;
+  background-color: var(--admin-surface);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.qris-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--admin-border);
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.qris-modal-header h3 {
+  margin: 0;
+  font-family: var(--font-heading, 'Barlow Condensed', sans-serif);
+  font-size: 16px;
+  letter-spacing: 1px;
+  color: var(--admin-text);
+  text-transform: uppercase;
+}
+
+.qris-code-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: 4px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.qris-code-container h4 {
+  margin: 0 0 4px 0;
+  font-family: var(--font-heading, 'Barlow Condensed', sans-serif);
+  font-size: 18px;
+  letter-spacing: 1px;
+  color: var(--admin-text);
+}
+
+.qris-code-container p {
+  font-size: 10px;
+  color: var(--admin-text-muted);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.qr-wrapper {
+  background: #fff;
+  padding: 16px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 232px;
+  height: 232px;
+}
+
+.qr-placeholder {
+  color: #333;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.timer-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-heading, 'Barlow Condensed', sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  color: #d87635; /* Orange to indicate timer */
+  margin-bottom: 12px;
+}
+
+.qris-badge {
+  background-color: #2a2a2a;
+  border: 1px solid var(--admin-border-dark);
+  color: var(--admin-text);
+  padding: 4px 12px;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border-radius: 2px;
+}
+
+.qris-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.qris-modal-actions button {
+  width: 100%;
+  padding: 16px;
+  font-family: var(--font-heading, 'Barlow Condensed', sans-serif);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.qris-modal-actions .btn-confirm {
+  background-color: var(--admin-accent);
+  color: #fff;
+}
+
+.qris-modal-actions .btn-confirm:hover {
+  opacity: 0.9;
+}
+
+.qris-modal-actions .btn-cancel {
+  background-color: transparent;
+  color: var(--admin-text);
+  border: 1px solid var(--admin-border-dark);
+}
+
+.qris-modal-actions .btn-cancel:hover {
+  background-color: var(--admin-surface-hover);
+}

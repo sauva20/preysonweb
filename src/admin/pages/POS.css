@@ -17,8 +17,16 @@
 .pos-filters {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   margin-bottom: 24px;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+
+.pos-filters::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .pos-filter-btn {
@@ -32,6 +40,8 @@
   cursor: pointer;
   border-radius: 2px;
   transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .pos-filter-btn.active {

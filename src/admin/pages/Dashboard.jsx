@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, 
   ShoppingBag, 
@@ -10,9 +10,28 @@ import {
   BarChart, 
   ArrowDownCircle 
 } from 'lucide-react';
+import { useOrders } from '../../context/OrderContext';
+import { useCurrency } from '../../context/CurrencyContext';
 import './Dashboard.css';
 
 export default function Dashboard() {
+  const { orders } = useOrders();
+  const { formatPrice } = useCurrency();
+  const [period, setPeriod] = useState('today');
+  const [stats, setStats] = useState({
+    totalOrders: 0,
+    totalSales: 0,
+    totalCustomers: 0,
+    lowStockProducts: 0
+  });
+
+  useEffect(() => {
+    fetch(`http://localhost:5000/api/dashboard/stats?period=${period}`)
+      .then(res => res.json())
+      .then(data => setStats(data))
+      .catch(err => console.error('Failed to fetch dashboard stats:', err));
+  }, [period]);
+
   return (
     <div className="dashboard-page">
       <div className="dashboard-header-block">
@@ -21,9 +40,9 @@ export default function Dashboard() {
           <p>Ringkasan performa hari ini, 12 Jul 2026</p>
         </div>
         <div className="dashboard-filters">
-          <button className="filter-tab active">Hari Ini</button>
-          <button className="filter-tab">Minggu Ini</button>
-          <button className="filter-tab">Bulan Ini</button>
+          <button className={`filter-tab ${period === 'today' ? 'active' : ''}`} onClick={() => setPeriod('today')}>Hari Ini</button>
+          <button className={`filter-tab ${period === 'week' ? 'active' : ''}`} onClick={() => setPeriod('week')}>Minggu Ini</button>
+          <button className={`filter-tab ${period === 'month' ? 'active' : ''}`} onClick={() => setPeriod('month')}>Bulan Ini</button>
         </div>
       </div>
 
@@ -34,7 +53,7 @@ export default function Dashboard() {
           </div>
           <div className="metric-info">
             <h3>Total Pendapatan</h3>
-            <p className="metric-value">Rp 12.450.000</p>
+            <p className="metric-value">Rp {stats.totalSales.toLocaleString('id-ID')}</p>
             <span className="metric-trend positive">Data Realtime</span>
           </div>
         </div>
@@ -45,7 +64,7 @@ export default function Dashboard() {
           </div>
           <div className="metric-info">
             <h3>Pesanan Baru</h3>
-            <p className="metric-value">14</p>
+            <p className="metric-value">{stats.totalOrders}</p>
             <span className="metric-trend neutral">Perlu diproses</span>
           </div>
         </div>
@@ -55,9 +74,9 @@ export default function Dashboard() {
             <Award size={24} className="metric-icon" />
           </div>
           <div className="metric-info">
-            <h3>Best Seller</h3>
-            <p className="metric-value text-large">Roadkill JKT</p>
-            <span className="metric-trend positive">Favorit Riders</span>
+            <h3>Low Stock</h3>
+            <p className="metric-value text-large">{stats.lowStockProducts} Items</p>
+            <span className="metric-trend positive">Perlu restock</span>
           </div>
         </div>
 
@@ -67,7 +86,7 @@ export default function Dashboard() {
           </div>
           <div className="metric-info">
             <h3>Total Pelanggan</h3>
-            <p className="metric-value">128</p>
+            <p className="metric-value">{stats.totalCustomers}</p>
             <span className="metric-trend positive">Terdaftar</span>
           </div>
         </div>
@@ -119,24 +138,25 @@ export default function Dashboard() {
             </div>
             
             <div className="transaction-list">
-              {[
-                { name: 'Order: Ironclad Glove', amount: '+Rp 1.200.000', time: '20:09' },
-                { name: 'Order: Roadkill JKT', amount: '+Rp 2.500.000', time: '18:29' },
-                { name: 'Order: HD Tee - Ash', amount: '+Rp 450.000', time: '19:01' },
-                { name: 'Order: Waxed Vest', amount: '+Rp 1.850.000', time: '18:42' },
-                { name: 'Order: Classic Helmet', amount: '+Rp 3.100.000', time: '18:08' },
-              ].map((tx, idx) => (
-                <div className="transaction-item" key={idx}>
+              {orders.slice(0, 5).map((tx, idx) => (
+                <div className="transaction-item" key={tx.id || idx}>
                   <div className="tx-icon">
                     <ArrowDownCircle size={20} />
                   </div>
                   <div className="tx-details">
-                    <h4>{tx.name}</h4>
-                    <span className="tx-status">Completed &bull; {tx.time}</span>
+                    <h4>Order: {tx.id.split('-')[0]}</h4>
+                    <span className="tx-status">{tx.status} &bull; {new Date(tx.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
-                  <div className="tx-amount">{tx.amount}</div>
+                  <div className="tx-amount" style={{ color: tx.status === 'Cancelled' ? '#ef4444' : 'var(--admin-success)' }}>
+                    {tx.status === 'Cancelled' ? '-' : '+'}{formatPrice(tx.total)}
+                  </div>
                 </div>
               ))}
+              {orders.length === 0 && (
+                <div className="no-transactions">
+                  <p>Belum ada transaksi.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

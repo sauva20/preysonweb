@@ -1,0 +1,228 @@
+.promo-modal-backdrop {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.promo-modal {
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.promo-modal .modal-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--admin-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.promo-modal .modal-header h3 {
+  margin: 0;
+  color: var(--admin-text);
+  font-size: 1.2rem;
+}
+
+.promo-modal .close-btn {
+  background: none;
+  border: none;
+  color: var(--admin-text-muted);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.promo-modal .close-btn:hover {
+  color: var(--admin-accent);
+}
+
+.promo-form {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+  background-color: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  color: var(--admin-text);
+  padding: 10px 12px;
+  border-radius: 4px;
+  outline: none;
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--admin-accent);
+}
+
+.product-selector {
+  border: 1px solid var(--admin-border);
+  border-radius: 4px;
+  padding: 12px;
+  background: var(--admin-bg);
+}
+
+.product-selector .search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--admin-bg-light);
+  border: 1px solid var(--admin-border);
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.product-selector .search-box input {
+  border: none;
+  background: none;
+  padding: 0;
+  width: 100%;
+}
+
+.product-selector .search-box input:focus {
+  border: none;
+}
+
+.product-list-selectable {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.product-select-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.product-select-item:hover {
+  border-color: var(--admin-accent);
+}
+
+.product-select-item.selected {
+  border-color: var(--admin-accent);
+  background: rgba(198, 106, 43, 0.05);
+}
+
+.product-select-item input[type="checkbox"] {
+  accent-color: var(--admin-accent);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.product-select-img {
+  width: 40px;
+  height: 40px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 4px;
+  background-color: var(--admin-bg);
+}
+
+.product-select-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.product-select-item .product-name {
+  font-weight: 600;
+  color: var(--admin-text);
+  font-size: 0.95rem;
+}
+
+.product-select-item .product-sku {
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+  font-weight: 500;
+}
+
+.product-select-item .product-price {
+  font-weight: 700;
+  color: var(--admin-accent);
+  font-family: var(--font-heading, 'Barlow Condensed', sans-serif);
+  font-size: 1.1rem;
+}
+
+.no-products {
+  color: var(--admin-text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 10px;
+}
+
+.modal-actions {
+  padding: 20px;
+  border-top: 1px solid var(--admin-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-cancel {
+  background-color: transparent;
+  color: var(--admin-text);
+  border: 1px solid var(--admin-border) !important;
+}
+
+.btn-cancel:hover {
+  background-color: var(--admin-border);
+}
+
+.btn-submit {
+  background-color: var(--admin-accent);
+  color: #000;
+}
+
+.btn-submit:hover {
+  opacity: 0.9;
+}

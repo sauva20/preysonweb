@@ -18,13 +18,25 @@
   background-repeat: no-repeat;
 }
 
+@media (max-width: 1024px) {
+  .banner-container {
+    height: 40vh;
+    min-height: 300px;
+  }
+}
+
 @media (max-width: 768px) {
+  .banner-section {
+    margin-bottom: 40px;
+  }
   .banner-container {
     flex-direction: column;
     height: auto;
+    min-height: auto;
   }
   .banner-image {
     width: 100%;
-    height: 300px;
+    height: 50vw; /* Keep it responsive to width on mobile */
+    min-height: 200px;
   }
 }

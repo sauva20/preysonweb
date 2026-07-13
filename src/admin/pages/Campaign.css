@@ -99,7 +99,27 @@
   border: 1px solid var(--admin-border);
   border-radius: 8px;
   overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
+}
+
+/* Fix for live components rendered inside the builder */
+.builder-canvas .hero {
+  height: 400px !important;
+  min-height: 400px !important;
+}
+
+.builder-canvas .banner-section {
+  margin-bottom: 20px !important;
+}
+
+.builder-canvas .banner-container {
+  height: 300px !important;
+  min-height: 300px !important;
+}
+
+.builder-canvas .hero-content h2 {
+  font-size: 2.5rem !important;
 }
 
 /* Match body dark-mode for accurate preview if needed */

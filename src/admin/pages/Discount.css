@@ -1,0 +1,162 @@
+.discount-page {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.discount-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+}
+
+.discount-header .page-titles h2 {
+  font-size: 1.8rem;
+  margin-bottom: 4px;
+}
+
+.discount-header .page-titles p {
+  color: var(--admin-text-muted);
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.promo-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--admin-border);
+  padding-bottom: 12px;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--admin-text-muted);
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  background-color: var(--admin-bg-light);
+  color: var(--admin-text);
+}
+
+.tab-btn.active {
+  background-color: var(--admin-accent);
+  color: #000;
+}
+
+.table-container {
+  background-color: var(--admin-bg-light);
+  border-radius: 8px;
+  border: 1px solid var(--admin-border);
+  overflow-x: auto;
+}
+
+.promo-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.promo-table th,
+.promo-table td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.promo-table th {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--admin-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.promo-table tr:hover td {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.promo-code {
+  background-color: rgba(235, 255, 0, 0.1);
+  color: var(--admin-accent);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.date-range {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+}
+
+.date-range span:last-child {
+  color: var(--admin-text-muted);
+}
+
+.status-toggle {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.status-toggle.active {
+  background-color: rgba(0, 200, 83, 0.1);
+  color: #00c853;
+  border-color: rgba(0, 200, 83, 0.2);
+}
+
+.status-toggle.inactive {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--admin-text-muted);
+  border-color: var(--admin-border);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-buttons button {
+  background: none;
+  border: none;
+  color: var(--admin-text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.action-buttons button:hover {
+  background-color: var(--admin-bg);
+  color: var(--admin-text);
+}
+
+.action-buttons button.delete:hover {
+  color: #ff3333;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px !important;
+  color: var(--admin-text-muted);
+}
