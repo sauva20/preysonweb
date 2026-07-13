@@ -36,29 +36,36 @@ export default function ProductGrid({ title, subtitle, items, columns = 4, categ
 
   return (
     <section className="product-grid-section">
-      <div className="product-grid-header">
-        {title && <h2>{title}</h2>}
-        {subtitle && <p>{subtitle}</p>}
-      </div>
-      <div className={`product-grid-container cols-${columns}`}>
-        {displayItems.map((item, index) => (
-          <div className="product-card" key={item.id || index} onClick={() => navigate(`/product/${item.id}`)}>
-            <div className="product-image-wrapper">
-              <div className="product-image" style={{ backgroundImage: `url(${item.image})` }}></div>
+      <div className="product-grid-wrapper">
+        <div className="product-grid-header">
+          {title && <h2>{title}</h2>}
+          {subtitle && <p>{subtitle}</p>}
+        </div>
+        <div className={`product-grid-container cols-${columns}`}>
+          {displayItems.map((item, index) => (
+            <div className="product-card" key={item.id || index} onClick={() => navigate(`/product/${item.id}`)}>
+              <div className="product-image-wrapper">
+                <div className="product-image main-img" style={{ backgroundImage: `url(${item.image})` }}></div>
+                {item.aestheticImage && (
+                  <div className="product-image hover-img" style={{ backgroundImage: `url(${item.aestheticImage})` }}></div>
+                )}
+              </div>
+              <div className="product-info">
+                <h3>{item.name}</h3>
+                <p className="price">
+                  {typeof item.price === 'number' 
+                    ? formatPrice(item.price) 
+                    : item.price}
+                </p>
+              </div>
             </div>
-            <div className="product-info">
-              <h3>{item.name}</h3>
-              <p className="price">
-                {typeof item.price === 'number' 
-                  ? formatPrice(item.price) 
-                  : item.price}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="product-grid-footer">
-        <button className="view-all-btn" onClick={handleViewAll}>VIEW ALL</button>
+          ))}
+        </div>
+        <div className="product-grid-footer">
+          <button className="view-all-btn" onClick={handleViewAll}>
+            VIEW ALL PRODUCTS
+          </button>
+        </div>
       </div>
     </section>
   );

@@ -26,7 +26,7 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/dashboard/stats?period=${period}`)
+    fetch(`${import.meta.env.VITE_API_URL}/dashboard/stats?period=${period}`)
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(err => console.error('Failed to fetch dashboard stats:', err));

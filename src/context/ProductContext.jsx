@@ -1,7 +1,9 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import { io } from 'socket.io-client';
 
 const ProductContext = createContext();
-const API_URL = 'http://localhost:5000/api';
+const API_URL = `${import.meta.env.VITE_API_URL}`;
+const SOCKET_URL = import.meta.env.VITE_BACKEND_URL;
 
 export function ProductProvider({ children }) {
   const [products, setProducts] = useState([]);
@@ -10,6 +12,17 @@ export function ProductProvider({ children }) {
   useEffect(() => {
     fetchProducts();
     fetchCategories();
+
+    const socket = io(SOCKET_URL);
+    
+    socket.on('stock_updated', () => {
+      console.log('Stock updated event received via WebSocket. Refetching products...');
+      fetchProducts();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const fetchProducts = async () => {

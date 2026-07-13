@@ -8,6 +8,7 @@ export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subto
   const [received, setReceived] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -37,6 +38,11 @@ export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subto
 
   const handleConfirm = () => {
     if (!canConfirm) return;
+    setShowConfirm(true);
+  };
+
+  const processConfirm = () => {
+    setShowConfirm(false);
     onConfirm({
       received: receivedAmount,
       change: changeDue,
@@ -123,6 +129,7 @@ export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subto
           </div>
 
           <div className="quick-amounts">
+            <button onClick={() => handleQuickAdd(total)}>Uang Pas</button>
             <button onClick={() => handleQuickAdd(50000)}>50.000</button>
             <button onClick={() => handleQuickAdd(100000)}>100.000</button>
             <button onClick={() => handleQuickAdd(200000)}>200.000</button>
@@ -154,6 +161,19 @@ export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subto
           </div>
         </div>
       </div>
+      
+      {showConfirm && (
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: '#fff', padding: '24px', borderRadius: '8px', textAlign: 'center', maxWidth: '320px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+            <h4 style={{ color: '#111', marginBottom: '12px', fontSize: '1.2rem', fontWeight: 'bold' }}>Konfirmasi Pembayaran</h4>
+            <p style={{ color: '#555', marginBottom: '24px', fontSize: '0.95rem' }}>Apakah uang tunai yang diterima sudah pas dan transaksi diselesaikan?</p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button style={{ padding: '10px 20px', background: '#e5e7eb', border: 'none', borderRadius: '4px', cursor: 'pointer', color: '#374151', fontWeight: '600' }} onClick={() => setShowConfirm(false)}>Batal</button>
+              <button style={{ padding: '10px 20px', background: '#cf5a16', border: 'none', borderRadius: '4px', cursor: 'pointer', color: '#fff', fontWeight: '600' }} onClick={processConfirm}>Ya, Selesaikan</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

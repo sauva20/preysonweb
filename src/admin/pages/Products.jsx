@@ -32,7 +32,7 @@ export default function Products() {
     const data = new FormData();
     data.append('image', file);
     try {
-      const res = await fetch('http://localhost:5000/api/upload', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/upload`, {
         method: 'POST',
         body: data
       });
@@ -93,7 +93,7 @@ export default function Products() {
       name: formData.name,
       sku: finalSku,
       price: parseFloat(formData.price),
-      stock: parseInt(formData.stock),
+      stock: formData.sizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0),
       image: mainImage,
       categoryId: formData.categoryId ? parseInt(formData.categoryId) : null,
       description: formData.description,
@@ -256,13 +256,42 @@ export default function Products() {
                     <div className="pdp-gallery-col-preview">
                       <div className="pdp-thumbnails-preview">
                         {formData.thumbnails.map((url, i) => (
-                          <div key={i} className={`pdp-thumb-preview ${i === 0 ? 'active' : ''}`}>
+                          <div key={i} className={`pdp-thumb-preview ${i === 0 ? 'active' : ''}`} style={{ position: 'relative' }}>
                             <img src={url} alt={`Thumb ${i}`} />
                             <button type="button" className="remove-img-btn" onClick={() => {
                               const newThumbs = formData.thumbnails.filter((_, idx) => idx !== i);
-                              setFormData({...formData, thumbnails: newThumbs});
+                              const newFormData = {...formData, thumbnails: newThumbs};
+                              if (formData.aestheticImage === url) {
+                                newFormData.aestheticImage = '';
+                              }
+                              setFormData(newFormData);
                             }}><X size={12}/></button>
                             {i === 0 && <span className="main-badge">Main</span>}
+                            {i !== 0 && (
+                              <button 
+                                type="button" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setFormData(prev => ({...prev, aestheticImage: prev.aestheticImage === url ? '' : url}));
+                                }}
+                                style={{
+                                  position: 'absolute',
+                                  bottom: '2px',
+                                  left: '50%',
+                                  transform: 'translateX(-50%)',
+                                  fontSize: '9px',
+                                  padding: '2px 4px',
+                                  background: formData.aestheticImage === url ? '#1a1a1a' : 'rgba(255,255,255,0.9)',
+                                  color: formData.aestheticImage === url ? '#fff' : '#000',
+                                  border: '1px solid #ccc',
+                                  borderRadius: '3px',
+                                  cursor: 'pointer',
+                                  whiteSpace: 'nowrap'
+                                }}
+                              >
+                                {formData.aestheticImage === url ? 'Hover ✓' : 'Set Hover'}
+                              </button>
+                            )}
                           </div>
                         ))}
                         {/* Upload Button */}
@@ -287,6 +316,8 @@ export default function Products() {
                           className="pdp-main-image-preview" 
                         />
                       </div>
+                      
+
                     </div>
 
                     {/* Right Column: Info */}
@@ -316,32 +347,61 @@ export default function Products() {
                       <div className="pdp-size-section-preview">
                         <div className="size-header-preview">Available Sizes</div>
                         <div className="pdp-size-grid-preview">
-                          {['S', 'M', 'L', 'XL', 'XXL'].map(size => (
-                            <button 
-                              key={size}
-                              type="button"
-                              className={`pdp-size-btn-preview ${formData.sizes.includes(size) ? 'selected' : ''}`}
-                              onClick={() => {
-                                const sizes = formData.sizes.includes(size) 
-                                  ? formData.sizes.filter(s => s !== size)
-                                  : [...formData.sizes, size];
-                                setFormData({...formData, sizes});
-                              }}
-                            >
-                              {size}
-                            </button>
-                          ))}
+                          {['S', 'M', 'L', 'XL', 'XXL'].map(size => {
+                            const isSelected = formData.sizes.some(s => s.name === size);
+                            return (
+                              <button 
+                                key={size}
+                                type="button"
+                                className={`pdp-size-btn-preview ${isSelected ? 'selected' : ''}`}
+                                onClick={() => {
+                                  let newSizes;
+                                  if (isSelected) {
+                                    newSizes = formData.sizes.filter(s => s.name !== size);
+                                  } else {
+                                    newSizes = [...formData.sizes, { name: size, stock: 10 }];
+                                  }
+                                  const totalStock = newSizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0);
+                                  setFormData({...formData, sizes: newSizes, stock: totalStock});
+                                }}
+                              >
+                                {size}
+                              </button>
+                            );
+                          })}
                         </div>
+                        {formData.sizes.length > 0 && (
+                          <div className="size-stock-inputs" style={{ marginTop: '15px' }}>
+                            <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: '#666' }}>STOCK PER SIZE:</div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                              {formData.sizes.map((s, index) => (
+                                <div key={s.name} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#f5f5f5', padding: '6px 12px', borderRadius: '4px' }}>
+                                  <span style={{ fontWeight: 'bold', width: '30px' }}>{s.name}</span>
+                                  <input 
+                                    type="number" 
+                                    value={s.stock} 
+                                    onChange={(e) => {
+                                      const newSizes = [...formData.sizes];
+                                      newSizes[index].stock = parseInt(e.target.value) || 0;
+                                      const totalStock = newSizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0);
+                                      setFormData({...formData, sizes: newSizes, stock: totalStock});
+                                    }}
+                                    style={{ width: '60px', padding: '4px', border: '1px solid #ccc', borderRadius: '4px' }}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       <div className="stock-input-wrapper">
-                        <span className="stock-label">Inventory Stock:</span>
+                        <span className="stock-label">Total Inventory Stock:</span>
                         <input 
                           type="number" 
                           className="invisible-input small-number-input"
-                          required 
-                          value={formData.stock} 
-                          onChange={e => setFormData({...formData, stock: e.target.value})} 
+                          readOnly
+                          value={formData.sizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0)} 
                           placeholder="0"
                         />
                       </div>

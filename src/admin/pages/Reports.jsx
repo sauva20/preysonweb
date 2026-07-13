@@ -48,7 +48,7 @@ export default function Reports() {
   const outOfStock = [...products].filter(p => p.stock === 0);
 
   const formatCurrency = (amount) => {
-    return formatPrice(amount * 15000); // converting mock $ to current currency for visual effect, assuming mock was in USD
+    return formatPrice(amount); 
   };
 
   return (

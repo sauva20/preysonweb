@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useProducts } from '../context/ProductContext';
 import { useCart } from '../context/CartContext';
 import { useCurrency } from '../context/CurrencyContext';
@@ -11,6 +11,7 @@ import './ProductDetail.css';
 
 export default function ProductDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { products } = useProducts();
   const { addToCart } = useCart();
   const { formatPrice } = useCurrency();
@@ -21,6 +22,7 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [isDetailsOpen, setIsDetailsOpen] = useState(true);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     // Scroll to top on load
@@ -47,6 +49,8 @@ export default function ProductDetail() {
       return;
     }
     addToCart(product, selectedSize, quantity);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
   };
 
   return (
@@ -80,24 +84,53 @@ export default function ProductDetail() {
           
           <h1 className="pdp-title">{product.name}</h1>
           <div className="pdp-price">
-            {formatRupiah(product.price)}
+            {product.discountPrice ? (
+              <>
+                <span className="pdp-price-original">{formatRupiah(product.price)}</span>
+                <span>{formatRupiah(product.discountPrice)}</span>
+              </>
+            ) : (
+              formatRupiah(product.price)
+            )}
           </div>
           
           <div className="pdp-size-section">
             <div className="size-header">
               <span>Your Size</span>
+              {selectedSize && (
+                <span className="selected-size-label">: {selectedSize}</span>
+              )}
             </div>
             <div className="pdp-size-grid">
-              {product.sizes.map(size => (
-                <button 
-                  key={size}
-                  className={`pdp-size-btn ${selectedSize === size ? 'selected' : ''}`}
-                  onClick={() => setSelectedSize(size)}
-                >
-                  {size}
-                </button>
-              ))}
+              {product.sizes.map(sizeObj => {
+                const sizeName = typeof sizeObj === 'string' ? sizeObj : sizeObj.name;
+                const stock = typeof sizeObj === 'string' ? 999 : sizeObj.stock;
+                const isOutOfStock = stock === 0;
+
+                return (
+                  <button 
+                    key={sizeName}
+                    className={`pdp-size-btn ${selectedSize === sizeName ? 'selected' : ''} ${isOutOfStock ? 'out-of-stock' : ''}`}
+                    onClick={() => !isOutOfStock && setSelectedSize(sizeName)}
+                    disabled={isOutOfStock}
+                    title={isOutOfStock ? 'Out of stock' : `${stock} in stock`}
+                  >
+                    {sizeName}
+                  </button>
+                );
+              })}
             </div>
+            {selectedSize && (
+              <div className="size-stock-status" style={{ marginTop: '10px' }}>
+                {(() => {
+                   const sObj = product.sizes.find(s => (typeof s === 'string' ? s : s.name) === selectedSize);
+                   const sStock = typeof sObj === 'string' ? 999 : (sObj?.stock || 0);
+                   if (sStock === 0) return <span className="stock-badge out">Out of stock</span>;
+                   if (sStock < 5) return <span className="stock-badge low">Sisa {sStock} lagi!</span>;
+                   return <span className="stock-badge in">In stock</span>;
+                })()}
+              </div>
+            )}
           </div>
           
           <div className="pdp-actions">
@@ -109,15 +142,30 @@ export default function ProductDetail() {
             <button 
               className="btn btn-primary add-to-cart-btn" 
               onClick={handleAddToCart}
-              disabled={product.stock === 0}
+              disabled={!selectedSize || (() => {
+                 const sObj = product.sizes.find(s => (typeof s === 'string' ? s : s.name) === selectedSize);
+                 const sStock = typeof sObj === 'string' ? 999 : (sObj?.stock || 0);
+                 return sStock === 0;
+              })()}
             >
-              {product.stock === 0 ? 'SOLD OUT' : 'Add to Cart'}
+              {!selectedSize ? 'Select Size' : 'Add to Cart'}
             </button>
           </div>
           
-          <button className="pdp-wishlist-btn">
-            <Heart size={18} />
-            <span>Add to Wishlist</span>
+          <button 
+            className="btn pdp-wishlist-btn"
+            style={{ backgroundColor: '#1a1a1a', color: '#fff', borderColor: '#1a1a1a', fontWeight: 'bold', width: '100%' }}
+            disabled={!selectedSize || (() => {
+               const sObj = product.sizes.find(s => (typeof s === 'string' ? s : s.name) === selectedSize);
+               const sStock = typeof sObj === 'string' ? 999 : (sObj?.stock || 0);
+               return sStock === 0;
+            })()}
+            onClick={() => {
+              handleAddToCart();
+              navigate('/cart');
+            }}
+          >
+            <span>{!selectedSize ? 'SELECT SIZE TO BUY NOW' : 'BELI SEKARANG (BUY NOW)'}</span>
           </button>
           
           <div className="pdp-accordions">
@@ -225,6 +273,11 @@ export default function ProductDetail() {
       </div>
       
       <Footer />
+      
+      {/* Toast Notification */}
+      <div className={`pdp-toast ${showToast ? 'show' : ''}`}>
+        ✓ Berhasil ditambahkan ke keranjang!
+      </div>
     </div>
   );
 }

@@ -36,7 +36,10 @@ export default function Catalog() {
 
     // Filter by category
     if (activeCategory !== 'All') {
-      result = result.filter(p => p.category === activeCategory);
+      result = result.filter(p => {
+        const catName = typeof p.category === 'object' && p.category !== null ? p.category.name : p.category;
+        return catName === activeCategory;
+      });
     }
 
     // Filter by size
@@ -140,24 +143,22 @@ export default function Catalog() {
                 >
                   <div className="catalog-image-bg">
                     <div 
-                      className="catalog-product-image" 
+                      className="catalog-product-image main-img" 
                       style={{ backgroundImage: `url(${product.image || '/images/hero_bg.png'})` }}
                     ></div>
+                    {product.aestheticImage && (
+                      <div 
+                        className="catalog-product-image hover-img" 
+                        style={{ backgroundImage: `url(${product.aestheticImage})` }}
+                      ></div>
+                    )}
                     {product.stock === 0 && <span className="product-badge out-of-stock">SOLD OUT</span>}
                     
-                    {/* Quick Add Overlay Button */}
-                    <button 
-                      className="quick-add-overlay-btn"
-                      onClick={(e) => openQuickAdd(e, product)}
-                      disabled={product.stock === 0}
-                    >
-                      <Plus size={20} />
-                      <span>QUICK ADD</span>
-                    </button>
+
                   </div>
                   <div className="catalog-product-info">
                     <h3>{product.name}</h3>
-                    <p className="category">{product.category}</p>
+                    <p className="category">{typeof product.category === 'object' && product.category !== null ? product.category.name : product.category}</p>
                     <p className="price">{formatRupiah(product.price)}</p>
                   </div>
                 </div>

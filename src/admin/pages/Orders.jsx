@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Eye, Filter, Download } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import './Orders.css';
 
 import { useOrders } from '../../context/OrderContext';
@@ -10,7 +11,6 @@ export default function Orders() {
   const { formatPrice } = useCurrency();
   const [filter, setFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const filteredOrders = orders.filter(order => {
     const matchesFilter = filter === 'All' || order.status === filter || order.source === filter;
@@ -99,10 +99,10 @@ export default function Orders() {
                   </span>
                 </td>
                 <td>
-                  <button className="view-details-btn" onClick={() => setSelectedOrder(order)}>
+                  <Link to={`/admin/orders/${order.id}`} className="view-details-btn" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
                     <Eye size={16} />
                     View Details
-                  </button>
+                  </Link>
                 </td>
               </tr>
             ))}
@@ -115,84 +115,6 @@ export default function Orders() {
         </table>
       </div>
 
-      {/* Order Details Modal */}
-      {selectedOrder && (
-        <div className="modal-backdrop" onClick={() => setSelectedOrder(null)}>
-          <div className="order-modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <div className="modal-title-group">
-                <h3>Order Details</h3>
-                <span className="order-id">{selectedOrder.id}</span>
-              </div>
-              <button className="close-modal-btn" onClick={() => setSelectedOrder(null)}>✕</button>
-            </div>
-            
-            <div className="modal-body">
-              <div className="order-meta-grid">
-                <div className="meta-item">
-                  <span className="meta-label">Date</span>
-                  <span className="meta-value">{formatDate(selectedOrder.date)}</span>
-                </div>
-                <div className="meta-item">
-                  <span className="meta-label">Source</span>
-                  <span className={`source-badge ${selectedOrder.source.toLowerCase()}`}>
-                    {selectedOrder.source}
-                  </span>
-                </div>
-                <div className="meta-item">
-                  <span className="meta-label">Payment</span>
-                  <span className="meta-value">{selectedOrder.paymentMethod}</span>
-                </div>
-                <div className="meta-item">
-                  <span className="meta-label">Status</span>
-                  <span className={`status-badge ${selectedOrder.status.toLowerCase()}`}>
-                    {selectedOrder.status}
-                  </span>
-                </div>
-              </div>
-
-              <div className="order-items-list">
-                <h4>Items Purchased</h4>
-                <div className="receipt-items">
-                  {selectedOrder.items.map((item, idx) => (
-                    <div className="receipt-item-row" key={idx}>
-                      <div className="receipt-item-name">
-                        <span className="qty">{item.quantity}x</span>
-                        <div className="name-sku">
-                          <span>{item.name}</span>
-                          <small>{item.sku}</small>
-                        </div>
-                      </div>
-                      <span className="receipt-item-price">{formatPrice(item.price * item.quantity)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="order-summary-box">
-                <div className="summary-row">
-                  <span>Subtotal</span>
-                  <span>{formatPrice(selectedOrder.subtotal)}</span>
-                </div>
-                <div className="summary-row">
-                  <span>Tax (8%)</span>
-                  <span>{formatPrice(selectedOrder.tax)}</span>
-                </div>
-                <div className="summary-row grand-total">
-                  <span>Total Paid</span>
-                  <span>{formatPrice(selectedOrder.total)}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="modal-footer print-footer">
-              <button className="action-btn-outline" onClick={() => window.print()}>
-                Print Receipt
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

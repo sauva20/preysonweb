@@ -74,6 +74,7 @@ export default function QrisModal({ isOpen, onClose, onConfirm, cartItems, subto
   
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
+  const [showConfirm, setShowConfirm] = useState(false);
   
   // Timer state
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
@@ -191,7 +192,7 @@ export default function QrisModal({ isOpen, onClose, onConfirm, cartItems, subto
           <div className="qris-modal-actions">
             <button 
               className="btn-confirm"
-              onClick={() => onConfirm({ customerName, customerEmail })}
+              onClick={() => setShowConfirm(true)}
             >
               PAYMENT SUCCESSFUL
             </button>
@@ -201,6 +202,22 @@ export default function QrisModal({ isOpen, onClose, onConfirm, cartItems, subto
           </div>
         </div>
       </div>
+      
+      {showConfirm && (
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999, borderRadius: '8px' }}>
+          <div style={{ background: '#fff', padding: '24px', borderRadius: '8px', textAlign: 'center', maxWidth: '320px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+            <h4 style={{ color: '#111', marginBottom: '12px', fontSize: '1.2rem', fontWeight: 'bold' }}>Konfirmasi Pembayaran</h4>
+            <p style={{ color: '#555', marginBottom: '24px', fontSize: '0.95rem' }}>Apakah dana pembayaran sudah benar-benar masuk/diterima?</p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button style={{ padding: '10px 20px', background: '#e5e7eb', border: 'none', borderRadius: '4px', cursor: 'pointer', color: '#374151', fontWeight: '600' }} onClick={() => setShowConfirm(false)}>Batal</button>
+              <button style={{ padding: '10px 20px', background: '#cf5a16', border: 'none', borderRadius: '4px', cursor: 'pointer', color: '#fff', fontWeight: '600' }} onClick={() => {
+                setShowConfirm(false);
+                onConfirm({ customerName, customerEmail });
+              }}>Ya, Sudah</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { useCurrency } from '../../context/CurrencyContext';
 import CashModal from '../components/CashModal';
 import QrisModal from '../components/QrisModal';
 import './POS.css';
+import './POS-modal.css';
 
 export default function POS() {
   const { products, categories } = useProducts();
@@ -16,6 +17,7 @@ export default function POS() {
   const [activeCategory, setActiveCategory] = useState('ALL');
   const [isCashModalOpen, setIsCashModalOpen] = useState(false);
   const [isQrisModalOpen, setIsQrisModalOpen] = useState(false);
+  const [selectedProductForSize, setSelectedProductForSize] = useState(null);
   
   // Barcode Scanner State
   const [scanBuffer, setScanBuffer] = useState('');
@@ -54,42 +56,57 @@ export default function POS() {
   const handleScan = (sku) => {
     const product = products.find(p => p.sku === sku);
     if (product) {
-      addToCart(product);
+      handleProductClick(product);
     } else {
-      // Could add a toast notification here: "Product not found!"
       console.warn('Scanned SKU not found:', sku);
     }
   };
 
-  const addToCart = (product) => {
-    if (product.stock <= 0) {
+  const handleProductClick = (product) => {
+    let sizesObj = [];
+    try {
+      sizesObj = typeof product.sizes === 'string' ? JSON.parse(product.sizes) : (product.sizes || []);
+    } catch(e) {}
+    
+    if (sizesObj.length > 0 && typeof sizesObj[0] === 'object') {
+      setSelectedProductForSize({ product, sizes: sizesObj });
+    } else {
+      addToCart(product, 'OS', product.stock);
+    }
+  };
+
+  const addToCart = (product, sizeName, maxStock) => {
+    if (maxStock <= 0) {
       alert('Out of stock!');
       return;
     }
-    const existing = cartItems.find(item => item.id === product.id);
+    const existing = cartItems.find(item => item.id === product.id && item.size === sizeName);
     if (existing) {
-      if (existing.quantity >= product.stock) {
-        alert(`Cannot add more. Only ${product.stock} in stock.`);
+      if (existing.quantity >= maxStock) {
+        alert(`Cannot add more. Only ${maxStock} in stock.`);
         return;
       }
       setCartItems(cartItems.map(item => 
-        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        (item.id === product.id && item.size === sizeName) ? { ...item, quantity: item.quantity + 1 } : item
       ));
     } else {
-      setCartItems([...cartItems, { ...product, quantity: 1, size: 'OS' }]); // 'OS' = One Size for default
+      // Need a unique key for cart items if same product different sizes
+      setCartItems([...cartItems, { ...product, cartItemId: Date.now() + Math.random(), quantity: 1, size: sizeName, maxStock }]);
     }
+    setSelectedProductForSize(null);
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
 
-  const handleQuantity = (id, delta) => {
+  const handleQuantity = (cartItemId, delta) => {
     setCartItems(cartItems.map(item => {
-      if (item.id === id) {
+      if (item.cartItemId === cartItemId) {
         const newQ = item.quantity + delta;
-        if (newQ > item.stock) {
-           alert(`Cannot add more. Only ${item.stock} in stock.`);
+        const stockLimit = item.maxStock || item.stock;
+        if (newQ > stockLimit) {
+           alert(`Cannot add more. Only ${stockLimit} in stock.`);
            return item;
         }
         return { ...item, quantity: Math.max(1, newQ) };
@@ -98,8 +115,8 @@ export default function POS() {
     }));
   };
 
-  const handleRemove = (id) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
+  const handleRemove = (cartItemId) => {
+    setCartItems(cartItems.filter(item => item.cartItemId !== cartItemId));
   };
 
   const handleCharge = () => {
@@ -207,7 +224,7 @@ export default function POS() {
               return 0;
             })
             .map(product => (
-            <div className="pos-product-card" key={product.id} onClick={() => addToCart(product)}>
+            <div className="pos-product-card" key={product.id} onClick={() => handleProductClick(product)}>
               <div 
                 className={`pos-card-image ${!product.image ? 'bg-gray' : ''}`}
                 style={product.image ? { backgroundImage: `url('${product.image}')` } : {}}
@@ -240,7 +257,7 @@ export default function POS() {
 
         <div className="cart-items">
           {cartItems.map(item => (
-            <div className="cart-item" key={item.id}>
+            <div className="cart-item" key={item.cartItemId}>
               <div className="cart-item-row">
                 <h4>{item.name}</h4>
                 <span className="item-price">{formatPrice(item.price * item.quantity)}</span>
@@ -248,13 +265,13 @@ export default function POS() {
               <div className="cart-item-meta">
                 SIZE: {item.size} | {item.sku}
               </div>
-              <div className="cart-item-actions">
+              <div className="cart-item-controls">
                 <div className="qty-control">
-                  <button onClick={() => handleQuantity(item.id, -1)}><Minus size={14}/></button>
+                  <button onClick={() => handleQuantity(item.cartItemId, -1)}><Minus size={14} /></button>
                   <span>{item.quantity}</span>
-                  <button onClick={() => handleQuantity(item.id, 1)}><Plus size={14}/></button>
+                  <button onClick={() => handleQuantity(item.cartItemId, 1)}><Plus size={14} /></button>
                 </div>
-                <button className="remove-item-btn" onClick={() => handleRemove(item.id)}>
+                <button className="remove-btn" onClick={() => handleRemove(item.cartItemId)}>
                   <Trash2 size={16} />
                 </button>
               </div>
@@ -307,25 +324,48 @@ export default function POS() {
         </div>
       </div>
 
-      <CashModal 
-        isOpen={isCashModalOpen}
-        onClose={() => setIsCashModalOpen(false)}
-        onConfirm={processOrder}
-        cartItems={cartItems}
-        subtotal={subtotal}
-        tax={tax}
-        total={total}
-      />
+      {isCashModalOpen && (
+        <CashModal 
+          total={total}
+          onClose={() => setIsCashModalOpen(false)}
+          onSuccess={(details) => processOrder(details)}
+        />
+      )}
 
-      <QrisModal 
-        isOpen={isQrisModalOpen}
-        onClose={() => setIsQrisModalOpen(false)}
-        onConfirm={processOrder}
-        cartItems={cartItems}
-        subtotal={subtotal}
-        tax={tax}
-        total={total}
-      />
+      {isQrisModalOpen && (
+        <QrisModal 
+          total={total}
+          onClose={() => setIsQrisModalOpen(false)}
+          onSuccess={(details) => processOrder(details)}
+        />
+      )}
+
+      {selectedProductForSize && (
+        <div className="pos-modal-overlay">
+          <div className="pos-modal-content">
+            <h2>Select Size for {selectedProductForSize.product.name}</h2>
+            <div className="size-grid">
+              {selectedProductForSize.sizes.map((s, idx) => {
+                const isOutOfStock = s.stock === 0;
+                return (
+                  <button 
+                    key={idx}
+                    className={`size-btn ${isOutOfStock ? 'out-of-stock' : ''}`}
+                    disabled={isOutOfStock}
+                    onClick={() => addToCart(selectedProductForSize.product, s.name, s.stock)}
+                  >
+                    <div className="size-name">{s.name}</div>
+                    <div className="size-stock">{s.stock} left</div>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="modal-actions">
+              <button className="btn-cancel" onClick={() => setSelectedProductForSize(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

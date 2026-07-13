@@ -16,6 +16,9 @@ import Footer from './components/Footer';
 import Catalog from './pages/Catalog';
 import Cart from './pages/Cart';
 import ProductDetail from './pages/ProductDetail';
+import Checkout from './pages/Checkout';
+import Payment from './pages/Payment';
+import OrderSuccess from './pages/OrderSuccess';
 
 // Customer Auth
 import CustomerLogin from './pages/CustomerLogin';
@@ -30,6 +33,7 @@ import POS from './admin/pages/POS';
 import Campaign from './admin/pages/Campaign';
 import Products from './admin/pages/Products';
 import Orders from './admin/pages/Orders';
+import OrderDetails from './admin/pages/OrderDetails';
 import Discount from './admin/pages/Discount';
 import Customers from './admin/pages/Customers';
 import Reports from './admin/pages/Reports';
@@ -108,6 +112,9 @@ function App() {
                       <Route path="/catalog" element={<Catalog />} />
                       <Route path="/cart" element={<Cart />} />
                       <Route path="/product/:id" element={<ProductDetail />} />
+                      <Route path="/checkout" element={<Checkout />} />
+                      <Route path="/payment/:id" element={<Payment />} />
+                      <Route path="/order-success" element={<OrderSuccess />} />
                       
                       {/* Customer Auth */}
                       <Route path="/login" element={<CustomerLogin />} />
@@ -123,6 +130,7 @@ function App() {
                         <Route path="dashboard" element={<Dashboard />} />
                         <Route path="pos" element={<POS />} />
                         <Route path="orders" element={<Orders />} />
+                        <Route path="orders/:id" element={<OrderDetails />} />
                         <Route path="discount" element={<Discount />} />
                         <Route path="campaign" element={<Campaign />} />
                         <Route path="products" element={<Products />} />

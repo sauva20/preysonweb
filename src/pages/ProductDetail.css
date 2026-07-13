@@ -142,13 +142,26 @@ body:not(.dark-mode) .pdp-title {
 }
 
 .pdp-price {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
   margin-bottom: 40px;
 }
 
 body:not(.dark-mode) .pdp-price {
-  color: #666;
+  color: #1a1a1a;
+}
+
+.pdp-price-original {
+  font-size: 1rem;
+  font-weight: 400;
+  text-decoration: line-through;
+  color: var(--text-secondary);
+  margin-right: 10px;
+}
+
+body:not(.dark-mode) .pdp-price-original {
+  color: #999;
 }
 
 .pdp-size-section {
@@ -208,6 +221,61 @@ body:not(.dark-mode) .pdp-size-btn:hover {
 
 body:not(.dark-mode) .pdp-size-btn.selected {
   border-color: #1a1a1a;
+}
+
+.pdp-size-btn.out-of-stock {
+  opacity: 0.5;
+  cursor: not-allowed;
+  position: relative;
+  color: #999;
+  border-color: #eee;
+}
+.pdp-size-btn.out-of-stock:hover {
+  border-color: #eee;
+}
+.pdp-size-btn.out-of-stock::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -2px;
+  right: -2px;
+  height: 1.5px;
+  background-color: #ff4d4f;
+  transform: translateY(-50%) rotate(-45deg);
+}
+.pdp-size-btn.out-of-stock::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -2px;
+  right: -2px;
+  height: 1.5px;
+  background-color: #ff4d4f;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.stock-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+.stock-badge.in {
+  color: #52c41a;
+  border-color: #b7eb8f;
+  background-color: #f6ffed;
+}
+.stock-badge.low {
+  color: #fa8c16;
+  border-color: #ffd591;
+  background-color: #fff7e6;
+}
+.stock-badge.out {
+  color: #ff4d4f;
+  border-color: #ffa39e;
+  background-color: #fff1f0;
 }
 
 .pdp-actions {
@@ -507,4 +575,32 @@ body:not(.dark-mode) .spec-block ul {
   .pdp-title {
     font-size: 1.8rem;
   }
+}
+
+/* Toast Notification */
+.pdp-toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: var(--text-primary);
+  color: var(--bg-primary);
+  padding: 15px 25px;
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+body:not(.dark-mode) .pdp-toast {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+.pdp-toast.show {
+  transform: translateY(0);
+  opacity: 1;
 }

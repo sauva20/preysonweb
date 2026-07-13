@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useCurrency } from '../context/CurrencyContext';
 import Navbar from '../components/Navbar';
@@ -8,6 +8,7 @@ import { Trash2, Minus, Plus, ShoppingBag, ArrowRight } from 'lucide-react';
 import './Cart.css';
 
 export default function Cart() {
+  const navigate = useNavigate();
   const { cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
   const { formatPrice } = useCurrency();
 
@@ -25,7 +26,14 @@ export default function Cart() {
       <Navbar />
       
       <div className="cart-container">
-        <h1 className="cart-title">YOUR CART</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+          <h1 className="cart-title" style={{ marginBottom: 0 }}>YOUR CART</h1>
+          {cartItems.length > 0 && (
+            <Link to="/catalog" className="cart-continue-btn">
+              <ArrowRight size={16} style={{ transform: 'rotate(180deg)' }} /> Belanja Lagi
+            </Link>
+          )}
+        </div>
         
         {cartItems.length === 0 ? (
           <div className="empty-cart-state">
@@ -116,13 +124,9 @@ export default function Cart() {
                   <span>{formatRupiah(cartTotal)}</span>
                 </div>
                 
-                <button className="btn checkout-btn">
+                <button className="btn checkout-btn" onClick={() => navigate('/checkout')}>
                   PROCEED TO CHECKOUT <ArrowRight size={18} />
                 </button>
-                
-                <p className="secure-checkout-text">
-                  Secure Checkout. Free returns within 14 days.
-                </p>
               </div>
             </div>
           </div>

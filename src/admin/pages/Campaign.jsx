@@ -49,7 +49,7 @@ export default function Campaign() {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/categories')
+    fetch(`${import.meta.env.VITE_API_URL}/categories`)
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(err => console.error('Failed to load categories', err));
@@ -118,7 +118,7 @@ export default function Campaign() {
     const formData = new FormData();
     formData.append('image', file);
     try {
-      const res = await fetch('http://localhost:5000/api/upload', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/upload`, {
         method: 'POST',
         body: formData
       });

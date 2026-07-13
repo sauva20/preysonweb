@@ -144,7 +144,7 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
               <label>Discount Type</label>
               <select value={promoType} onChange={e => setPromoType(e.target.value)}>
                 <option value="percentage">Percentage (%)</option>
-                <option value="fixed">Fixed Amount ($)</option>
+                <option value="fixed">Fixed Amount (Rp)</option>
               </select>
             </div>
             <div className="form-group">
@@ -156,12 +156,12 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
             {type === 'voucher' && (
               <>
                 <div className="form-group">
-                  <label>Minimum Spend ($)</label>
+                  <label>Minimum Spend (Rp)</label>
                   <input type="number" value={minSpend} onChange={e => setMinSpend(e.target.value)} placeholder="0" />
                 </div>
                 {promoType === 'percentage' && (
                   <div className="form-group">
-                    <label>Maximum Discount ($)</label>
+                    <label>Maximum Discount (Rp)</label>
                     <input type="number" value={maxDiscount} onChange={e => setMaxDiscount(e.target.value)} placeholder="No limit" />
                   </div>
                 )}
