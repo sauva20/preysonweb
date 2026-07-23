@@ -522,7 +522,23 @@ body:not(.dark-mode) .drawer-footer .apply-btn {
 
 @media (max-width: 480px) {
   .catalog-grid {
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .catalog-product-info {
+    padding: 10px;
+  }
+  .catalog-product-info h3 {
+    font-size: 0.75rem;
+  }
+  .catalog-product-info .price {
+    font-size: 0.8rem;
+  }
+  .product-badge {
+    padding: 3px 6px;
+    font-size: 0.55rem;
+    top: 10px;
+    left: 10px;
   }
 }
 
