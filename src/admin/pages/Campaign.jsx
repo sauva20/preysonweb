@@ -15,6 +15,8 @@ import {
 } from '@dnd-kit/sortable';
 import { PlusCircle, Save, X } from 'lucide-react';
 import { SortableBlock } from '../components/SortableBlock';
+import { showSuccess } from '../utils/alert';
+import Swal from 'sweetalert2';
 import './Campaign.css';
 
 // Import Storefront Components for WYSIWYG
@@ -117,7 +119,7 @@ export default function Campaign() {
 
   const handleSave = () => {
     localStorage.setItem('storefrontLayout', JSON.stringify(blocks));
-    alert('Layout saved successfully! The storefront homepage will now reflect these changes.');
+    showSuccess('Layout saved successfully');
   };
 
   const uploadImage = async (file) => {
@@ -133,7 +135,13 @@ export default function Campaign() {
       return data.url;
     } catch (err) {
       console.error('Error uploading image:', err);
-      alert('Failed to upload image. Please check server connection.');
+      Swal.fire({
+        title: 'Upload Failed',
+        text: 'Failed to upload image. Please check server connection.',
+        icon: 'error',
+        confirmButtonColor: '#1a1a1a',
+        borderRadius: '8px'
+      });
       return null;
     }
   };

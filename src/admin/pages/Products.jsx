@@ -111,8 +111,10 @@ export default function Products() {
 
     if (editingProduct) {
       await updateProduct(editingProduct.id, productData);
+      showSuccess('Product updated successfully');
     } else {
       await addProduct(productData);
+      showSuccess('Product added successfully');
     }
     closeModal();
   };
@@ -121,6 +123,7 @@ export default function Products() {
     if (!newCatName.trim()) return;
     await addCategory({ name: newCatName });
     setNewCatName('');
+    showSuccess('Category added successfully');
   };
 
   const renderListEditor = (field, label) => (

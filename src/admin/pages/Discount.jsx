@@ -25,18 +25,22 @@ export default function Discount() {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (payload) => {
+  const handleSubmit = async (payload) => {
     if (modalType === 'voucher') {
       if (editingData) {
-        updateVoucher(editingData.id, payload);
+        await updateVoucher(editingData.id, payload);
+        showSuccess('Voucher updated successfully');
       } else {
-        addVoucher(payload);
+        await addVoucher(payload);
+        showSuccess('Voucher added successfully');
       }
     } else {
       if (editingData) {
-        updateDiscount(editingData.id, payload);
+        await updateDiscount(editingData.id, payload);
+        showSuccess('Discount updated successfully');
       } else {
-        addDiscount(payload);
+        await addDiscount(payload);
+        showSuccess('Discount added successfully');
       }
     }
   };

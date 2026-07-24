@@ -21,11 +21,13 @@ export default function Customers() {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (payload) => {
+  const handleSubmit = async (payload) => {
     if (editingData) {
-      updateCustomer(editingData.id, payload);
+      await updateCustomer(editingData.id, payload);
+      showSuccess('Customer updated successfully');
     } else {
-      addCustomer(payload);
+      await addCustomer(payload);
+      showSuccess('Customer added successfully');
     }
   };
 
