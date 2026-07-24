@@ -37,7 +37,7 @@ export const showSuccess = (title = 'Success') => {
     title,
     icon: 'success',
     toast: true,
-    position: 'top-end',
+    position: 'bottom-end',
     showConfirmButton: false,
     timer: 3000,
     timerProgressBar: true
