@@ -498,15 +498,35 @@ body:not(.dark-mode) .drawer-footer .apply-btn {
   }
 
   .catalog-top-bar {
-    flex-direction: column;
-    gap: 15px;
-    align-items: stretch;
-    border-radius: 12px;
-    padding: 20px;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    border-radius: 8px;
+    padding: 10px;
   }
 
   .top-filter-btn {
+    flex: 1;
     justify-content: center;
+    padding: 8px;
+  }
+
+  .top-sort-wrapper {
+    flex: 1;
+  }
+
+  .top-sort-select {
+    width: 100%;
+    padding: 8px 30px 8px 10px;
+    font-size: 0.75rem;
+  }
+
+  .top-filter-btn span {
+    font-size: 0.75rem;
+  }
+  
+  .top-filter-btn .product-count {
+    display: none; /* Hide product count on small mobile to save space */
   }
 
   .catalog-grid {
