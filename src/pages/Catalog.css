@@ -517,12 +517,13 @@ body:not(.dark-mode) .drawer-footer .apply-btn {
 
   .top-sort-select {
     width: 100%;
-    padding: 8px 30px 8px 10px;
-    font-size: 0.75rem;
+    padding: 6px 20px 6px 8px; /* Less padding to fit text better */
+    font-size: 0.7rem;
+    text-overflow: ellipsis;
   }
 
   .top-filter-btn span {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
   }
   
   .top-filter-btn .product-count {

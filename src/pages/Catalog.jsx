@@ -112,11 +112,11 @@ export default function Catalog() {
               onChange={(e) => setSortOption(e.target.value)}
               className="top-sort-select"
             >
-              <option value="newest">FEATURED: NEWEST</option>
+              <option value="newest">NEWEST</option>
               <option value="oldest">OLDEST</option>
-              <option value="popular">MOST POPULAR</option>
-              <option value="price_low">PRICE: LOW TO HIGH</option>
-              <option value="price_high">PRICE: HIGH TO LOW</option>
+              <option value="popular">POPULAR</option>
+              <option value="price_low">PRICE: LOW - HIGH</option>
+              <option value="price_high">PRICE: HIGH - LOW</option>
               <option value="name_asc">A - Z</option>
               <option value="name_desc">Z - A</option>
             </select>
