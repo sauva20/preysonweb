@@ -58,7 +58,7 @@ export default function Products() {
         stock: product.stock,
         description: product.description || '',
         thumbnails: [product.image, ...(product.thumbnails || [])].filter(Boolean),
-        sizes: product.sizes || [],
+        sizes: (product.sizes || []).map(s => typeof s === 'string' ? { name: s, stock: 0 } : s),
         sizeGuide: product.sizeGuide || { metrics: [], measurements: {} },
         aestheticImage: product.aestheticImage || '',
         features: product.features || [],
