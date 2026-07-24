@@ -44,7 +44,13 @@ function Home() {
     const saved = localStorage.getItem('storefrontLayout');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        return parsed.map(b => {
+          if (b.type === 'collab' && b.config.title === undefined) {
+            b.config.title = 'Colabs';
+          }
+          return b;
+        });
       } catch (e) {
         console.error('Failed to parse layout');
       }
@@ -55,7 +61,7 @@ function Home() {
       { id: '2', type: 'catalog', config: { title: 'REKOMENDASI PREYSON', subtitle: 'Pilihan terbaik untuk gaya berkendara Anda', columns: 4 } },
       { id: '3', type: 'catalog', config: { title: 'NEW RELEASE', subtitle: 'Koleksi terbaru dari Preyson Moto', columns: 4 } },
       { id: '4', type: 'banner', config: { imageUrl1: '/images/hero_bg.png', imageUrl2: '/images/cat_jacket.png' } },
-      { id: '5', type: 'collab', config: { visible: true } },
+      { id: '5', type: 'collab', config: { title: 'Colabs', visible: true } },
       { id: '6', type: 'catalog', config: { title: 'KATALOG PRODUK', subtitle: 'Jelajahi seluruh koleksi Preyson', columns: 4 } },
     ];
   });
@@ -79,7 +85,7 @@ function Home() {
       case 'banner':
         return <Banner key={block.id} images={block.config.images} imageUrl1={block.config.imageUrl1} imageUrl2={block.config.imageUrl2} />;
       case 'collab':
-        return block.config.visible !== false ? <CollabGrid key={block.id} collabs={block.config.collabs} /> : null;
+        return block.config.visible !== false ? <CollabGrid key={block.id} title={block.config.title} collabs={block.config.collabs} /> : null;
       default:
         return null;
     }
