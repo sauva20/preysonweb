@@ -117,3 +117,8 @@ ul {
   background-color: transparent;
   color: var(--burnt-orange);
 }
+
+/* Fix SweetAlert2 z-index over modals */
+.swal2-container {
+  z-index: 99999 !important;
+}
