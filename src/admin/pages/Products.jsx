@@ -3,6 +3,7 @@ import { useProducts } from '../../context/ProductContext';
 import { Plus, Edit2, Trash2, X, Image as ImageIcon } from 'lucide-react';
 import { useCurrency } from '../../context/CurrencyContext';
 import Barcode from 'react-barcode';
+import { confirmDelete, showSuccess } from '../utils/alert';
 import './Products.css';
 
 export default function Products() {
@@ -210,7 +211,12 @@ export default function Products() {
                     <button className="action-btn edit" onClick={() => openModal(product)}>
                       <Edit2 size={16} />
                     </button>
-                    <button className="action-btn delete" onClick={() => deleteProduct(product.id)}>
+                    <button className="action-btn delete" onClick={async () => {
+                      if (await confirmDelete(`the product "${product.name}"`)) {
+                        await deleteProduct(product.id);
+                        showSuccess('Product deleted successfully');
+                      }
+                    }}>
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -613,7 +619,12 @@ export default function Products() {
                 {categories.map(c => (
                   <li key={c.id}>
                     <span>{c.name}</span>
-                    <button onClick={() => deleteCategory(c.id)} className="action-btn delete"><Trash2 size={14}/></button>
+                    <button onClick={async () => {
+                      if (await confirmDelete(`the category "${c.name}"`)) {
+                        await deleteCategory(c.id);
+                        showSuccess('Category deleted successfully');
+                      }
+                    }} className="action-btn delete"><Trash2 size={14}/></button>
                   </li>
                 ))}
                 {categories.length === 0 && <p className="text-muted" style={{textAlign:'center', padding:'10px'}}>No categories yet.</p>}

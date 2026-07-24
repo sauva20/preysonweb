@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Trash2, Edit2 } from 'lucide-react';
+import { confirmDelete } from '../utils/alert';
 
 export function SortableBlock({ id, onRemove, onEdit, children }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -45,7 +46,12 @@ export function SortableBlock({ id, onRemove, onEdit, children }) {
             <button className="control-btn edit-btn" onClick={() => onEdit(id)} title="Edit Configuration">
               <Edit2 size={20} />
             </button>
-            <button className="control-btn delete-btn" onClick={() => onRemove(id)} title="Remove Block">
+            <button className="control-btn delete-btn" onClick={async (e) => {
+              e.stopPropagation();
+              if (await confirmDelete('this block')) {
+                onRemove(id);
+              }
+            }} title="Remove Block">
               <Trash2 size={20} />
             </button>
           </div>

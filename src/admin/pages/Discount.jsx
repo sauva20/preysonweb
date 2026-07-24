@@ -3,6 +3,7 @@ import { usePromos } from '../../context/PromoContext';
 import PromoModal from '../components/PromoModal';
 import { Plus, Tag, Ticket, Edit2, Trash2 } from 'lucide-react';
 import { useCurrency } from '../../context/CurrencyContext';
+import { confirmDelete, showSuccess } from '../utils/alert';
 import './Discount.css';
 
 export default function Discount() {
@@ -116,8 +117,13 @@ export default function Discount() {
                     </td>
                     <td>
                       <div className="action-buttons">
-                        <button onClick={() => handleOpenModal('voucher', v)} title="Edit"><Edit2 size={16} /></button>
-                        <button onClick={() => deleteVoucher(v.id)} className="delete" title="Delete"><Trash2 size={16} /></button>
+                        <button onClick={() => handleOpenModal('voucher', v)} className="edit" title="Edit"><Edit2 size={16} /></button>
+                        <button onClick={async () => {
+                          if (await confirmDelete(`the voucher "${v.code}"`)) {
+                            await deleteVoucher(v.id);
+                            showSuccess('Voucher deleted successfully');
+                          }
+                        }} className="delete" title="Delete"><Trash2 size={16} /></button>
                       </div>
                     </td>
                   </tr>
@@ -165,8 +171,13 @@ export default function Discount() {
                     </td>
                     <td>
                       <div className="action-buttons">
-                        <button onClick={() => handleOpenModal('discount', d)} title="Edit"><Edit2 size={16} /></button>
-                        <button onClick={() => deleteDiscount(d.id)} className="delete" title="Delete"><Trash2 size={16} /></button>
+                        <button onClick={() => handleOpenModal('discount', d)} className="edit" title="Edit"><Edit2 size={16} /></button>
+                        <button onClick={async () => {
+                          if (await confirmDelete(`the discount "${d.name}"`)) {
+                            await deleteDiscount(d.id);
+                            showSuccess('Discount deleted successfully');
+                          }
+                        }} className="delete" title="Delete"><Trash2 size={16} /></button>
                       </div>
                     </td>
                   </tr>

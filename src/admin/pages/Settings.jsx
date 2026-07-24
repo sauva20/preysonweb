@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Store, CreditCard, Truck, Users, Save, CheckCircle2, QrCode, LogOut } from 'lucide-react';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useQris } from '../../context/QrisContext';
+import { useNavigate } from 'react-router-dom';
+import { confirmLogout, showSuccess } from '../utils/alert';
 import './Settings.css';
 
 export default function Settings() {
@@ -179,10 +181,12 @@ export default function Settings() {
     setShippingProviders(shippingProviders.map(s => s.id === id ? { ...s, active: !s.active } : s));
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/admin/login';
+  const handleLogout = async () => {
+    if (await confirmLogout()) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      navigate('/admin/login');
+    }
   };
 
   return (

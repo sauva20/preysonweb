@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useCustomers } from '../../context/CustomerContext';
 import { useCurrency } from '../../context/CurrencyContext';
 import CustomerModal from '../components/CustomerModal';
+import { confirmDelete, showSuccess } from '../utils/alert';
 import { Search, Plus, UserPlus, Users, Mail, Phone, Edit2, Trash2 } from 'lucide-react';
 import './Customers.css';
 
@@ -140,7 +141,12 @@ export default function Customers() {
                 <td>
                   <div className="action-buttons">
                     <button onClick={() => handleOpenModal(customer)} title="Edit"><Edit2 size={16} /></button>
-                    <button onClick={() => deleteCustomer(customer.id)} className="delete" title="Delete"><Trash2 size={16} /></button>
+                    <button onClick={async () => {
+                      if (await confirmDelete(`the customer "${customer.name}"`)) {
+                        await deleteCustomer(customer.id);
+                        showSuccess('Customer deleted successfully');
+                      }
+                    }} className="delete" title="Delete"><Trash2 size={16} /></button>
                   </div>
                 </td>
               </tr>
