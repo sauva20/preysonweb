@@ -350,7 +350,7 @@ export default function Products() {
                       <div className="pdp-size-section-preview">
                         <div className="size-header-preview">Available Sizes</div>
                         <div className="pdp-size-grid-preview">
-                          {['S', 'M', 'L', 'XL', 'XXL'].map(size => {
+                          {['All Size', 'S', 'M', 'L', 'XL', 'XXL'].map(size => {
                             const isSelected = formData.sizes.some(s => s.name === size);
                             return (
                               <button 
@@ -476,14 +476,23 @@ export default function Products() {
                                       <th style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '8px', background: '#f9f9f9', textAlign: 'left' }}>Size</th>
                                       {formData.sizeGuide.metrics.map((m, i) => (
                                         <th key={m} style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '8px', background: '#f9f9f9', textAlign: 'center' }}>
-                                          {m}
-                                          <button type="button" onClick={() => {
-                                            const newMetrics = formData.sizeGuide.metrics.filter(met => met !== m);
-                                            setFormData({
-                                              ...formData,
-                                              sizeGuide: { ...formData.sizeGuide, metrics: newMetrics }
-                                            });
-                                          }} style={{ marginLeft: '6px', background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: 0, fontWeight: 'bold' }}>&times;</button>
+                                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                            <span>{m}</span>
+                                            <button 
+                                              type="button" 
+                                              onClick={() => {
+                                                const newMetrics = formData.sizeGuide.metrics.filter(met => met !== m);
+                                                setFormData({
+                                                  ...formData,
+                                                  sizeGuide: { ...formData.sizeGuide, metrics: newMetrics }
+                                                });
+                                              }} 
+                                              style={{ background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
+                                              title="Remove Metric"
+                                            >
+                                              <Trash2 size={12} />
+                                            </button>
+                                          </div>
                                         </th>
                                       ))}
                                     </tr>
