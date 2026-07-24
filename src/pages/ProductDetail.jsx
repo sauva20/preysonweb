@@ -6,7 +6,7 @@ import { useCurrency } from '../context/CurrencyContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ProductGrid from '../components/ProductGrid';
-import { Heart, Minus, Plus, ChevronDown, ChevronUp } from 'lucide-react';
+import { Heart, Minus, Plus, ChevronDown, ChevronUp, Link as LinkIcon } from 'lucide-react';
 import './ProductDetail.css';
 
 export default function ProductDetail() {
@@ -22,7 +22,8 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [isDetailsOpen, setIsDetailsOpen] = useState(true);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
-  const [showToast, setShowToast] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
     // Scroll to top on load
@@ -49,8 +50,14 @@ export default function ProductDetail() {
       return;
     }
     addToCart(product, selectedSize, quantity);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
+    setToastMessage('✓ Berhasil ditambahkan ke keranjang!');
+    setTimeout(() => setToastMessage(''), 3000);
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setToastMessage('✓ Tautan berhasil disalin!');
+    setTimeout(() => setToastMessage(''), 3000);
   };
 
   return (
@@ -200,10 +207,49 @@ export default function ProductDetail() {
             </div>
             
             <div className="accordion share-accordion">
-              <button className="accordion-header">
+              <button 
+                className="accordion-header"
+                onClick={() => setIsShareOpen(!isShareOpen)}
+              >
                 <span>Share</span>
-                <ChevronDown size={18} />
+                {isShareOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
               </button>
+              {isShareOpen && (
+                <div className="accordion-content share-content">
+                  <div className="share-buttons">
+                    <button className="share-btn copy" onClick={handleCopyLink} title="Copy Link">
+                      <LinkIcon size={20} />
+                    </button>
+                    <a 
+                      href={`https://wa.me/?text=Check out ${product.name}: ${window.location.href}`} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="share-btn whatsapp"
+                      title="Share to WhatsApp"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    </a>
+                    <a 
+                      href={`https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="share-btn facebook"
+                      title="Share to Facebook"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                    </a>
+                    <a 
+                      href={`https://twitter.com/intent/tweet?url=${window.location.href}&text=Check out ${product.name}`} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="share-btn twitter"
+                      title="Share to Twitter"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg>
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -275,8 +321,8 @@ export default function ProductDetail() {
       <Footer />
       
       {/* Toast Notification */}
-      <div className={`pdp-toast ${showToast ? 'show' : ''}`}>
-        ✓ Berhasil ditambahkan ke keranjang!
+      <div className={`pdp-toast ${toastMessage ? 'show' : ''}`}>
+        {toastMessage}
       </div>
     </div>
   );
