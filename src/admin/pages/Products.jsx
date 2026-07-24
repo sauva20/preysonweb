@@ -247,7 +247,7 @@ export default function Products() {
             </div>
             
             <form onSubmit={handleSubmit}>
-              <div className="modal-body modal-scrollable" style={{ backgroundColor: '#fff' }}>
+              <div className="modal-body modal-scrollable">
                 <div className="live-pdp-preview">
                   
                   <div className="preview-breadcrumbs">
@@ -404,11 +404,11 @@ export default function Products() {
                         </div>
                         {formData.sizes.length > 0 && (
                           <div className="size-stock-inputs" style={{ marginTop: '15px' }}>
-                            <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: '#666' }}>STOCK PER SIZE:</div>
+                            <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--admin-text-muted)' }}>STOCK PER SIZE:</div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                               {formData.sizes.map((s, index) => (
-                                <div key={s.name} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#f5f5f5', padding: '6px 12px', borderRadius: '4px' }}>
-                                  <span style={{ fontWeight: 'bold', width: '30px' }}>{s.name}</span>
+                                <div key={s.name} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--admin-surface-hover)', padding: '6px 12px', borderRadius: '4px' }}>
+                                  <span style={{ fontWeight: 'bold', width: '30px', color: 'var(--admin-text)' }}>{s.name}</span>
                                   <input 
                                     type="number" 
                                     value={s.stock} 
@@ -418,7 +418,7 @@ export default function Products() {
                                       const totalStock = newSizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0);
                                       setFormData({...formData, sizes: newSizes, stock: totalStock});
                                     }}
-                                    style={{ width: '60px', padding: '4px', border: '1px solid #ccc', borderRadius: '4px' }}
+                                    style={{ width: '60px', padding: '4px', border: '1px solid var(--admin-border)', borderRadius: '4px', background: 'var(--admin-surface)', color: 'var(--admin-text)' }}
                                   />
                                 </div>
                               ))}
@@ -468,7 +468,7 @@ export default function Products() {
                                 type="text" 
                                 placeholder="Add Metric (e.g. LD, LP)" 
                                 id="newMetricInput"
-                                style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px', flex: 1, fontSize: '13px' }}
+                                style={{ padding: '6px', border: '1px solid var(--admin-border)', borderRadius: '4px', flex: 1, fontSize: '13px', background: 'var(--admin-surface)', color: 'var(--admin-text)' }}
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
@@ -498,13 +498,13 @@ export default function Products() {
                             </div>
                             
                             {formData.sizeGuide?.metrics?.length > 0 && formData.sizes.length > 0 && (
-                              <div style={{ overflowX: 'auto', border: '1px solid #eee' }}>
-                                <table className="size-guide-admin-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                              <div style={{ overflowX: 'auto', border: '1px solid var(--admin-border)' }}>
+                                <table className="size-guide-admin-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', color: 'var(--admin-text)' }}>
                                   <thead>
                                     <tr>
-                                      <th style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '8px', background: '#f9f9f9', textAlign: 'left' }}>Size</th>
+                                      <th style={{ borderBottom: '1px solid var(--admin-border)', borderRight: '1px solid var(--admin-border)', padding: '8px', background: 'var(--admin-surface-hover)', textAlign: 'left' }}>Size</th>
                                       {formData.sizeGuide.metrics.map((m, i) => (
-                                        <th key={m} style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '8px', background: '#f9f9f9', textAlign: 'center' }}>
+                                        <th key={m} style={{ borderBottom: '1px solid var(--admin-border)', borderRight: '1px solid var(--admin-border)', padding: '8px', background: 'var(--admin-surface-hover)', textAlign: 'center' }}>
                                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                                             <span>{m}</span>
                                             <button 
@@ -529,9 +529,9 @@ export default function Products() {
                                   <tbody>
                                     {formData.sizes.map(size => (
                                       <tr key={size.name}>
-                                        <td style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '8px', fontWeight: 'bold' }}>{size.name}</td>
+                                        <td style={{ borderBottom: '1px solid var(--admin-border)', borderRight: '1px solid var(--admin-border)', padding: '8px', fontWeight: 'bold' }}>{size.name}</td>
                                         {formData.sizeGuide.metrics.map(m => (
-                                          <td key={m} style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '0' }}>
+                                          <td key={m} style={{ borderBottom: '1px solid var(--admin-border)', borderRight: '1px solid var(--admin-border)', padding: '0' }}>
                                             <input 
                                               type="text" 
                                               placeholder="0cm"
@@ -545,7 +545,7 @@ export default function Products() {
                                                   sizeGuide: { ...formData.sizeGuide, measurements: newMeasurements }
                                                 });
                                               }}
-                                              style={{ width: '100%', padding: '8px', border: 'none', background: 'transparent', textAlign: 'center', boxSizing: 'border-box' }}
+                                              style={{ width: '100%', padding: '8px', border: 'none', background: 'transparent', textAlign: 'center', boxSizing: 'border-box', color: 'var(--admin-text)' }}
                                             />
                                           </td>
                                         ))}
@@ -556,7 +556,7 @@ export default function Products() {
                               </div>
                             )}
                             {(!formData.sizeGuide?.metrics?.length || !formData.sizes.length) && (
-                              <div style={{ fontSize: '11px', color: '#888', textAlign: 'center', padding: '10px', background: '#f9f9f9', borderRadius: '4px' }}>
+                              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', textAlign: 'center', padding: '10px', background: 'var(--admin-surface-hover)', borderRadius: '4px' }}>
                                 Add "Available Sizes" first, then add "Metrics" above to create a size guide.
                               </div>
                             )}
