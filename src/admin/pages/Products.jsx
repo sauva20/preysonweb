@@ -251,7 +251,10 @@ export default function Products() {
                 <div className="live-pdp-preview">
                   
                   <div className="preview-breadcrumbs">
-                    <span>HOME / CATALOG / </span>
+                    <span className="breadcrumb-link">HOME</span>
+                    <span className="breadcrumb-separator">/</span>
+                    <span className="breadcrumb-link">CATALOG</span>
+                    <span className="breadcrumb-separator">/</span>
                     <div className="custom-breadcrumb-select-wrapper">
                       <button 
                         type="button" 
@@ -266,12 +269,6 @@ export default function Products() {
                       
                       {isCategoryDropdownOpen && (
                         <div className="breadcrumb-dropdown-menu">
-                          <div 
-                            className={`breadcrumb-dropdown-item ${!formData.categoryId ? 'selected' : ''}`}
-                            onClick={() => { setFormData({...formData, categoryId: ''}); setIsCategoryDropdownOpen(false); }}
-                          >
-                            SELECT CATEGORY
-                          </div>
                           {categories.map(c => (
                             <div 
                               key={c.id} 
