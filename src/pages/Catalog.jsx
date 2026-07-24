@@ -19,6 +19,7 @@ export default function Catalog() {
   const [activeSize, setActiveSize] = useState('All');
   const [sortOption, setSortOption] = useState('newest');
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const [isSortOpen, setIsSortOpen] = useState(false);
   
   // Quick Add State
   const [quickAddProduct, setQuickAddProduct] = useState(null);
@@ -26,6 +27,16 @@ export default function Catalog() {
 
   const categories = ['All', 'Gloves', 'Tee Series', 'Work Jackets', 'Cap'];
   const sizes = ['All', 'S', 'M', 'L', 'XL', 'XXL', 'All Size'];
+  
+  const sortOptions = [
+    { value: 'newest', label: 'NEWEST' },
+    { value: 'oldest', label: 'OLDEST' },
+    { value: 'popular', label: 'POPULAR' },
+    { value: 'price_low', label: 'PRICE: LOW - HIGH' },
+    { value: 'price_high', label: 'PRICE: HIGH - LOW' },
+    { value: 'name_asc', label: 'A - Z' },
+    { value: 'name_desc', label: 'Z - A' },
+  ];
 
   // Formatting currency
   const formatRupiah = formatPrice;
@@ -106,21 +117,31 @@ export default function Catalog() {
             <span className="product-count">({filteredAndSortedProducts.length} products)</span>
           </button>
 
-          <div className="top-sort-wrapper">
-            <select 
-              value={sortOption} 
-              onChange={(e) => setSortOption(e.target.value)}
-              className="top-sort-select"
-            >
-              <option value="newest">NEWEST</option>
-              <option value="oldest">OLDEST</option>
-              <option value="popular">POPULAR</option>
-              <option value="price_low">PRICE: LOW - HIGH</option>
-              <option value="price_high">PRICE: HIGH - LOW</option>
-              <option value="name_asc">A - Z</option>
-              <option value="name_desc">Z - A</option>
-            </select>
-            <ChevronDown className="sort-icon" size={16} />
+          <div className="top-sort-wrapper custom-dropdown" onClick={() => setIsSortOpen(!isSortOpen)}>
+            <div className="top-sort-selected">
+              {sortOptions.find(o => o.value === sortOption)?.label || 'NEWEST'}
+            </div>
+            <ChevronDown className={`sort-icon ${isSortOpen ? 'open' : ''}`} size={16} />
+            
+            {isSortOpen && (
+              <>
+                <div className="custom-dropdown-overlay" onClick={(e) => { e.stopPropagation(); setIsSortOpen(false); }}></div>
+                <div className="custom-dropdown-menu">
+                  {sortOptions.map(option => (
+                    <div 
+                      key={option.value} 
+                      className={`custom-dropdown-item ${sortOption === option.value ? 'active' : ''}`}
+                      onClick={() => {
+                        setSortOption(option.value);
+                        setIsSortOpen(false);
+                      }}
+                    >
+                      {option.label}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
 
