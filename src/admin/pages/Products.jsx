@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useProducts } from '../../context/ProductContext';
-import { Plus, Edit2, Trash2, X, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Image as ImageIcon, ChevronDown } from 'lucide-react';
 import { useCurrency } from '../../context/CurrencyContext';
 import Barcode from 'react-barcode';
 import { confirmDelete, showSuccess } from '../utils/alert';
@@ -11,6 +11,7 @@ export default function Products() {
   const { formatPrice } = useCurrency();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCatModalOpen, setIsCatModalOpen] = useState(false);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   
   const [newCatName, setNewCatName] = useState('');
@@ -249,18 +250,40 @@ export default function Products() {
               <div className="modal-body modal-scrollable" style={{ backgroundColor: '#fff' }}>
                 <div className="live-pdp-preview">
                   
-                  {/* Fake Header/Breadcrumbs area for Category */}
                   <div className="preview-breadcrumbs">
                     <span>HOME / CATALOG / </span>
-                    <select 
-                      className="invisible-select"
-                      required
-                      value={formData.categoryId} 
-                      onChange={e => setFormData({...formData, categoryId: e.target.value})}
-                    >
-                      <option value="">SELECT CATEGORY</option>
-                      {categories.map(c => <option key={c.id} value={c.id}>{c.name.toUpperCase()}</option>)}
-                    </select>
+                    <div className="custom-breadcrumb-select-wrapper">
+                      <button 
+                        type="button" 
+                        className="breadcrumb-dropdown-btn"
+                        onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                      >
+                        {formData.categoryId 
+                          ? categories.find(c => c.id == formData.categoryId)?.name.toUpperCase() || 'SELECT CATEGORY'
+                          : 'SELECT CATEGORY'}
+                        <ChevronDown size={14} />
+                      </button>
+                      
+                      {isCategoryDropdownOpen && (
+                        <div className="breadcrumb-dropdown-menu">
+                          <div 
+                            className={`breadcrumb-dropdown-item ${!formData.categoryId ? 'selected' : ''}`}
+                            onClick={() => { setFormData({...formData, categoryId: ''}); setIsCategoryDropdownOpen(false); }}
+                          >
+                            SELECT CATEGORY
+                          </div>
+                          {categories.map(c => (
+                            <div 
+                              key={c.id} 
+                              className={`breadcrumb-dropdown-item ${formData.categoryId == c.id ? 'selected' : ''}`}
+                              onClick={() => { setFormData({...formData, categoryId: c.id}); setIsCategoryDropdownOpen(false); }}
+                            >
+                              {c.name.toUpperCase()}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="pdp-top-section-preview">
