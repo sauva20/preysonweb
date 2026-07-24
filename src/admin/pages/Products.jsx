@@ -13,7 +13,7 @@ export default function Products() {
   const [isCatModalOpen, setIsCatModalOpen] = useState(false);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
-  
+
   const [newCatName, setNewCatName] = useState('');
 
   const [formData, setFormData] = useState({
@@ -79,7 +79,7 @@ export default function Products() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Auto-generate SKU if new product
     let finalSku = editingProduct ? editingProduct.sku : '';
     if (!editingProduct) {
@@ -133,24 +133,24 @@ export default function Products() {
       <ul>
         {formData[field].map((item, index) => (
           <li key={index} className="preview-li-input">
-            <input 
-              type="text" 
-              value={item} 
+            <input
+              type="text"
+              value={item}
               onChange={(e) => {
                 const newList = [...formData[field]];
                 newList[index] = e.target.value;
-                setFormData({...formData, [field]: newList});
-              }} 
+                setFormData({ ...formData, [field]: newList });
+              }}
               placeholder={`Type ${label.toLowerCase()} here...`}
             />
             <button type="button" onClick={() => {
               const newList = formData[field].filter((_, i) => i !== index);
-              setFormData({...formData, [field]: newList});
-            }} className="remove-item-btn"><X size={14}/></button>
+              setFormData({ ...formData, [field]: newList });
+            }} className="remove-item-btn"><X size={14} /></button>
           </li>
         ))}
       </ul>
-      <button type="button" className="add-preview-btn" onClick={() => setFormData({...formData, [field]: [...formData[field], '']})}>
+      <button type="button" className="add-preview-btn" onClick={() => setFormData({ ...formData, [field]: [...formData[field], ''] })}>
         + Add bullet point
       </button>
     </div>
@@ -190,8 +190,8 @@ export default function Products() {
             {products.map(product => (
               <tr key={product.id}>
                 <td>
-                  <div 
-                    className="table-img" 
+                  <div
+                    className="table-img"
                     style={{ backgroundImage: `url(${product.image || '/images/placeholder.png'})` }}
                   />
                 </td>
@@ -245,35 +245,35 @@ export default function Products() {
                 <X size={20} />
               </button>
             </div>
-            
+
             <form onSubmit={handleSubmit}>
-              <div className="modal-body modal-scrollable">
+              <div className="modal-body modal-scrollable" style={{ backgroundColor: '#fff' }}>
                 <div className="live-pdp-preview">
-                  
+
                   <div className="preview-breadcrumbs">
                     <span className="breadcrumb-link">HOME</span>
                     <span className="breadcrumb-separator">/</span>
                     <span className="breadcrumb-link">CATALOG</span>
                     <span className="breadcrumb-separator">/</span>
                     <div className="custom-breadcrumb-select-wrapper">
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className="breadcrumb-dropdown-btn"
                         onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
                       >
-                        {formData.categoryId 
+                        {formData.categoryId
                           ? categories.find(c => c.id == formData.categoryId)?.name.toUpperCase() || 'SELECT CATEGORY'
                           : 'SELECT CATEGORY'}
                         <ChevronDown size={14} />
                       </button>
-                      
+
                       {isCategoryDropdownOpen && (
                         <div className="breadcrumb-dropdown-menu">
                           {categories.map(c => (
-                            <div 
-                              key={c.id} 
+                            <div
+                              key={c.id}
                               className={`breadcrumb-dropdown-item ${formData.categoryId == c.id ? 'selected' : ''}`}
-                              onClick={() => { setFormData({...formData, categoryId: c.id}); setIsCategoryDropdownOpen(false); }}
+                              onClick={() => { setFormData({ ...formData, categoryId: c.id }); setIsCategoryDropdownOpen(false); }}
                             >
                               {c.name.toUpperCase()}
                             </div>
@@ -292,19 +292,19 @@ export default function Products() {
                             <img src={url} alt={`Thumb ${i}`} />
                             <button type="button" className="remove-img-btn" onClick={() => {
                               const newThumbs = formData.thumbnails.filter((_, idx) => idx !== i);
-                              const newFormData = {...formData, thumbnails: newThumbs};
+                              const newFormData = { ...formData, thumbnails: newThumbs };
                               if (formData.aestheticImage === url) {
                                 newFormData.aestheticImage = '';
                               }
                               setFormData(newFormData);
-                            }}><X size={12}/></button>
+                            }}><X size={12} /></button>
                             {i === 0 && <span className="main-badge">Main</span>}
                             {i !== 0 && (
-                              <button 
-                                type="button" 
+                              <button
+                                type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setFormData(prev => ({...prev, aestheticImage: prev.aestheticImage === url ? '' : url}));
+                                  setFormData(prev => ({ ...prev, aestheticImage: prev.aestheticImage === url ? '' : url }));
                                 }}
                                 style={{
                                   position: 'absolute',
@@ -335,43 +335,45 @@ export default function Products() {
                               const url = await uploadImage(file);
                               if (url) urls.push(url);
                             }
-                            setFormData(prev => ({...prev, thumbnails: [...prev.thumbnails, ...urls]}));
+                            setFormData(prev => ({ ...prev, thumbnails: [...prev.thumbnails, ...urls] }));
                           }} />
                           <Plus size={24} color="#999" />
                         </label>
                       </div>
 
                       <div className="pdp-main-image-wrapper-preview">
-                        <img 
-                          src={formData.thumbnails.length > 0 ? formData.thumbnails[0] : '/images/placeholder.png'} 
-                          alt="Main Product" 
-                          className="pdp-main-image-preview" 
+                        <img
+                          src={formData.thumbnails.length > 0 ? formData.thumbnails[0] : '/images/placeholder.png'}
+                          alt="Main Product"
+                          className="pdp-main-image-preview"
                         />
                       </div>
-                      
+
 
                     </div>
 
                     {/* Right Column: Info */}
                     <div className="pdp-info-col-preview">
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         className="invisible-input pdp-title-preview"
-                        required 
-                        value={formData.name} 
-                        onChange={e => setFormData({...formData, name: e.target.value})} 
+                        required
+                        value={formData.name}
+                        onChange={e => setFormData({ ...formData, name: e.target.value })}
                         placeholder="PRODUCT NAME"
                       />
-                      
+
                       <div className="price-input-wrapper">
                         <span className="currency-symbol">Rp</span>
-                        <input 
-                          type="number" 
+                        <input
+                          type="text"
                           className="invisible-input pdp-price-preview"
-                          step="0.01" 
-                          required 
-                          value={formData.price} 
-                          onChange={e => setFormData({...formData, price: e.target.value})} 
+                          required
+                          value={formData.price ? Number(formData.price).toLocaleString('id-ID') : ''}
+                          onChange={e => {
+                            const rawValue = e.target.value.replace(/\D/g, '');
+                            setFormData({ ...formData, price: rawValue });
+                          }}
                           placeholder="0"
                         />
                       </div>
@@ -382,7 +384,7 @@ export default function Products() {
                           {['All Size', 'S', 'M', 'L', 'XL', 'XXL'].map(size => {
                             const isSelected = formData.sizes.some(s => s.name === size);
                             return (
-                              <button 
+                              <button
                                 key={size}
                                 type="button"
                                 className={`pdp-size-btn-preview ${isSelected ? 'selected' : ''}`}
@@ -394,7 +396,7 @@ export default function Products() {
                                     newSizes = [...formData.sizes, { name: size, stock: 10 }];
                                   }
                                   const totalStock = newSizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0);
-                                  setFormData({...formData, sizes: newSizes, stock: totalStock});
+                                  setFormData({ ...formData, sizes: newSizes, stock: totalStock });
                                 }}
                               >
                                 {size}
@@ -404,21 +406,21 @@ export default function Products() {
                         </div>
                         {formData.sizes.length > 0 && (
                           <div className="size-stock-inputs" style={{ marginTop: '15px' }}>
-                            <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--admin-text-muted)' }}>STOCK PER SIZE:</div>
+                            <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: '#666' }}>STOCK PER SIZE:</div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                               {formData.sizes.map((s, index) => (
-                                <div key={s.name} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--admin-surface-hover)', padding: '6px 12px', borderRadius: '4px' }}>
-                                  <span style={{ fontWeight: 'bold', width: '30px', color: 'var(--admin-text)' }}>{s.name}</span>
-                                  <input 
-                                    type="number" 
-                                    value={s.stock} 
+                                <div key={s.name} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#f5f5f5', padding: '6px 12px', borderRadius: '4px' }}>
+                                  <span style={{ fontWeight: 'bold', width: '30px' }}>{s.name}</span>
+                                  <input
+                                    type="number"
+                                    value={s.stock}
                                     onChange={(e) => {
                                       const newSizes = [...formData.sizes];
                                       newSizes[index].stock = parseInt(e.target.value) || 0;
                                       const totalStock = newSizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0);
-                                      setFormData({...formData, sizes: newSizes, stock: totalStock});
+                                      setFormData({ ...formData, sizes: newSizes, stock: totalStock });
                                     }}
-                                    style={{ width: '60px', padding: '4px', border: '1px solid var(--admin-border)', borderRadius: '4px', background: 'var(--admin-surface)', color: 'var(--admin-text)' }}
+                                    style={{ width: '60px', padding: '4px', border: '1px solid #ccc', borderRadius: '4px' }}
                                   />
                                 </div>
                               ))}
@@ -429,11 +431,11 @@ export default function Products() {
 
                       <div className="stock-input-wrapper">
                         <span className="stock-label">Total Inventory Stock:</span>
-                        <input 
-                          type="number" 
+                        <input
+                          type="number"
                           className="invisible-input small-number-input"
                           readOnly
-                          value={formData.sizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0)} 
+                          value={formData.sizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0)}
                           placeholder="0"
                         />
                       </div>
@@ -451,11 +453,11 @@ export default function Products() {
                         <div className="accordion-preview">
                           <div className="accordion-header-preview">Product Details <span className="arrow-down">^</span></div>
                           <div className="accordion-content-preview">
-                            <textarea 
+                            <textarea
                               className="invisible-textarea"
                               rows="4"
-                              value={formData.description} 
-                              onChange={e => setFormData({...formData, description: e.target.value})} 
+                              value={formData.description}
+                              onChange={e => setFormData({ ...formData, description: e.target.value })}
                               placeholder="Type product description here..."
                             />
                           </div>
@@ -464,11 +466,11 @@ export default function Products() {
                           <div className="accordion-header-preview">Size Guide <span className="arrow-down">^</span></div>
                           <div className="accordion-content-preview" style={{ marginTop: '10px', display: 'block' }}>
                             <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-                              <input 
-                                type="text" 
-                                placeholder="Add Metric (e.g. LD, LP)" 
+                              <input
+                                type="text"
+                                placeholder="Add Metric (e.g. LD, LP)"
                                 id="newMetricInput"
-                                style={{ padding: '6px', border: '1px solid var(--admin-border)', borderRadius: '4px', flex: 1, fontSize: '13px', background: 'var(--admin-surface)', color: 'var(--admin-text)' }}
+                                style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px', flex: 1, fontSize: '13px' }}
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
@@ -476,8 +478,8 @@ export default function Products() {
                                   }
                                 }}
                               />
-                              <button 
-                                type="button" 
+                              <button
+                                type="button"
                                 id="addMetricBtn"
                                 style={{ padding: '6px 12px', background: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
                                 onClick={() => {
@@ -487,7 +489,7 @@ export default function Products() {
                                     const newMetrics = [...(formData.sizeGuide?.metrics || []), val];
                                     setFormData({
                                       ...formData,
-                                      sizeGuide: { ...(formData.sizeGuide || {measurements:{}}), metrics: newMetrics }
+                                      sizeGuide: { ...(formData.sizeGuide || { measurements: {} }), metrics: newMetrics }
                                     });
                                     input.value = '';
                                   }
@@ -496,26 +498,26 @@ export default function Products() {
                                 Add
                               </button>
                             </div>
-                            
+
                             {formData.sizeGuide?.metrics?.length > 0 && formData.sizes.length > 0 && (
-                              <div style={{ overflowX: 'auto', border: '1px solid var(--admin-border)' }}>
-                                <table className="size-guide-admin-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', color: 'var(--admin-text)' }}>
+                              <div style={{ overflowX: 'auto', border: '1px solid #eee' }}>
+                                <table className="size-guide-admin-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                                   <thead>
                                     <tr>
-                                      <th style={{ borderBottom: '1px solid var(--admin-border)', borderRight: '1px solid var(--admin-border)', padding: '8px', background: 'var(--admin-surface-hover)', textAlign: 'left' }}>Size</th>
+                                      <th style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '8px', background: '#f9f9f9', textAlign: 'left' }}>Size</th>
                                       {formData.sizeGuide.metrics.map((m, i) => (
-                                        <th key={m} style={{ borderBottom: '1px solid var(--admin-border)', borderRight: '1px solid var(--admin-border)', padding: '8px', background: 'var(--admin-surface-hover)', textAlign: 'center' }}>
+                                        <th key={m} style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '8px', background: '#f9f9f9', textAlign: 'center' }}>
                                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                                             <span>{m}</span>
-                                            <button 
-                                              type="button" 
+                                            <button
+                                              type="button"
                                               onClick={() => {
                                                 const newMetrics = formData.sizeGuide.metrics.filter(met => met !== m);
                                                 setFormData({
                                                   ...formData,
                                                   sizeGuide: { ...formData.sizeGuide, metrics: newMetrics }
                                                 });
-                                              }} 
+                                              }}
                                               style={{ background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
                                               title="Remove Metric"
                                             >
@@ -529,11 +531,11 @@ export default function Products() {
                                   <tbody>
                                     {formData.sizes.map(size => (
                                       <tr key={size.name}>
-                                        <td style={{ borderBottom: '1px solid var(--admin-border)', borderRight: '1px solid var(--admin-border)', padding: '8px', fontWeight: 'bold' }}>{size.name}</td>
+                                        <td style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '8px', fontWeight: 'bold' }}>{size.name}</td>
                                         {formData.sizeGuide.metrics.map(m => (
-                                          <td key={m} style={{ borderBottom: '1px solid var(--admin-border)', borderRight: '1px solid var(--admin-border)', padding: '0' }}>
-                                            <input 
-                                              type="text" 
+                                          <td key={m} style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '0' }}>
+                                            <input
+                                              type="text"
                                               placeholder="0cm"
                                               value={(formData.sizeGuide.measurements[size.name] && formData.sizeGuide.measurements[size.name][m]) || ''}
                                               onChange={(e) => {
@@ -545,7 +547,7 @@ export default function Products() {
                                                   sizeGuide: { ...formData.sizeGuide, measurements: newMeasurements }
                                                 });
                                               }}
-                                              style={{ width: '100%', padding: '8px', border: 'none', background: 'transparent', textAlign: 'center', boxSizing: 'border-box', color: 'var(--admin-text)' }}
+                                              style={{ width: '100%', padding: '8px', border: 'none', background: 'transparent', textAlign: 'center', boxSizing: 'border-box' }}
                                             />
                                           </td>
                                         ))}
@@ -556,7 +558,7 @@ export default function Products() {
                               </div>
                             )}
                             {(!formData.sizeGuide?.metrics?.length || !formData.sizes.length) && (
-                              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', textAlign: 'center', padding: '10px', background: 'var(--admin-surface-hover)', borderRadius: '4px' }}>
+                              <div style={{ fontSize: '11px', color: '#888', textAlign: 'center', padding: '10px', background: '#f9f9f9', borderRadius: '4px' }}>
                                 Add "Available Sizes" first, then add "Metrics" above to create a size guide.
                               </div>
                             )}
@@ -566,25 +568,25 @@ export default function Products() {
                           <div className="accordion-header-preview">Share <span className="arrow-down">v</span></div>
                         </div>
                       </div>
-                      
+
                     </div>
                   </div>
-                  
+
                   {/* Aesthetic Details Section */}
                   <div className="preview-specs-container">
                     <div className="specs-split-preview">
                       <div className="specs-image-col-preview">
                         <div className="aesthetic-upload-wrapper">
-                          <img 
-                            src={formData.aestheticImage || formData.thumbnails[0] || '/images/placeholder.png'} 
-                            alt="Aesthetic preview" 
-                            className="specs-large-img-preview" 
+                          <img
+                            src={formData.aestheticImage || formData.thumbnails[0] || '/images/placeholder.png'}
+                            alt="Aesthetic preview"
+                            className="specs-large-img-preview"
                           />
                           <label className="aesthetic-upload-overlay">
                             <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async (e) => {
                               if (e.target.files && e.target.files[0]) {
                                 const url = await uploadImage(e.target.files[0]);
-                                if (url) setFormData({...formData, aestheticImage: url});
+                                if (url) setFormData({ ...formData, aestheticImage: url });
                               }
                             }} />
                             <Plus size={32} color="#fff" />
@@ -596,7 +598,7 @@ export default function Products() {
                         <h3 className="specs-highlight-text-preview">
                           UNTUK PRODUK SALE TIDAK BISA TUKAR SIZE ATAUPUN REFUND.
                         </h3>
-                        
+
                         {renderListEditor('features', 'FEATURES')}
                         {renderListEditor('materials', 'MATERIALS')}
                         {renderListEditor('washing', 'WASHING INSTRUCTIONS')}
@@ -629,8 +631,8 @@ export default function Products() {
             </div>
             <div className="modal-body">
               <div className="add-cat-form">
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={newCatName}
                   onChange={e => setNewCatName(e.target.value)}
                   placeholder="New Category Name..."
@@ -647,10 +649,10 @@ export default function Products() {
                         await deleteCategory(c.id);
                         showSuccess('Category deleted successfully');
                       }
-                    }} className="action-btn delete"><Trash2 size={14}/></button>
+                    }} className="action-btn delete"><Trash2 size={14} /></button>
                   </li>
                 ))}
-                {categories.length === 0 && <p className="text-muted" style={{textAlign:'center', padding:'10px'}}>No categories yet.</p>}
+                {categories.length === 0 && <p className="text-muted" style={{ textAlign: 'center', padding: '10px' }}>No categories yet.</p>}
               </ul>
             </div>
           </div>
