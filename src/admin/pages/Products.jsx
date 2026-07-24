@@ -22,6 +22,7 @@ export default function Products() {
     description: '',
     thumbnails: [],
     sizes: [],
+    sizeGuide: { metrics: [], measurements: {} },
     aestheticImage: '',
     features: [],
     materials: [],
@@ -56,6 +57,7 @@ export default function Products() {
         description: product.description || '',
         thumbnails: [product.image, ...(product.thumbnails || [])].filter(Boolean),
         sizes: product.sizes || [],
+        sizeGuide: product.sizeGuide || { metrics: [], measurements: {} },
         aestheticImage: product.aestheticImage || '',
         features: product.features || [],
         materials: product.materials || [],
@@ -63,7 +65,7 @@ export default function Products() {
       });
     } else {
       setEditingProduct(null);
-      setFormData({ name: '', categoryId: '', price: '', stock: '', description: '', thumbnails: [], sizes: [], aestheticImage: '', features: [], materials: [], washing: [] });
+      setFormData({ name: '', categoryId: '', price: '', stock: '', description: '', thumbnails: [], sizes: [], sizeGuide: { metrics: [], measurements: {} }, aestheticImage: '', features: [], materials: [], washing: [] });
     }
     setIsModalOpen(true);
   };
@@ -99,6 +101,7 @@ export default function Products() {
       description: formData.description,
       thumbnails: additionalThumbs,
       sizes: formData.sizes,
+      sizeGuide: formData.sizeGuide,
       aestheticImage: formData.aestheticImage,
       features: formData.features.filter(f => f.trim() !== ''),
       materials: formData.materials.filter(f => f.trim() !== ''),
@@ -428,8 +431,98 @@ export default function Products() {
                             />
                           </div>
                         </div>
-                        <div className="accordion-preview">
-                          <div className="accordion-header-preview">Size Guide <span className="arrow-down">v</span></div>
+                        <div className="accordion-preview" style={{ paddingBottom: '10px' }}>
+                          <div className="accordion-header-preview">Size Guide <span className="arrow-down">^</span></div>
+                          <div className="accordion-content-preview" style={{ marginTop: '10px', display: 'block' }}>
+                            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                              <input 
+                                type="text" 
+                                placeholder="Add Metric (e.g. LD, LP)" 
+                                id="newMetricInput"
+                                style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px', flex: 1, fontSize: '13px' }}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    document.getElementById('addMetricBtn').click();
+                                  }
+                                }}
+                              />
+                              <button 
+                                type="button" 
+                                id="addMetricBtn"
+                                style={{ padding: '6px 12px', background: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
+                                onClick={() => {
+                                  const input = document.getElementById('newMetricInput');
+                                  const val = input.value.trim().toUpperCase();
+                                  if (val && !formData.sizeGuide?.metrics?.includes(val)) {
+                                    const newMetrics = [...(formData.sizeGuide?.metrics || []), val];
+                                    setFormData({
+                                      ...formData,
+                                      sizeGuide: { ...(formData.sizeGuide || {measurements:{}}), metrics: newMetrics }
+                                    });
+                                    input.value = '';
+                                  }
+                                }}
+                              >
+                                Add
+                              </button>
+                            </div>
+                            
+                            {formData.sizeGuide?.metrics?.length > 0 && formData.sizes.length > 0 && (
+                              <div style={{ overflowX: 'auto', border: '1px solid #eee' }}>
+                                <table className="size-guide-admin-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                                  <thead>
+                                    <tr>
+                                      <th style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '8px', background: '#f9f9f9', textAlign: 'left' }}>Size</th>
+                                      {formData.sizeGuide.metrics.map((m, i) => (
+                                        <th key={m} style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '8px', background: '#f9f9f9', textAlign: 'center' }}>
+                                          {m}
+                                          <button type="button" onClick={() => {
+                                            const newMetrics = formData.sizeGuide.metrics.filter(met => met !== m);
+                                            setFormData({
+                                              ...formData,
+                                              sizeGuide: { ...formData.sizeGuide, metrics: newMetrics }
+                                            });
+                                          }} style={{ marginLeft: '6px', background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: 0, fontWeight: 'bold' }}>&times;</button>
+                                        </th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {formData.sizes.map(size => (
+                                      <tr key={size.name}>
+                                        <td style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '8px', fontWeight: 'bold' }}>{size.name}</td>
+                                        {formData.sizeGuide.metrics.map(m => (
+                                          <td key={m} style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '0' }}>
+                                            <input 
+                                              type="text" 
+                                              placeholder="0cm"
+                                              value={(formData.sizeGuide.measurements[size.name] && formData.sizeGuide.measurements[size.name][m]) || ''}
+                                              onChange={(e) => {
+                                                const newMeasurements = { ...(formData.sizeGuide.measurements || {}) };
+                                                if (!newMeasurements[size.name]) newMeasurements[size.name] = {};
+                                                newMeasurements[size.name][m] = e.target.value;
+                                                setFormData({
+                                                  ...formData,
+                                                  sizeGuide: { ...formData.sizeGuide, measurements: newMeasurements }
+                                                });
+                                              }}
+                                              style={{ width: '100%', padding: '8px', border: 'none', background: 'transparent', textAlign: 'center', boxSizing: 'border-box' }}
+                                            />
+                                          </td>
+                                        ))}
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
+                            {(!formData.sizeGuide?.metrics?.length || !formData.sizes.length) && (
+                              <div style={{ fontSize: '11px', color: '#888', textAlign: 'center', padding: '10px', background: '#f9f9f9', borderRadius: '4px' }}>
+                                Add "Available Sizes" first, then add "Metrics" above to create a size guide.
+                              </div>
+                            )}
+                          </div>
                         </div>
                         <div className="accordion-preview">
                           <div className="accordion-header-preview">Share <span className="arrow-down">v</span></div>

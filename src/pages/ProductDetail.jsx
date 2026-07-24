@@ -211,7 +211,33 @@ export default function ProductDetail() {
               </button>
               {isSizeGuideOpen && (
                 <div className="accordion-content">
-                  <p>Our sizing is true to fit. If you prefer a looser fit, we recommend sizing up. For exact measurements, please contact our support team.</p>
+                  {product.sizeGuide?.metrics?.length > 0 && product.sizes?.length > 0 ? (
+                    <div className="size-guide-table-wrapper">
+                      <table className="size-guide-table">
+                        <thead>
+                          <tr>
+                            <th>Size</th>
+                            {product.sizeGuide.metrics.map(m => <th key={m}>{m}</th>)}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {product.sizes.map(size => {
+                            const sizeName = typeof size === 'string' ? size : size.name;
+                            return (
+                              <tr key={sizeName}>
+                                <td><strong>{sizeName}</strong></td>
+                                {product.sizeGuide.metrics.map(m => (
+                                  <td key={m}>{product.sizeGuide.measurements?.[sizeName]?.[m] || '-'}</td>
+                                ))}
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p>Our sizing is true to fit. If you prefer a looser fit, we recommend sizing up. For exact measurements, please contact our support team.</p>
+                  )}
                 </div>
               )}
             </div>

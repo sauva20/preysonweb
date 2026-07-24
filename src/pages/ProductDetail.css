@@ -416,6 +416,40 @@ body:not(.dark-mode) .accordion-content {
   color: #666;
 }
 
+body:not(.dark-mode) .accordion-content p {
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.size-guide-table-wrapper {
+  overflow-x: auto;
+  margin-top: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.size-guide-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: center;
+}
+
+.size-guide-table th, .size-guide-table td {
+  border: 1px solid var(--border-color);
+  padding: 10px;
+}
+
+.size-guide-table th {
+  background-color: var(--bg-secondary);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.size-guide-table td strong {
+  font-weight: 600;
+}
+
 .share-buttons {
   display: flex;
   gap: 12px;
