@@ -90,7 +90,7 @@ body:not(.dark-mode) .navbar.light-page:not(.scrolled) .nav-links a:hover {
 }
 
 .brand-logo img {
-  max-height: 80px;
+  max-height: 45px;
   width: auto;
   object-fit: contain;
 }
