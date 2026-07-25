@@ -9,7 +9,7 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const location = useLocation();
-  const isLightPage = location.pathname === '/catalog' || location.pathname === '/cart' || location.pathname.startsWith('/product') || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password';
+  const isLightPage = location.pathname.startsWith('/catalog') || location.pathname === '/cart' || location.pathname.startsWith('/product') || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password';
   
   const { cartCount } = useCart();
 

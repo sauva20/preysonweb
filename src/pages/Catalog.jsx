@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useProducts } from '../context/ProductContext';
 import { useCart } from '../context/CartContext';
 import { useCurrency } from '../context/CurrencyContext';
@@ -9,7 +9,7 @@ import Footer from '../components/Footer';
 import './Catalog.css';
 
 export default function Catalog() {
-  const { products } = useProducts();
+  const { products, categories: dbCategories } = useProducts();
   const { addToCart } = useCart();
   const { formatPrice } = useCurrency();
   const navigate = useNavigate();
@@ -25,7 +25,18 @@ export default function Catalog() {
   const [quickAddProduct, setQuickAddProduct] = useState(null);
   const [selectedQuickSize, setSelectedQuickSize] = useState('');
 
-  const categories = ['All', 'Gloves', 'Tee Series', 'Work Jackets', 'Cap'];
+  const categories = ['All', ...(dbCategories || []).map(c => c.name)];
+  
+  const { categoryName } = useParams();
+
+  useEffect(() => {
+    if (categoryName) {
+      const foundCat = categories.find(c => c.toLowerCase() === categoryName.toLowerCase());
+      setActiveCategory(foundCat || 'All');
+    } else {
+      setActiveCategory('All');
+    }
+  }, [categoryName, dbCategories]);
   const sizes = ['All', 'S', 'M', 'L', 'XL', 'XXL', 'All Size'];
   
   const sortOptions = [
@@ -207,7 +218,13 @@ export default function Catalog() {
                 <button 
                   key={cat}
                   className={`filter-pill ${activeCategory === cat ? 'active' : ''}`}
-                  onClick={() => setActiveCategory(cat)}
+                  onClick={() => {
+                    if (cat === 'All') {
+                      navigate('/catalog');
+                    } else {
+                      navigate(`/catalog/${cat.toUpperCase()}`);
+                    }
+                  }}
                 >
                   {cat}
                 </button>

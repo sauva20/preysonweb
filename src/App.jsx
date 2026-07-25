@@ -121,6 +121,7 @@ function App() {
                         {/* Storefront Routes */}
                         <Route path="/" element={<Home />} />
                         <Route path="/catalog" element={<Catalog />} />
+                        <Route path="/catalog/:categoryName" element={<Catalog />} />
                         <Route path="/cart" element={<Cart />} />
                         <Route path="/product/:id" element={<ProductDetail />} />
                         <Route path="/checkout" element={<Checkout />} />
