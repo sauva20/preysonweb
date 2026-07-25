@@ -87,46 +87,53 @@ export default function Products() {
     e.preventDefault();
     Swal.fire({ title: 'Saving Product...', text: 'Please wait...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
-    // Auto-generate SKU if new product
-    let finalSku = editingProduct ? editingProduct.sku : '';
-    if (!editingProduct) {
-      const cat = categories.find(c => c.id === parseInt(formData.categoryId));
-      const catPrefix = cat ? cat.name.substring(0, 3).toUpperCase() : 'PRD';
-      const namePrefix = formData.name.substring(0, 3).toUpperCase();
-      const random = Math.floor(1000 + Math.random() * 9000);
-      finalSku = `${catPrefix}-${namePrefix}-${random}`;
+    try {
+      // Auto-generate SKU if new product
+      let finalSku = editingProduct ? editingProduct.sku : '';
+      if (!editingProduct) {
+        const cat = categories.find(c => c.id === parseInt(formData.categoryId));
+        const catPrefix = cat ? cat.name.substring(0, 3).toUpperCase() : 'PRD';
+        const namePrefix = formData.name.substring(0, 3).toUpperCase();
+        const random = Math.floor(1000 + Math.random() * 9000);
+        finalSku = `${catPrefix}-${namePrefix}-${random}`;
+      }
+
+      const mainImage = formData.thumbnails.length > 0 ? formData.thumbnails[0] : '';
+      const additionalThumbs = formData.thumbnails.slice(1);
+
+      const productData = {
+        name: formData.name,
+        sku: finalSku,
+        price: parseFloat(formData.price),
+        stock: formData.sizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0),
+        image: mainImage,
+        categoryId: formData.categoryId ? parseInt(formData.categoryId) : null,
+        description: formData.description,
+        thumbnails: additionalThumbs,
+        sizes: formData.sizes,
+        sizeGuide: formData.sizeGuide,
+        aestheticImage: formData.aestheticImage,
+        features: formData.features.filter(f => f.trim() !== ''),
+        materials: formData.materials.filter(f => f.trim() !== ''),
+        washing: formData.washing.filter(f => f.trim() !== '')
+      };
+
+      if (editingProduct) {
+        await updateProduct(editingProduct.id, productData);
+        logActivity({ category: 'Produk', title: 'Pembaruan Produk', description: `Data produk "${productData.name}" (Stok: ${productData.stock}) berhasil diperbarui.`, status: 'info' });
+        Swal.close();
+        showSuccess('Product updated successfully');
+      } else {
+        await addProduct(productData);
+        logActivity({ category: 'Produk', title: 'Produk Baru Ditambahkan', description: `Produk baru "${productData.name}" (Stok awal: ${productData.stock}) ditambahkan ke katalog.`, status: 'success' });
+        Swal.close();
+        showSuccess('Product added successfully');
+      }
+      closeModal();
+    } catch (err) {
+      console.error('Error saving product:', err);
+      Swal.fire('Error', 'Failed to save product. Please try again.', 'error');
     }
-
-    const mainImage = formData.thumbnails.length > 0 ? formData.thumbnails[0] : '';
-    const additionalThumbs = formData.thumbnails.slice(1);
-
-    const productData = {
-      name: formData.name,
-      sku: finalSku,
-      price: parseFloat(formData.price),
-      stock: formData.sizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0),
-      image: mainImage,
-      categoryId: formData.categoryId ? parseInt(formData.categoryId) : null,
-      description: formData.description,
-      thumbnails: additionalThumbs,
-      sizes: formData.sizes,
-      sizeGuide: formData.sizeGuide,
-      aestheticImage: formData.aestheticImage,
-      features: formData.features.filter(f => f.trim() !== ''),
-      materials: formData.materials.filter(f => f.trim() !== ''),
-      washing: formData.washing.filter(f => f.trim() !== '')
-    };
-
-    if (editingProduct) {
-      await updateProduct(editingProduct.id, productData);
-      logActivity({ category: 'Produk', title: 'Pembaruan Produk', description: `Data produk "${productData.name}" (Stok: ${productData.stock}) berhasil diperbarui.`, status: 'info' });
-      showSuccess('Product updated successfully');
-    } else {
-      await addProduct(productData);
-      logActivity({ category: 'Produk', title: 'Produk Baru Ditambahkan', description: `Produk baru "${productData.name}" (Stok awal: ${productData.stock}) ditambahkan ke katalog.`, status: 'success' });
-      showSuccess('Product added successfully');
-    }
-    closeModal();
   };
 
   const handleAddCategory = async () => {

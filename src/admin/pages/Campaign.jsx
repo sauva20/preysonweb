@@ -134,6 +134,7 @@ export default function Campaign() {
       if (!res.ok) throw new Error('Failed to save layout');
       
       logActivity({ category: 'Promo', title: 'Tata Letak Kampanye Toko Disimpan', description: `Desain tampilan kampanye (WYSIWYG) dengan ${blocks.length} blok diperbarui.`, status: 'success' });
+      Swal.close();
       showSuccess('Layout saved successfully');
     } catch (err) {
       console.error('Error saving layout:', err);
