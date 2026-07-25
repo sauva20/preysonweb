@@ -88,6 +88,23 @@ export default function Products() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.name.trim()) {
+      return Swal.fire('Perhatian', 'Nama produk wajib diisi!', 'warning');
+    }
+    if (!formData.categoryId) {
+      return Swal.fire('Perhatian', 'Kategori produk wajib dipilih!', 'warning');
+    }
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      return Swal.fire('Perhatian', 'Harga produk wajib diisi dan harus valid!', 'warning');
+    }
+    if (formData.thumbnails.length === 0) {
+      return Swal.fire('Perhatian', 'Minimal harus ada 1 foto produk!', 'warning');
+    }
+    if (formData.sizes.length === 0) {
+      return Swal.fire('Perhatian', 'Minimal harus ada 1 varian ukuran (Size)!', 'warning');
+    }
+
     Swal.fire({ title: 'Saving Product...', text: 'Please wait...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
     try {
