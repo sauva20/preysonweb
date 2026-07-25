@@ -75,26 +75,17 @@ body:not(.dark-mode) .pdp-thumb.active {
 
 .pdp-main-image-wrapper {
   flex: 1;
-  background-color: #1a1a1a; /* Dark background like reference image */
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
+  aspect-ratio: 1 / 1;
 }
 
 .pdp-main-image {
-  width: 90%;
-  height: 90%;
-  object-fit: contain;
-}
-
-.pdp-watermark {
-  position: absolute;
-  top: 30px;
-  right: 30px;
-  width: 120px;
-  opacity: 0.8;
-  filter: brightness(0) invert(1); /* Ensure it's white on dark bg */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* Info Column */

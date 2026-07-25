@@ -90,7 +90,6 @@ export default function ProductDetail() {
           </div>
           <div className="pdp-main-image-wrapper">
             <img src={mainImage} alt={product.name} className="pdp-main-image" />
-            <img src="/images/logo.png" alt="Preyson" className="pdp-watermark" />
           </div>
         </div>
         
