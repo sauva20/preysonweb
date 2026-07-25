@@ -35,6 +35,7 @@ export default function Products() {
   });
 
   const uploadImage = async (file) => {
+    Swal.fire({ title: 'Uploading Image...', text: 'Please wait...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
     const data = new FormData();
     data.append('image', file);
     try {
@@ -44,9 +45,11 @@ export default function Products() {
       });
       if (!res.ok) throw new Error('Upload failed');
       const json = await res.json();
+      Swal.close();
       return json.url;
     } catch (err) {
       console.error('Error uploading image:', err);
+      Swal.fire('Error', 'Failed to upload image', 'error');
       return null;
     }
   };
@@ -82,6 +85,7 @@ export default function Products() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    Swal.fire({ title: 'Saving Product...', text: 'Please wait...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
     // Auto-generate SKU if new product
     let finalSku = editingProduct ? editingProduct.sku : '';

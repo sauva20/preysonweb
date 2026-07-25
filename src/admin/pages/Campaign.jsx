@@ -124,6 +124,7 @@ export default function Campaign() {
 
   const handleSave = async () => {
     setIsSaving(true);
+    Swal.fire({ title: 'Publishing Campaign...', text: 'Please wait...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/settings`, {
         method: 'POST',
@@ -148,6 +149,7 @@ export default function Campaign() {
   };
 
   const uploadImage = async (file) => {
+    Swal.fire({ title: 'Uploading Image...', text: 'Please wait...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
     const formData = new FormData();
     formData.append('image', file);
     try {
@@ -157,16 +159,11 @@ export default function Campaign() {
       });
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
+      Swal.close();
       return data.url;
     } catch (err) {
       console.error('Error uploading image:', err);
-      Swal.fire({
-        title: 'Upload Failed',
-        text: 'Failed to upload image. Please check server connection.',
-        icon: 'error',
-        confirmButtonColor: '#1a1a1a',
-        borderRadius: '8px'
-      });
+      Swal.fire('Error', 'Failed to upload image', 'error');
       return null;
     }
   };
