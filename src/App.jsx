@@ -42,31 +42,33 @@ import Settings from './admin/pages/Settings';
 import ActivityLog from './admin/pages/ActivityLog';
 
 function Home() {
-  const [blocks, setBlocks] = React.useState(() => {
-    const saved = localStorage.getItem('storefrontLayout');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        return parsed.map(b => {
-          if (b.type === 'collab' && b.config.title === undefined) {
-            b.config.title = 'Colabs';
-          }
-          return b;
-        });
-      } catch (e) {
-        console.error('Failed to parse layout');
-      }
-    }
-    // Default layout if none saved
-    return [
-      { id: '1', type: 'hero', config: {} },
-      { id: '2', type: 'catalog', config: { title: 'REKOMENDASI PREYSON', subtitle: 'Pilihan terbaik untuk gaya berkendara Anda', columns: 4 } },
-      { id: '3', type: 'catalog', config: { title: 'NEW RELEASE', subtitle: 'Koleksi terbaru dari Preyson Moto', columns: 4 } },
-      { id: '4', type: 'banner', config: { imageUrl1: '/images/hero_bg.png', imageUrl2: '/images/cat_jacket.png' } },
-      { id: '5', type: 'collab', config: { title: 'Colabs', visible: true } },
-      { id: '6', type: 'catalog', config: { title: 'KATALOG PRODUK', subtitle: 'Jelajahi seluruh koleksi Preyson', columns: 4 } },
-    ];
-  });
+  const [blocks, setBlocks] = React.useState([
+    { id: '1', type: 'hero', config: {} },
+    { id: '2', type: 'catalog', config: { title: 'REKOMENDASI PREYSON', subtitle: 'Pilihan terbaik untuk gaya berkendara Anda', columns: 4 } },
+    { id: '3', type: 'catalog', config: { title: 'NEW RELEASE', subtitle: 'Koleksi terbaru dari Preyson Moto', columns: 4 } },
+    { id: '4', type: 'banner', config: { imageUrl1: '/images/hero_bg.png', imageUrl2: '/images/cat_jacket.png' } },
+    { id: '5', type: 'collab', config: { title: 'Colabs', visible: true } },
+    { id: '6', type: 'catalog', config: { title: 'KATALOG PRODUK', subtitle: 'Jelajahi seluruh koleksi Preyson', columns: 4 } },
+  ]);
+
+  React.useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/settings`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.storefrontLayout) {
+          try {
+            const parsed = JSON.parse(data.storefrontLayout);
+            setBlocks(parsed.map(b => {
+              if (b.type === 'collab' && b.config.title === undefined) {
+                b.config.title = 'Colabs';
+              }
+              return b;
+            }));
+          } catch(e) { console.error('Failed to parse layout from API'); }
+        }
+      })
+      .catch(err => console.error('Error fetching layout settings:', err));
+  }, []);
 
   const renderComponent = (block) => {
     switch (block.type) {

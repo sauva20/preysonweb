@@ -29,32 +29,35 @@ import { useActivity } from '../../context/ActivityContext';
 
 export default function Campaign() {
   const { logActivity } = useActivity();
-  const [blocks, setBlocks] = useState(() => {
-    const saved = localStorage.getItem('storefrontLayout');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        return parsed.map(b => {
-          if (b.type === 'collab' && b.config.title === undefined) {
-            b.config.title = 'Colabs';
-          }
-          return b;
-        });
-      } catch (e) {
-        console.error('Failed to parse layout from local storage');
-      }
-    }
-    return [
-      { id: '1', type: 'hero', config: {} },
-      { id: '2', type: 'catalog', config: { title: 'REKOMENDASI PREYSON', subtitle: 'Pilihan terbaik untuk gaya berkendara Anda', columns: 4 } },
-      { id: '3', type: 'catalog', config: { title: 'NEW RELEASE', subtitle: 'Koleksi terbaru dari Preyson Moto', columns: 4 } },
-      { id: '4', type: 'banner', config: { imageUrl1: '/images/hero_bg.png', imageUrl2: '/images/cat_jacket.png' } },
-      { id: '5', type: 'collab', config: { title: 'Colabs', visible: true } },
-      { id: '6', type: 'catalog', config: { title: 'KATALOG PRODUK', subtitle: 'Jelajahi seluruh koleksi Preyson', columns: 4 } },
-    ];
-  });
-
+  const [blocks, setBlocks] = useState([
+    { id: '1', type: 'hero', config: {} },
+    { id: '2', type: 'catalog', config: { title: 'REKOMENDASI PREYSON', subtitle: 'Pilihan terbaik untuk gaya berkendara Anda', columns: 4 } },
+    { id: '3', type: 'catalog', config: { title: 'NEW RELEASE', subtitle: 'Koleksi terbaru dari Preyson Moto', columns: 4 } },
+    { id: '4', type: 'banner', config: { imageUrl1: '/images/hero_bg.png', imageUrl2: '/images/cat_jacket.png' } },
+    { id: '5', type: 'collab', config: { title: 'Colabs', visible: true } },
+    { id: '6', type: 'catalog', config: { title: 'KATALOG PRODUK', subtitle: 'Jelajahi seluruh koleksi Preyson', columns: 4 } },
+  ]);
   const [editingBlock, setEditingBlock] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/settings`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.storefrontLayout) {
+          try {
+            const parsed = JSON.parse(data.storefrontLayout);
+            setBlocks(parsed.map(b => {
+              if (b.type === 'collab' && b.config.title === undefined) {
+                b.config.title = 'Colabs';
+              }
+              return b;
+            }));
+          } catch(e) { console.error('Failed to parse layout from API'); }
+        }
+      })
+      .catch(err => console.error('Error fetching layout settings:', err));
+  }, []);
   const { products } = useProducts();
   const [categories, setCategories] = useState([]);
 
@@ -119,10 +122,29 @@ export default function Campaign() {
     }
   };
 
-  const handleSave = () => {
-    localStorage.setItem('storefrontLayout', JSON.stringify(blocks));
-    logActivity({ category: 'Promo', title: 'Tata Letak Kampanye Toko Disimpan', description: `Desain tampilan kampanye (WYSIWYG) dengan ${blocks.length} blok diperbarui.`, status: 'success' });
-    showSuccess('Layout saved successfully');
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ storefrontLayout: JSON.stringify(blocks) })
+      });
+      if (!res.ok) throw new Error('Failed to save layout');
+      
+      logActivity({ category: 'Promo', title: 'Tata Letak Kampanye Toko Disimpan', description: `Desain tampilan kampanye (WYSIWYG) dengan ${blocks.length} blok diperbarui.`, status: 'success' });
+      showSuccess('Layout saved successfully');
+    } catch (err) {
+      console.error('Error saving layout:', err);
+      Swal.fire({
+        title: 'Save Failed',
+        text: 'Failed to save layout to server.',
+        icon: 'error',
+        confirmButtonColor: '#1a1a1a'
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const uploadImage = async (file) => {
