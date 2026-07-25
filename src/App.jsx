@@ -73,7 +73,7 @@ function Home() {
   const renderComponent = (block) => {
     switch (block.type) {
       case 'hero':
-        return <Hero key={block.id} images={block.config.images} />;
+        return <Hero key={block.id} images={block.config.images} title={block.config.title} />;
       case 'catalog':
         return (
           <ProductGrid 
