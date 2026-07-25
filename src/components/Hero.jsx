@@ -28,14 +28,16 @@ export default function Hero({ images = [], title = "EXPLORE THE JOURNEY OF A LI
       ))}
       <div className="hero-overlay"></div>
       <div className="hero-content">
-        <h2>
-          {title.split('\n').map((line, i) => (
-            <React.Fragment key={i}>
-              {line}
-              {i !== title.split('\n').length - 1 && <br />}
-            </React.Fragment>
-          ))}
-        </h2>
+        {title && title.trim() !== '' && (
+          <h2>
+            {title.split('\n').map((line, i) => (
+              <React.Fragment key={i}>
+                {line}
+                {i !== title.split('\n').length - 1 && <br />}
+              </React.Fragment>
+            ))}
+          </h2>
+        )}
       </div>
       
       {displayImages.length > 1 && (

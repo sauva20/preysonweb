@@ -267,7 +267,7 @@ export default function Campaign() {
                   <div className="form-group">
                     <label>Main Title (Supports multiple lines)</label>
                     <textarea 
-                      value={editingBlock.config.title || "EXPLORE THE JOURNEY OF A LIFETIME\nWITH PREYSON MOTO"}
+                      value={editingBlock.config.title ?? "EXPLORE THE JOURNEY OF A LIFETIME\nWITH PREYSON MOTO"}
                       onChange={(e) => setEditingBlock({...editingBlock, config: {...editingBlock.config, title: e.target.value}})}
                       style={{ width: '100%', minHeight: '80px', padding: '10px', background: 'var(--admin-bg)', color: 'var(--text-primary)', border: '1px solid var(--admin-border)', borderRadius: '4px' }}
                     />
