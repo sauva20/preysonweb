@@ -305,7 +305,7 @@ body.dark-mode .builder-canvas {
 
 .modal-body {
   padding: 24px;
-  max-height: 60vh;
+  max-height: 80vh;
   overflow-y: auto;
 }
 
