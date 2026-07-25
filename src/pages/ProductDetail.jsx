@@ -78,13 +78,21 @@ export default function ProductDetail() {
       <div className="pdp-top-section">
         <div className="pdp-gallery-col">
           <div className="pdp-thumbnails">
+            {product.image && (
+              <div 
+                className={`pdp-thumb ${mainImage === product.image ? 'active' : ''}`}
+                onClick={() => setMainImage(product.image)}
+              >
+                <img src={product.image} alt={`${product.name} main view`} />
+              </div>
+            )}
             {product.thumbnails && product.thumbnails.map((thumb, idx) => (
               <div 
                 key={idx} 
                 className={`pdp-thumb ${mainImage === thumb ? 'active' : ''}`}
                 onClick={() => setMainImage(thumb)}
               >
-                <img src={thumb} alt={`${product.name} view ${idx + 1}`} />
+                <img src={thumb} alt={`${product.name} view ${idx + 2}`} />
               </div>
             ))}
           </div>
@@ -298,48 +306,52 @@ export default function ProductDetail() {
             <img src={product.aestheticImage || product.image} alt={`${product.name} specs view`} className="specs-large-img" />
           </div>
           <div className="specs-text-col">
-            <h3 className="specs-highlight-text">
-              UNTUK PRODUK SALE TIDAK BISA TUKAR SIZE ATAUPUN REFUND.
-            </h3>
+            {product.sizeGuide?.policyText !== undefined ? (
+              product.sizeGuide.policyText.trim() !== '' && (
+                <h3 className="specs-highlight-text">
+                  {product.sizeGuide.policyText}
+                </h3>
+              )
+            ) : (
+              <h3 className="specs-highlight-text">
+                UNTUK PRODUK SALE TIDAK BISA TUKAR SIZE ATAUPUN REFUND.
+              </h3>
+            )}
             
-            <div className="spec-block">
-              <h4>FEATURES</h4>
-              {product.features && product.features.length > 0 ? (
+            {product.features && product.features.length > 0 && (
+              <div className="spec-block">
+                <h4>FEATURES</h4>
                 <ul>
                   {product.features.map((feature, idx) => <li key={idx}>{feature}</li>)}
                 </ul>
-              ) : (
-                <p>No special features listed.</p>
-              )}
-            </div>
+              </div>
+            )}
             
-            <div className="spec-block">
-              <h4>MATERIALS</h4>
-              {product.materials && product.materials.length > 0 ? (
+            {product.materials && product.materials.length > 0 && (
+              <div className="spec-block">
+                <h4>MATERIALS</h4>
                 <ul>
                   {product.materials.map((mat, idx) => <li key={idx}>{mat}</li>)}
                 </ul>
-              ) : (
-                <p>Material details not available.</p>
-              )}
-            </div>
+              </div>
+            )}
             
-            <div className="spec-block">
-              <h4>WASHING INSTRUCTIONS</h4>
-              {product.washing && product.washing.length > 0 ? (
+            {product.washing && product.washing.length > 0 && (
+              <div className="spec-block">
+                <h4>WASHING INSTRUCTIONS</h4>
                 <ul>
                   {product.washing.map((wash, idx) => <li key={idx}>{wash}</li>)}
                 </ul>
-              ) : (
-                <p>Standard washing instructions apply.</p>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
         
-        <div className="specs-fullwidth-image">
-           <img src="/images/hero_bg.png" alt="Texture detail" className="texture-image" />
-        </div>
+        {product.sizeGuide?.bannerImage !== '' && (
+          <div className="specs-fullwidth-image">
+             <img src={product.sizeGuide?.bannerImage || "/images/hero_bg.png"} alt="Texture detail" className="texture-image" />
+          </div>
+        )}
       </div>
       
       {/* Bottom Section: Related Products */}

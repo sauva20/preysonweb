@@ -662,14 +662,42 @@ export default function Products() {
                         </div>
                       </div>
                       <div className="specs-text-col-preview">
-                        <h3 className="specs-highlight-text-preview">
-                          UNTUK PRODUK SALE TIDAK BISA TUKAR SIZE ATAUPUN REFUND.
-                        </h3>
+                        <div style={{ marginBottom: '16px' }}>
+                          <textarea 
+                            value={formData.sizeGuide?.policyText ?? 'UNTUK PRODUK SALE TIDAK BISA TUKAR SIZE ATAUPUN REFUND.'} 
+                            onChange={(e) => setFormData({ ...formData, sizeGuide: { ...(formData.sizeGuide || {}), policyText: e.target.value } })}
+                            placeholder="Sale warning text (kosongkan untuk menyembunyikan)"
+                            style={{ width: '100%', padding: '12px', background: 'var(--input-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', minHeight: '60px', fontFamily: 'inherit' }}
+                          />
+                        </div>
 
                         {renderListEditor('features', 'FEATURES')}
                         {renderListEditor('materials', 'MATERIALS')}
                         {renderListEditor('washing', 'WASHING INSTRUCTIONS')}
                       </div>
+                    </div>
+                  </div>
+                  
+                  {/* Banner Upload Section */}
+                  <div className="banner-upload-section" style={{ marginTop: '20px', padding: '20px', border: '1px dashed var(--border-color)', borderRadius: '8px' }}>
+                    <h4 style={{ marginBottom: '12px', color: 'var(--text-primary)' }}>Product Banner (Bottom)</h4>
+                    <div style={{ position: 'relative', width: '100%', height: '120px', background: '#222', borderRadius: '8px', overflow: 'hidden' }}>
+                      <img 
+                        src={formData.sizeGuide?.bannerImage || '/images/hero_bg.png'} 
+                        alt="Banner Preview" 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                      />
+                      <label style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'rgba(0,0,0,0.5)', cursor: 'pointer', color: '#fff', ...(isUploadingImage ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}>
+                        <input type="file" accept="image/*" style={{ display: 'none' }} disabled={isUploadingImage} onChange={async (e) => {
+                          if (e.target.files && e.target.files.length > 0) {
+                            const url = await uploadImage(e.target.files[0]);
+                            if (url) {
+                              setFormData({ ...formData, sizeGuide: { ...(formData.sizeGuide || {}), bannerImage: url } });
+                            }
+                          }
+                        }} />
+                        {isUploadingImage ? <span style={{ fontWeight: 'bold' }}>UPLOADING...</span> : <span>Click to Change Banner</span>}
+                      </label>
                     </div>
                   </div>
                 </div>
