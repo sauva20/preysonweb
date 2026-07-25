@@ -5,6 +5,7 @@ import { useCurrency } from '../../context/CurrencyContext';
 import { useActivity } from '../../context/ActivityContext';
 import Barcode from 'react-barcode';
 import { confirmDelete, showSuccess } from '../utils/alert';
+import Swal from 'sweetalert2';
 import './Products.css';
 
 export default function Products() {
