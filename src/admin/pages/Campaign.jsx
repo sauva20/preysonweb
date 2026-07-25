@@ -150,13 +150,7 @@ export default function Campaign() {
   };
 
   const uploadImage = async (file) => {
-    Swal.fire({ 
-      title: 'Uploading Image...', 
-      toast: true, 
-      position: 'top-end', 
-      showConfirmButton: false, 
-      didOpen: () => { Swal.showLoading(); } 
-    });
+    Swal.fire({ title: 'Uploading Image...', text: 'Please wait...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
     const formData = new FormData();
     formData.append('image', file);
     try {
@@ -167,11 +161,10 @@ export default function Campaign() {
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
       Swal.close();
-      Swal.fire({ title: 'Image uploaded', icon: 'success', toast: true, position: 'top-end', timer: 1500, showConfirmButton: false });
       return data.url;
     } catch (err) {
       console.error('Error uploading image:', err);
-      Swal.fire({ title: 'Failed to upload image', icon: 'error', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
+      Swal.fire('Error', 'Failed to upload image', 'error');
       return null;
     }
   };

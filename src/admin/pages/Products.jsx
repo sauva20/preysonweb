@@ -34,14 +34,10 @@ export default function Products() {
     washing: []
   });
 
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
   const uploadImage = async (file) => {
-    Swal.fire({ 
-      title: 'Uploading Image...', 
-      toast: true, 
-      position: 'top-end', 
-      showConfirmButton: false, 
-      didOpen: () => { Swal.showLoading(); } 
-    });
+    setIsUploadingImage(true);
     const data = new FormData();
     data.append('image', file);
     try {
@@ -51,13 +47,13 @@ export default function Products() {
       });
       if (!res.ok) throw new Error('Upload failed');
       const json = await res.json();
-      Swal.close();
-      Swal.fire({ title: 'Image uploaded', icon: 'success', toast: true, position: 'top-end', timer: 1500, showConfirmButton: false });
       return json.url;
     } catch (err) {
       console.error('Error uploading image:', err);
       Swal.fire({ title: 'Failed to upload image', icon: 'error', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
       return null;
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
@@ -374,8 +370,8 @@ export default function Products() {
                           </div>
                         ))}
                         {/* Upload Button */}
-                        <label className="pdp-thumb-preview upload-thumb-preview">
-                          <input type="file" multiple accept="image/*" style={{ display: 'none' }} onChange={async (e) => {
+                        <label className="pdp-thumb-preview upload-thumb-preview" style={isUploadingImage ? { opacity: 0.5, cursor: 'not-allowed' } : {}}>
+                          <input type="file" multiple accept="image/*" style={{ display: 'none' }} disabled={isUploadingImage} onChange={async (e) => {
                             const files = Array.from(e.target.files);
                             const urls = [];
                             for (const file of files) {
@@ -384,7 +380,7 @@ export default function Products() {
                             }
                             setFormData(prev => ({ ...prev, thumbnails: [...prev.thumbnails, ...urls] }));
                           }} />
-                          <Plus size={24} color="#999" />
+                          {isUploadingImage ? <span style={{ fontSize: '10px', color: '#666', fontWeight: 'bold' }}>UPLOADING...</span> : <Plus size={24} color="#999" />}
                         </label>
                       </div>
 
@@ -629,15 +625,21 @@ export default function Products() {
                             alt="Aesthetic preview"
                             className="specs-large-img-preview"
                           />
-                          <label className="aesthetic-upload-overlay">
-                            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async (e) => {
-                              if (e.target.files && e.target.files[0]) {
+                          <label className="aesthetic-upload-overlay" style={isUploadingImage ? { opacity: 0.5, cursor: 'not-allowed' } : {}}>
+                            <input type="file" accept="image/*" style={{ display: 'none' }} disabled={isUploadingImage} onChange={async (e) => {
+                              if (e.target.files && e.target.files.length > 0) {
                                 const url = await uploadImage(e.target.files[0]);
-                                if (url) setFormData({ ...formData, aestheticImage: url });
+                                if (url) {
+                                  setFormData({ ...formData, aestheticImage: url });
+                                }
                               }
                             }} />
-                            <Plus size={32} color="#fff" />
-                            <span>Change Image</span>
+                            {isUploadingImage ? <span style={{ fontSize: '14px', color: '#fff', fontWeight: 'bold' }}>UPLOADING...</span> : (
+                              <>
+                                <Plus size={32} color="#fff" />
+                                <span>Change Image</span>
+                              </>
+                            )}
                           </label>
                         </div>
                       </div>
