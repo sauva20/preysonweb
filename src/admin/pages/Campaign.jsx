@@ -25,8 +25,10 @@ import ProductGrid from '../../components/ProductGrid';
 import Banner from '../../components/Banner';
 import CollabGrid from '../../components/CollabGrid';
 import { useProducts } from '../../context/ProductContext';
+import { useActivity } from '../../context/ActivityContext';
 
 export default function Campaign() {
+  const { logActivity } = useActivity();
   const [blocks, setBlocks] = useState(() => {
     const saved = localStorage.getItem('storefrontLayout');
     if (saved) {
@@ -119,6 +121,7 @@ export default function Campaign() {
 
   const handleSave = () => {
     localStorage.setItem('storefrontLayout', JSON.stringify(blocks));
+    logActivity({ category: 'Promo', title: 'Tata Letak Kampanye Toko Disimpan', description: `Desain tampilan kampanye (WYSIWYG) dengan ${blocks.length} blok diperbarui.`, status: 'success' });
     showSuccess('Layout saved successfully');
   };
 

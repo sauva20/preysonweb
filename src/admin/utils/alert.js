@@ -18,15 +18,17 @@ export const confirmDelete = async (itemName = 'this item') => {
 
 export const confirmLogout = async () => {
   const result = await Swal.fire({
-    title: 'Ready to leave?',
-    text: 'You are about to log out of the admin panel.',
-    icon: 'question',
+    title: 'Konfirmasi Keluar',
+    text: 'Apakah kamu yakin ingin mengakhiri sesi dan keluar dari Panel Admin?',
+    icon: 'warning',
     showCancelButton: true,
-    confirmButtonColor: '#1a1a1a',
-    cancelButtonColor: '#888',
-    confirmButtonText: 'Logout',
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Ya, Keluar System',
+    cancelButtonText: 'Batal',
     background: '#ffffff',
-    color: '#1a1a1a'
+    color: '#1a1a1a',
+    reverseButtons: true
   });
   
   return result.isConfirmed;

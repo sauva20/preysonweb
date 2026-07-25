@@ -123,8 +123,15 @@ export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subto
             <span className="entry-label">RECEIVED</span>
             <div className="entry-value">
               <span className="currency-symbol">Rp</span>
-              {receivedAmount.toLocaleString('id-ID')}
-              <span className="cursor-blink">|</span>
+              <input 
+                type="number" 
+                inputMode="numeric" 
+                pattern="[0-9]*"
+                value={received} 
+                onChange={(e) => setReceived(e.target.value)}
+                placeholder="0"
+                className="cash-native-input"
+              />
             </div>
           </div>
 

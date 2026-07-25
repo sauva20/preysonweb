@@ -110,6 +110,7 @@
   padding: 24px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .qris-modal-header {
@@ -191,7 +192,7 @@
 .qris-badge {
   background-color: #2a2a2a;
   border: 1px solid var(--admin-border-dark);
-  color: var(--admin-text);
+  color: #ffffff;
   padding: 4px 12px;
   font-size: 10px;
   font-weight: bold;
@@ -203,6 +204,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  margin-top: auto;
 }
 
 .qris-modal-actions button {
@@ -235,4 +237,25 @@
 
 .qris-modal-actions .btn-cancel:hover {
   background-color: var(--admin-surface-hover);
+}
+
+@media (max-width: 768px) {
+  .qris-modal {
+    flex-direction: column;
+    height: 100%;
+    min-height: 100vh;
+    width: 100vw;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+    overflow-y: auto;
+    display: block;
+  }
+  
+  .qris-modal-left,
+  .qris-modal-right {
+    width: 100%;
+    flex: none;
+    height: auto;
+  }
 }

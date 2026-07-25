@@ -62,6 +62,29 @@
   border: 1px solid var(--admin-border);
 }
 
+.settings-nav-item.logout-btn {
+  margin-top: auto;
+  width: 100%;
+  padding: 12px 20px;
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #ef4444 !important;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+  justify-content: flex-start;
+}
+
+.settings-nav-item.logout-btn:hover {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px);
+}
+
 /* Right Content Area */
 .settings-content {
   flex: 1;
@@ -270,4 +293,71 @@ input:checked + .slider:before {
   font-size: 0.8rem;
   color: var(--admin-text);
   font-weight: 500;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .settings-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+  }
+
+  .header-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .settings-container {
+    flex-direction: column;
+  }
+
+  .settings-nav {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--admin-border);
+  }
+  
+  .settings-nav-item {
+    white-space: nowrap;
+    padding: 10px 16px;
+    border-radius: 20px;
+    background-color: var(--admin-bg-light);
+  }
+  
+  .settings-nav-item.active {
+    background-color: var(--admin-text);
+    color: var(--admin-bg);
+  }
+
+  .settings-content {
+    padding: 20px 16px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .form-group {
+    width: 100%;
+  }
+
+  .table-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .settings-table {
+    min-width: 600px !important;
+  }
 }

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useProducts } from '../../context/ProductContext';
-import { Plus, Edit2, Trash2, X, Image as ImageIcon, ChevronDown } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Image as ImageIcon, ChevronDown, Search } from 'lucide-react';
 import { useCurrency } from '../../context/CurrencyContext';
+import { useActivity } from '../../context/ActivityContext';
 import Barcode from 'react-barcode';
 import { confirmDelete, showSuccess } from '../utils/alert';
 import './Products.css';
@@ -9,10 +10,12 @@ import './Products.css';
 export default function Products() {
   const { products, addProduct, updateProduct, deleteProduct, categories, addCategory, deleteCategory } = useProducts();
   const { formatPrice } = useCurrency();
+  const { logActivity } = useActivity();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCatModalOpen, setIsCatModalOpen] = useState(false);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [newCatName, setNewCatName] = useState('');
 
@@ -112,9 +115,11 @@ export default function Products() {
 
     if (editingProduct) {
       await updateProduct(editingProduct.id, productData);
+      logActivity({ category: 'Produk', title: 'Pembaruan Produk', description: `Data produk "${productData.name}" (Stok: ${productData.stock}) berhasil diperbarui.`, status: 'info' });
       showSuccess('Product updated successfully');
     } else {
       await addProduct(productData);
+      logActivity({ category: 'Produk', title: 'Produk Baru Ditambahkan', description: `Produk baru "${productData.name}" (Stok awal: ${productData.stock}) ditambahkan ke katalog.`, status: 'success' });
       showSuccess('Product added successfully');
     }
     closeModal();
@@ -123,6 +128,7 @@ export default function Products() {
   const handleAddCategory = async () => {
     if (!newCatName.trim()) return;
     await addCategory({ name: newCatName });
+    logActivity({ category: 'Produk', title: 'Kategori Baru Ditambahkan', description: `Kategori katalog baru "${newCatName}" telah dibuat.`, status: 'success' });
     setNewCatName('');
     showSuccess('Category added successfully');
   };
@@ -163,7 +169,7 @@ export default function Products() {
           <h2>Product Inventory</h2>
           <p>Manage your products, stock, categories and aesthetic details.</p>
         </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div className="products-header-actions">
           <button className="manage-cat-btn" onClick={() => setIsCatModalOpen(true)} style={{ height: 'auto', padding: '10px 16px', fontSize: '14px', borderRadius: '8px' }}>
             MANAGE CATEGORIES
           </button>
@@ -172,6 +178,22 @@ export default function Products() {
             ADD PRODUCT
           </button>
         </div>
+      </div>
+
+      <div className="search-wrapper" style={{ display: 'flex', alignItems: 'center', backgroundColor: 'var(--admin-surface)', border: '1px solid var(--admin-border)', borderRadius: '8px', padding: '10px 16px', marginBottom: '20px', maxWidth: '420px' }}>
+        <Search size={18} color="var(--admin-text-muted)" style={{ marginRight: '10px' }} />
+        <input
+          type="text"
+          placeholder="Cari produk berdasarkan Nama, SKU, atau Kategori..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{ flex: 1, background: 'none', border: 'none', color: 'var(--admin-text)', outline: 'none', fontSize: '13px' }}
+        />
+        {searchQuery && (
+          <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+            <X size={16} />
+          </button>
+        )}
       </div>
 
       <div className="products-table-container">
@@ -187,7 +209,13 @@ export default function Products() {
             </tr>
           </thead>
           <tbody>
-            {products.map(product => (
+            {products.filter(p => {
+              const q = searchQuery.toLowerCase().trim();
+              if (!q) return true;
+              return String(p.name || '').toLowerCase().includes(q) ||
+                     String(p.sku || '').toLowerCase().includes(q) ||
+                     String(p.category?.name || p.categoryId || '').toLowerCase().includes(q);
+            }).map(product => (
               <tr key={product.id}>
                 <td>
                   <div
@@ -218,6 +246,7 @@ export default function Products() {
                     <button className="action-btn delete" onClick={async () => {
                       if (await confirmDelete(`the product "${product.name}"`)) {
                         await deleteProduct(product.id);
+                        logActivity({ category: 'Produk', title: 'Produk Dihapus', description: `Produk "${product.name}" telah dihapus secara permanen dari katalog.`, status: 'warning' });
                         showSuccess('Product deleted successfully');
                       }
                     }}>
@@ -247,7 +276,7 @@ export default function Products() {
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div className="modal-body modal-scrollable" style={{ backgroundColor: '#fff' }}>
+              <div className="modal-body modal-scrollable">
                 <div className="live-pdp-preview">
 
                   <div className="preview-breadcrumbs">
@@ -465,12 +494,12 @@ export default function Products() {
                         <div className="accordion-preview" style={{ paddingBottom: '10px' }}>
                           <div className="accordion-header-preview">Size Guide <span className="arrow-down">^</span></div>
                           <div className="accordion-content-preview" style={{ marginTop: '10px', display: 'block' }}>
-                            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                            <div className="metric-input-wrapper">
                               <input
                                 type="text"
                                 placeholder="Add Metric (e.g. LD, LP)"
                                 id="newMetricInput"
-                                style={{ padding: '6px', border: '1px solid #ccc', borderRadius: '4px', flex: 1, fontSize: '13px' }}
+                                className="metric-input-preview"
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
@@ -481,7 +510,7 @@ export default function Products() {
                               <button
                                 type="button"
                                 id="addMetricBtn"
-                                style={{ padding: '6px 12px', background: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
+                                className="add-metric-btn-preview"
                                 onClick={() => {
                                   const input = document.getElementById('newMetricInput');
                                   const val = input.value.trim().toUpperCase();
@@ -500,14 +529,14 @@ export default function Products() {
                             </div>
 
                             {formData.sizeGuide?.metrics?.length > 0 && formData.sizes.length > 0 && (
-                              <div style={{ overflowX: 'auto', border: '1px solid #eee' }}>
-                                <table className="size-guide-admin-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                              <div className="size-guide-table-wrapper">
+                                <table className="size-guide-admin-table">
                                   <thead>
                                     <tr>
-                                      <th style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '8px', background: '#f9f9f9', textAlign: 'left' }}>Size</th>
+                                      <th>Size</th>
                                       {formData.sizeGuide.metrics.map((m, i) => (
-                                        <th key={m} style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '8px', background: '#f9f9f9', textAlign: 'center' }}>
-                                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                        <th key={m}>
+                                          <div className="metric-header-content">
                                             <span>{m}</span>
                                             <button
                                               type="button"
@@ -518,7 +547,7 @@ export default function Products() {
                                                   sizeGuide: { ...formData.sizeGuide, metrics: newMetrics }
                                                 });
                                               }}
-                                              style={{ background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
+                                              className="remove-metric-btn"
                                               title="Remove Metric"
                                             >
                                               <Trash2 size={12} />
@@ -531,12 +560,13 @@ export default function Products() {
                                   <tbody>
                                     {formData.sizes.map(size => (
                                       <tr key={size.name}>
-                                        <td style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '8px', fontWeight: 'bold' }}>{size.name}</td>
+                                        <td className="size-name-cell">{size.name}</td>
                                         {formData.sizeGuide.metrics.map(m => (
-                                          <td key={m} style={{ borderBottom: '1px solid #eee', borderRight: '1px solid #eee', padding: '0' }}>
+                                          <td key={m}>
                                             <input
                                               type="text"
                                               placeholder="0cm"
+                                              className="size-guide-input-preview"
                                               value={(formData.sizeGuide.measurements[size.name] && formData.sizeGuide.measurements[size.name][m]) || ''}
                                               onChange={(e) => {
                                                 const newMeasurements = { ...(formData.sizeGuide.measurements || {}) };
@@ -547,7 +577,6 @@ export default function Products() {
                                                   sizeGuide: { ...formData.sizeGuide, measurements: newMeasurements }
                                                 });
                                               }}
-                                              style={{ width: '100%', padding: '8px', border: 'none', background: 'transparent', textAlign: 'center', boxSizing: 'border-box' }}
                                             />
                                           </td>
                                         ))}
@@ -558,7 +587,7 @@ export default function Products() {
                               </div>
                             )}
                             {(!formData.sizeGuide?.metrics?.length || !formData.sizes.length) && (
-                              <div style={{ fontSize: '11px', color: '#888', textAlign: 'center', padding: '10px', background: '#f9f9f9', borderRadius: '4px' }}>
+                              <div className="size-guide-empty-state">
                                 Add "Available Sizes" first, then add "Metrics" above to create a size guide.
                               </div>
                             )}
@@ -647,6 +676,7 @@ export default function Products() {
                     <button onClick={async () => {
                       if (await confirmDelete(`the category "${c.name}"`)) {
                         await deleteCategory(c.id);
+                        logActivity({ category: 'Produk', title: 'Kategori Dihapus', description: `Kategori produk "${c.name}" telah dihapus.`, status: 'warning' });
                         showSuccess('Category deleted successfully');
                       }
                     }} className="action-btn delete"><Trash2 size={14} /></button>

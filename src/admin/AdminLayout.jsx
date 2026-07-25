@@ -24,10 +24,36 @@ export default function AdminLayout() {
       }
     }
   }, [location.pathname, navigate]);
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 992) {
+        setIsSidebarCollapsed(true);
+      } else {
+        setIsSidebarCollapsed(false);
+      }
+    };
+    
+    // Initial check
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handleSidebarLinkClick = () => {
+    if (window.innerWidth <= 992) {
+      setIsSidebarCollapsed(true);
+    }
+  };
 
   return (
     <div className={`admin-layout ${isSidebarCollapsed ? 'collapsed' : ''}`}>
-      <Sidebar isCollapsed={isSidebarCollapsed} />
+      {/* Mobile overlay backdrop */}
+      {!isSidebarCollapsed && (
+        <div className="sidebar-mobile-backdrop" onClick={() => setIsSidebarCollapsed(true)}></div>
+      )}
+      
+      <Sidebar isCollapsed={isSidebarCollapsed} onLinkClick={handleSidebarLinkClick} />
       <div className="admin-main">
         <Topbar 
           isSidebarCollapsed={isSidebarCollapsed} 

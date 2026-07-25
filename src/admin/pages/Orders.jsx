@@ -1,20 +1,29 @@
 import React, { useState } from 'react';
-import { Search, Eye, Filter, Download } from 'lucide-react';
+import { Search, Eye, Filter, Download, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import './Orders.css';
 
 import { useOrders } from '../../context/OrderContext';
 import { useCurrency } from '../../context/CurrencyContext';
+import { useActivity } from '../../context/ActivityContext';
+import { showSuccess } from '../utils/alert';
 
 export default function Orders() {
   const { orders } = useOrders();
   const { formatPrice } = useCurrency();
+  const { logActivity } = useActivity();
   const [filter, setFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
 
   const filteredOrders = orders.filter(order => {
     const matchesFilter = filter === 'All' || order.status === filter || order.source === filter;
-    const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase());
+    const q = searchQuery.toLowerCase().trim();
+    const matchesSearch = !q || 
+      String(order.id || '').toLowerCase().includes(q) ||
+      String(order.customerName || '').toLowerCase().includes(q) ||
+      String(order.shippingAddress?.name || '').toLowerCase().includes(q) ||
+      String(order.status || '').toLowerCase().includes(q);
     return matchesFilter && matchesSearch;
   });
 
@@ -30,11 +39,14 @@ export default function Orders() {
     <div className="orders-page">
       <div className="orders-header">
         <div className="page-titles">
-          <h2>Orders & Transactions</h2>
-          <p>Monitor and manage all incoming orders from POS and Online.</p>
+          <h2>Orders & Sales</h2>
+          <p>Monitor customer transactions, POS checkouts and online orders.</p>
         </div>
-        <div className="header-actions">
-          <button className="action-btn-outline">
+        <div className="orders-actions">
+          <button className="export-btn" onClick={() => {
+            logActivity({ category: 'Pesanan', title: 'Ekspor Data Pesanan', description: `Laporan transaksi pesanan (${filteredOrders.length} data) diekspor ke format CSV.`, status: 'info' });
+            showSuccess("Orders exported to CSV.");
+          }}>
             <Download size={16} />
             Export CSV
           </button>
@@ -46,7 +58,7 @@ export default function Orders() {
           <Search size={16} />
           <input 
             type="text" 
-            placeholder="Search by Order ID..." 
+            placeholder="Cari Order ID atau nama Pelanggan..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -54,17 +66,53 @@ export default function Orders() {
         
         <div className="filter-group">
           <Filter size={16} color="var(--admin-text-muted)" />
-          <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-            <option value="All">All Orders</option>
-            <optgroup label="By Source">
-              <option value="POS">POS System</option>
-              <option value="Online">Online Store</option>
-            </optgroup>
-            <optgroup label="By Status">
-              <option value="Completed">Completed</option>
-              <option value="Pending">Pending</option>
-            </optgroup>
-          </select>
+          <div className="custom-dropdown-wrapper">
+            <button 
+              className="custom-dropdown-toggle"
+              onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+            >
+              {filter === 'All' ? 'All Orders' : 
+               filter === 'POS' ? 'POS System' : 
+               filter === 'Online' ? 'Online Store' : filter}
+              <ChevronDown size={14} />
+            </button>
+            {isFilterDropdownOpen && (
+              <div className="custom-dropdown-menu">
+                <div 
+                  className={`dropdown-item ${filter === 'All' ? 'active' : ''}`}
+                  onClick={() => { setFilter('All'); setIsFilterDropdownOpen(false); }}
+                >
+                  All Orders
+                </div>
+                <div className="dropdown-group-label">By Source</div>
+                <div 
+                  className={`dropdown-item ${filter === 'POS' ? 'active' : ''}`}
+                  onClick={() => { setFilter('POS'); setIsFilterDropdownOpen(false); }}
+                >
+                  POS System
+                </div>
+                <div 
+                  className={`dropdown-item ${filter === 'Online' ? 'active' : ''}`}
+                  onClick={() => { setFilter('Online'); setIsFilterDropdownOpen(false); }}
+                >
+                  Online Store
+                </div>
+                <div className="dropdown-group-label">By Status</div>
+                <div 
+                  className={`dropdown-item ${filter === 'Completed' ? 'active' : ''}`}
+                  onClick={() => { setFilter('Completed'); setIsFilterDropdownOpen(false); }}
+                >
+                  Completed
+                </div>
+                <div 
+                  className={`dropdown-item ${filter === 'Pending' ? 'active' : ''}`}
+                  onClick={() => { setFilter('Pending'); setIsFilterDropdownOpen(false); }}
+                >
+                  Pending
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

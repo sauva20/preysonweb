@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Truck, CheckCircle, Package } from 'lucide-react';
 import { useCurrency } from '../../context/CurrencyContext';
+import { useActivity } from '../../context/ActivityContext';
 import './Orders.css'; // Reuse some admin styles
 
 export default function OrderDetails() {
   const { id } = useParams();
   const { formatPrice } = useCurrency();
+  const { logActivity } = useActivity();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [shippingError, setShippingError] = useState('');
@@ -41,6 +43,7 @@ export default function OrderDetails() {
       if (!res.ok) throw new Error(data.error || 'Failed to process shipping');
       
       setOrder(data);
+      logActivity({ category: 'Pesanan', title: 'Status Pesanan Disepelaskan/Dikirim', description: `Pesanan #${id} berhasil diproses untuk pengiriman (Shipped).`, status: 'success' });
     } catch (err) {
       setShippingError(err.message);
     } finally {

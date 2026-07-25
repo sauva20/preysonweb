@@ -24,6 +24,11 @@
   margin-top: 4px;
 }
 
+.products-header-actions {
+  display: flex;
+  gap: 12px;
+}
+
 .add-product-btn {
   display: flex;
   align-items: center;
@@ -923,4 +928,336 @@ body.dark-mode .add-preview-btn:hover {
   font-weight: 600;
   color: #ccc;
   margin: 0 6px;
+}
+
+/* Dark Mode Overrides for Live PDP Preview Modal */
+body.dark-mode .modal-body {
+  background-color: var(--admin-surface);
+  color: var(--admin-text);
+}
+
+body.dark-mode .live-pdp-preview {
+  color: var(--admin-text);
+}
+
+body.dark-mode .pdp-title-preview,
+body.dark-mode .size-header-preview,
+body.dark-mode .stock-label,
+body.dark-mode .accordion-header-preview {
+  color: #fff;
+}
+
+body.dark-mode .pdp-price-preview,
+body.dark-mode .currency-symbol {
+  color: #ccc;
+}
+
+body.dark-mode .pdp-thumb-preview {
+  background-color: #2a2a2a;
+  border-color: #444;
+}
+
+body.dark-mode .pdp-thumb-preview.active {
+  border-color: #fff;
+}
+
+body.dark-mode .upload-thumb-preview {
+  border-color: #555;
+  color: #aaa;
+}
+
+body.dark-mode .invisible-input {
+  color: #fff;
+  border-bottom-color: rgba(255, 255, 255, 0.3);
+}
+
+body.dark-mode .invisible-input:focus {
+  border-bottom-color: #fff;
+}
+
+body.dark-mode .pdp-size-btn-preview {
+  border-color: #444;
+  color: #888;
+}
+
+body.dark-mode .pdp-size-btn-preview.selected {
+  border-color: #fff;
+  color: #fff;
+}
+
+body.dark-mode .pdp-qty-selector-preview {
+  border-color: #444;
+}
+
+body.dark-mode .add-to-cart-btn-preview {
+  background-color: #fff;
+  color: #1a1a1a;
+}
+
+body.dark-mode .pdp-accordions-preview,
+body.dark-mode .accordion-preview {
+  border-color: #444;
+}
+
+body.dark-mode .invisible-textarea {
+  color: #ccc;
+  border-bottom-color: rgba(255, 255, 255, 0.3);
+}
+
+body.dark-mode .invisible-textarea:focus {
+  border-bottom-color: #fff;
+}
+
+body.dark-mode .breadcrumb-link {
+  color: #aaa;
+}
+
+body.dark-mode .breadcrumb-dropdown-btn {
+  color: #aaa;
+}
+
+body.dark-mode .breadcrumb-dropdown-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+body.dark-mode .breadcrumb-dropdown-menu {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+body.dark-mode .breadcrumb-dropdown-item {
+  color: #ccc;
+}
+
+body.dark-mode .breadcrumb-dropdown-item:hover {
+  background: #333;
+  color: #fff;
+}
+
+body.dark-mode .breadcrumb-dropdown-item.selected {
+  background: #fff;
+  color: #1a1a1a;
+}
+
+/* Size Guide Section */
+.metric-input-wrapper {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.metric-input-preview {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  flex: 1;
+  font-size: 13px;
+  background: #fff;
+  color: #1a1a1a;
+  outline: none;
+}
+
+.add-metric-btn-preview {
+  padding: 6px 12px;
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.size-guide-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.size-guide-admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.size-guide-admin-table th {
+  border-bottom: 1px solid #eee;
+  border-right: 1px solid #eee;
+  padding: 8px;
+  background: #f9f9f9;
+  text-align: center;
+  color: #1a1a1a;
+}
+
+.size-guide-admin-table th:first-child {
+  text-align: center;
+}
+
+.metric-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.remove-metric-btn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.size-name-cell {
+  border-bottom: 1px solid #eee;
+  border-right: 1px solid #eee;
+  padding: 8px;
+  font-weight: bold;
+  color: #1a1a1a;
+  text-align: center;
+}
+
+.size-guide-admin-table td {
+  border-bottom: 1px solid #eee;
+  border-right: 1px solid #eee;
+  padding: 0;
+}
+
+.size-guide-input-preview {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  text-align: center;
+  box-sizing: border-box;
+  color: #1a1a1a;
+  outline: none;
+}
+
+.size-guide-empty-state {
+  font-size: 11px;
+  color: #888;
+  text-align: center;
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 4px;
+}
+
+/* Size Guide Dark Mode Overrides */
+body.dark-mode .metric-input-preview {
+  background: transparent;
+  border-color: #444;
+  color: #fff;
+}
+
+body.dark-mode .add-metric-btn-preview {
+  background: #fff;
+  color: #1a1a1a;
+}
+
+body.dark-mode .size-guide-table-wrapper {
+  border-color: #444;
+}
+
+body.dark-mode .size-guide-admin-table th {
+  background: #2a2a2a;
+  border-color: #444;
+  color: #fff;
+}
+
+body.dark-mode .size-name-cell {
+  border-color: #444;
+  color: #fff;
+}
+
+body.dark-mode .size-guide-admin-table td {
+  border-color: #444;
+}
+
+body.dark-mode .size-guide-input-preview {
+  color: #ccc;
+}
+
+body.dark-mode .size-guide-empty-state {
+  background: #2a2a2a;
+  color: #aaa;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .products-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 16px;
+  }
+
+  .products-header-actions {
+    display: flex;
+    flex-direction: column; /* Stack buttons on smaller screens to prevent text squish */
+    gap: 12px;
+    width: 100%;
+  }
+
+  .products-header-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .products-table-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .products-table {
+    min-width: 700px !important;
+  }
+
+  /* Product Modal Responsiveness */
+  .pdp-top-section-preview {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .pdp-gallery-col-preview {
+    flex-direction: column-reverse;
+  }
+
+  .pdp-thumbnails-preview {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .pdp-thumb-preview {
+    width: 60px;
+    height: 80px;
+    flex-shrink: 0;
+  }
+
+  .pdp-size-grid-preview {
+    flex-wrap: wrap;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    justify-content: stretch;
+    gap: 12px;
+  }
+
+  .modal-footer button {
+    width: 100%;
+    margin-left: 0;
+  }
+  
+  .sku-hint {
+    text-align: center;
+    margin-bottom: 8px;
+    width: 100%;
+  }
+  
+  .stock-input-wrapper {
+    flex-wrap: wrap;
+  }
 }

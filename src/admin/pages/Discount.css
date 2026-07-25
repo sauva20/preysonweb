@@ -160,3 +160,64 @@
   padding: 40px !important;
   color: var(--admin-text-muted);
 }
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .discount-page {
+    padding: 16px;
+  }
+
+  .discount-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px;
+  }
+
+  .header-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .header-actions button {
+    flex: 1;
+    min-width: 140px;
+    justify-content: center;
+    padding: 10px;
+  }
+
+  .promo-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  .promo-tabs::-webkit-scrollbar {
+    display: none; /* Safari/Chrome */
+  }
+
+  .tab-btn {
+    white-space: nowrap;
+    font-size: 0.9rem;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background-color: var(--admin-bg-light);
+  }
+  
+  .tab-btn.active {
+    background-color: var(--admin-text);
+    color: var(--admin-bg);
+  }
+
+  .table-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .promo-table {
+    min-width: 800px !important;
+  }
+}

@@ -213,3 +213,40 @@
   padding: 40px !important;
   color: var(--admin-text-muted);
 }
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .customers-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px;
+  }
+
+  .customers-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .search-box input {
+    width: 100%;
+  }
+
+  .filter-group {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .customers-table-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .customers-table {
+    min-width: 800px !important;
+  }
+}

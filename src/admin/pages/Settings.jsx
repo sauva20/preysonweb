@@ -4,9 +4,11 @@ import { useCurrency } from '../../context/CurrencyContext';
 import { useQris } from '../../context/QrisContext';
 import { useNavigate } from 'react-router-dom';
 import { confirmLogout, showSuccess } from '../utils/alert';
+import { useActivity } from '../../context/ActivityContext';
 import './Settings.css';
 
 export default function Settings() {
+  const { logActivity } = useActivity();
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem('settingsActiveTab') || 'store';
   });
@@ -170,6 +172,7 @@ export default function Settings() {
     } catch(err) { console.error(err); }
 
     setIsSaved(true);
+    logActivity({ category: 'Settings', title: 'Konfigurasi Toko Disimpan', description: `Pengaturan tab "${activeTab.toUpperCase()}" dan parameter sistem berhasil diperbarui.`, status: 'warning' });
     setTimeout(() => setIsSaved(false), 3000);
   };
 
@@ -179,14 +182,6 @@ export default function Settings() {
 
   const toggleShipping = (id) => {
     setShippingProviders(shippingProviders.map(s => s.id === id ? { ...s, active: !s.active } : s));
-  };
-
-  const handleLogout = async () => {
-    if (await confirmLogout()) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      navigate('/admin/login');
-    }
   };
 
   return (
@@ -229,14 +224,6 @@ export default function Settings() {
             onClick={() => setActiveTab('staff')}
           >
             <Users size={18} /> Staff Accounts
-          </button>
-          
-          <button 
-            className="settings-nav-item logout-btn"
-            style={{ marginTop: 'auto', color: '#e53e3e' }}
-            onClick={handleLogout}
-          >
-            <LogOut size={18} /> Logout
           </button>
         </div>
 

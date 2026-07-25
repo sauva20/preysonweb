@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import { useCustomers } from '../../context/CustomerContext';
 import { useCurrency } from '../../context/CurrencyContext';
+import { useActivity } from '../../context/ActivityContext';
 import CustomerModal from '../components/CustomerModal';
 import { confirmDelete, showSuccess } from '../utils/alert';
-import { Search, Plus, UserPlus, Users, Mail, Phone, Edit2, Trash2 } from 'lucide-react';
+import { Search, Plus, UserPlus, Users, Mail, Phone, Edit2, Trash2, ChevronDown } from 'lucide-react';
 import './Customers.css';
 
 export default function Customers() {
   const { customers, addCustomer, updateCustomer, deleteCustomer } = useCustomers();
   const { formatPrice } = useCurrency();
+  const { logActivity } = useActivity();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
+  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingData, setEditingData] = useState(null);
@@ -24,9 +27,11 @@ export default function Customers() {
   const handleSubmit = async (payload) => {
     if (editingData) {
       await updateCustomer(editingData.id, payload);
+      logActivity({ category: 'Pelanggan', title: 'Data Pelanggan Diperbarui', description: `Profil pelanggan "${payload.name}" berhasil diperbarui.`, status: 'info' });
       showSuccess('Customer updated successfully');
     } else {
       await addCustomer(payload);
+      logActivity({ category: 'Pelanggan', title: 'Pelanggan Baru Ditambahkan', description: `Pelanggan baru "${payload.name}" (${payload.email}) didaftarkan ke sistem.`, status: 'success' });
       showSuccess('Customer added successfully');
     }
   };
@@ -92,11 +97,37 @@ export default function Customers() {
         </div>
         
         <div className="filter-group">
-          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
-            <option value="All">All Status</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
+          <div className="custom-dropdown-wrapper">
+            <button 
+              className="custom-dropdown-toggle"
+              onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+            >
+              {filterStatus === 'All' ? 'All Status' : filterStatus}
+              <ChevronDown size={14} />
+            </button>
+            {isFilterDropdownOpen && (
+              <div className="custom-dropdown-menu">
+                <div 
+                  className={`dropdown-item ${filterStatus === 'All' ? 'active' : ''}`}
+                  onClick={() => { setFilterStatus('All'); setIsFilterDropdownOpen(false); }}
+                >
+                  All Status
+                </div>
+                <div 
+                  className={`dropdown-item ${filterStatus === 'Active' ? 'active' : ''}`}
+                  onClick={() => { setFilterStatus('Active'); setIsFilterDropdownOpen(false); }}
+                >
+                  Active
+                </div>
+                <div 
+                  className={`dropdown-item ${filterStatus === 'Inactive' ? 'active' : ''}`}
+                  onClick={() => { setFilterStatus('Inactive'); setIsFilterDropdownOpen(false); }}
+                >
+                  Inactive
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -146,6 +177,7 @@ export default function Customers() {
                     <button onClick={async () => {
                       if (await confirmDelete(`the customer "${customer.name}"`)) {
                         await deleteCustomer(customer.id);
+                        logActivity({ category: 'Pelanggan', title: 'Pelanggan Dihapus', description: `Data pelanggan "${customer.name}" telah dihapus.`, status: 'warning' });
                         showSuccess('Customer deleted successfully');
                       }
                     }} className="delete" title="Delete"><Trash2 size={16} /></button>

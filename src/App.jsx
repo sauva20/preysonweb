@@ -6,6 +6,7 @@ import { PromoProvider } from './context/PromoContext';
 import { CustomerProvider } from './context/CustomerContext';
 import { CartProvider } from './context/CartContext';
 import { CurrencyProvider } from './context/CurrencyContext';
+import { ActivityProvider } from './context/ActivityContext';
 
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -38,6 +39,7 @@ import Discount from './admin/pages/Discount';
 import Customers from './admin/pages/Customers';
 import Reports from './admin/pages/Reports';
 import Settings from './admin/pages/Settings';
+import ActivityLog from './admin/pages/ActivityLog';
 
 function Home() {
   const [blocks, setBlocks] = React.useState(() => {
@@ -104,55 +106,58 @@ import { QrisProvider } from './context/QrisContext';
 
 function App() {
   return (
-    <CurrencyProvider>
-      <QrisProvider>
-        <ProductProvider>
-          <OrderProvider>
-            <PromoProvider>
-              <CustomerProvider>
-                <CartProvider>
-                  <Router>
-                    <Routes>
-                      {/* Storefront Routes */}
-                      <Route path="/" element={<Home />} />
-                      <Route path="/catalog" element={<Catalog />} />
-                      <Route path="/cart" element={<Cart />} />
-                      <Route path="/product/:id" element={<ProductDetail />} />
-                      <Route path="/checkout" element={<Checkout />} />
-                      <Route path="/payment/:id" element={<Payment />} />
-                      <Route path="/order-success" element={<OrderSuccess />} />
-                      
-                      {/* Customer Auth */}
-                      <Route path="/login" element={<CustomerLogin />} />
-                      <Route path="/register" element={<CustomerRegister />} />
-                      <Route path="/forgot-password" element={<CustomerForgotPassword />} />
-                      
-                      {/* Admin Auth */}
-                      <Route path="/admin/login" element={<AdminLogin />} />
-                      
-                      {/* Admin Dashboard Routes */}
-                      <Route path="/admin" element={<AdminLayout />}>
-                        <Route index element={<Navigate to="/admin/dashboard" replace />} />
-                        <Route path="dashboard" element={<Dashboard />} />
-                        <Route path="pos" element={<POS />} />
-                        <Route path="orders" element={<Orders />} />
-                        <Route path="orders/:id" element={<OrderDetails />} />
-                        <Route path="discount" element={<Discount />} />
-                        <Route path="campaign" element={<Campaign />} />
-                        <Route path="products" element={<Products />} />
-                        <Route path="customers" element={<Customers />} />
-                        <Route path="reports" element={<Reports />} />
-                        <Route path="settings" element={<Settings />} />
-                      </Route>
-                    </Routes>
-                  </Router>
-                </CartProvider>
-              </CustomerProvider>
-            </PromoProvider>
-          </OrderProvider>
-        </ProductProvider>
-      </QrisProvider>
-    </CurrencyProvider>
+    <ActivityProvider>
+      <CurrencyProvider>
+        <QrisProvider>
+          <ProductProvider>
+            <OrderProvider>
+              <PromoProvider>
+                <CustomerProvider>
+                  <CartProvider>
+                    <Router>
+                      <Routes>
+                        {/* Storefront Routes */}
+                        <Route path="/" element={<Home />} />
+                        <Route path="/catalog" element={<Catalog />} />
+                        <Route path="/cart" element={<Cart />} />
+                        <Route path="/product/:id" element={<ProductDetail />} />
+                        <Route path="/checkout" element={<Checkout />} />
+                        <Route path="/payment/:id" element={<Payment />} />
+                        <Route path="/order-success" element={<OrderSuccess />} />
+                        
+                        {/* Customer Auth */}
+                        <Route path="/login" element={<CustomerLogin />} />
+                        <Route path="/register" element={<CustomerRegister />} />
+                        <Route path="/forgot-password" element={<CustomerForgotPassword />} />
+                        
+                        {/* Admin Auth */}
+                        <Route path="/admin/login" element={<AdminLogin />} />
+                        
+                        {/* Admin Dashboard Routes */}
+                        <Route path="/admin" element={<AdminLayout />}>
+                          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                          <Route path="dashboard" element={<Dashboard />} />
+                          <Route path="pos" element={<POS />} />
+                          <Route path="orders" element={<Orders />} />
+                          <Route path="orders/:id" element={<OrderDetails />} />
+                          <Route path="discount" element={<Discount />} />
+                          <Route path="campaign" element={<Campaign />} />
+                          <Route path="products" element={<Products />} />
+                          <Route path="customers" element={<Customers />} />
+                          <Route path="reports" element={<Reports />} />
+                          <Route path="activity" element={<ActivityLog />} />
+                          <Route path="settings" element={<Settings />} />
+                        </Route>
+                      </Routes>
+                    </Router>
+                  </CartProvider>
+                </CustomerProvider>
+              </PromoProvider>
+            </OrderProvider>
+          </ProductProvider>
+        </QrisProvider>
+      </CurrencyProvider>
+    </ActivityProvider>
   );
 }
 

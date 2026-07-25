@@ -140,6 +140,7 @@
   padding: 24px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .cash-modal-header {
@@ -301,6 +302,7 @@
 .cash-modal-actions {
   display: flex;
   gap: 12px;
+  margin-top: auto;
 }
 
 .cash-modal-actions button {
@@ -340,18 +342,45 @@
   cursor: not-allowed;
 }
 
+.cash-native-input {
+  background: transparent;
+  border: none;
+  color: var(--admin-text);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  text-align: right;
+  width: 100%;
+  outline: none;
+  -moz-appearance: textfield;
+}
+.cash-native-input::-webkit-outer-spin-button,
+.cash-native-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 @media (max-width: 768px) {
   .cash-modal {
     flex-direction: column;
-    height: 100vh;
+    height: 100%;
+    min-height: 100vh;
     width: 100vw;
     max-width: none;
     max-height: none;
     border-radius: 0;
+    overflow-y: auto;
+    display: block;
   }
   
+  .cash-modal-left,
   .cash-modal-right {
     width: 100%;
-    flex: 1;
+    flex: none;
+    height: auto;
+  }
+
+  .numpad {
+    display: none;
   }
 }

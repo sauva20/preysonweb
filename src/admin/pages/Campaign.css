@@ -210,8 +210,43 @@ body.dark-mode .builder-canvas {
 }
 
 .control-btn.delete-btn:hover {
-  color: #ef4444;
+  color: #ff4444;
   background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .campaign-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+  }
+
+  .add-block-menu {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .save-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .campaign-layout {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .builder-canvas {
+    height: 50vh;
+  }
 }
 
 /* Modals */

@@ -3,6 +3,7 @@ import { usePromos } from '../../context/PromoContext';
 import PromoModal from '../components/PromoModal';
 import { Plus, Tag, Ticket, Edit2, Trash2 } from 'lucide-react';
 import { useCurrency } from '../../context/CurrencyContext';
+import { useActivity } from '../../context/ActivityContext';
 import { confirmDelete, showSuccess } from '../utils/alert';
 import './Discount.css';
 
@@ -12,6 +13,7 @@ export default function Discount() {
     discounts, addDiscount, updateDiscount, deleteDiscount, toggleDiscountStatus
   } = usePromos();
   const { formatPrice } = useCurrency();
+  const { logActivity } = useActivity();
 
   const [activeTab, setActiveTab] = useState('vouchers'); // 'vouchers' or 'discounts'
   
@@ -29,17 +31,21 @@ export default function Discount() {
     if (modalType === 'voucher') {
       if (editingData) {
         await updateVoucher(editingData.id, payload);
+        logActivity({ category: 'Promo', title: 'Voucher Diperbarui', description: `Voucher promo "${payload.code}" berhasil diperbarui.`, status: 'info' });
         showSuccess('Voucher updated successfully');
       } else {
         await addVoucher(payload);
+        logActivity({ category: 'Promo', title: 'Voucher Baru Dibuat', description: `Voucher diskon baru "${payload.code}" berhasil diaktifkan.`, status: 'success' });
         showSuccess('Voucher added successfully');
       }
     } else {
       if (editingData) {
         await updateDiscount(editingData.id, payload);
+        logActivity({ category: 'Promo', title: 'Diskon Diperbarui', description: `Program diskon "${payload.name}" berhasil diperbarui.`, status: 'info' });
         showSuccess('Discount updated successfully');
       } else {
         await addDiscount(payload);
+        logActivity({ category: 'Promo', title: 'Diskon Baru Dibuat', description: `Program diskon "${payload.name}" berhasil ditambahkan.`, status: 'success' });
         showSuccess('Discount added successfully');
       }
     }
@@ -125,6 +131,7 @@ export default function Discount() {
                         <button onClick={async () => {
                           if (await confirmDelete(`the voucher "${v.code}"`)) {
                             await deleteVoucher(v.id);
+                            logActivity({ category: 'Promo', title: 'Voucher Dihapus', description: `Voucher "${v.code}" telah dihapus dari sistem.`, status: 'warning' });
                             showSuccess('Voucher deleted successfully');
                           }
                         }} className="delete" title="Delete"><Trash2 size={16} /></button>
@@ -179,6 +186,7 @@ export default function Discount() {
                         <button onClick={async () => {
                           if (await confirmDelete(`the discount "${d.name}"`)) {
                             await deleteDiscount(d.id);
+                            logActivity({ category: 'Promo', title: 'Diskon Dihapus', description: `Program diskon "${d.name}" telah dihapus.`, status: 'warning' });
                             showSuccess('Discount deleted successfully');
                           }
                         }} className="delete" title="Delete"><Trash2 size={16} /></button>
