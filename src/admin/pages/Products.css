@@ -620,6 +620,7 @@ body.dark-mode .add-preview-btn:hover {
 .xl-modal {
   width: 1200px;
   max-width: 95vw;
+  margin: auto;
 }
 
 .stock-pill {
