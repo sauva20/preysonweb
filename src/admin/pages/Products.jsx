@@ -328,7 +328,7 @@ export default function Products() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
               <div className="modal-body modal-scrollable">
                 <div className="live-pdp-preview">
 

@@ -133,20 +133,19 @@ body.dark-mode .table-barcode {
   color: var(--admin-text);
 }
 
-/* Product Form Modal - Full Screen */
+/* Product Form Modal - Full Screen with Internal Scroll */
 .product-modal.xl-modal {
   width: 92vw;
   max-width: 1300px;
-  height: auto;
-  min-height: 60vh;
+  height: 92vh;
   display: flex;
   flex-direction: column;
   background-color: var(--admin-surface, #ffffff);
   border: 1px solid var(--admin-border, #e2e8f0);
   border-radius: 16px;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
-  margin: 20px auto;
-  overflow: visible;
+  margin: auto;
+  overflow: hidden;
 }
 
 .product-modal.xl-modal .modal-header {
@@ -158,9 +157,6 @@ body.dark-mode .table-barcode {
   flex-shrink: 0;
   background-color: var(--admin-bg, #f4f0e6);
   border-radius: 16px 16px 0 0;
-  position: sticky;
-  top: 0;
-  z-index: 10;
 }
 
 .product-modal.xl-modal .modal-header h3 {
@@ -169,14 +165,13 @@ body.dark-mode .table-barcode {
   color: var(--admin-text, #1d1d1d);
 }
 
-.product-modal.xl-modal .modal-body {
-  flex: 1;
-  overflow: visible;
-  padding: 0;
-}
-
+.product-modal.xl-modal .modal-body,
 .product-modal.xl-modal .modal-scrollable {
-  overflow: visible;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
+  min-height: 0;
 }
 
 /* WYSIWYG PDP Live Preview */
