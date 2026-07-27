@@ -1,5 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500;600;700&display=swap');
 
+/* Admin Pages CSS Global Imports */
+@import './admin/AdminLayout.css';
+@import './admin/pages/Dashboard.css';
+@import './admin/pages/POS.css';
+@import './admin/pages/Products.css';
+@import './admin/pages/Orders.css';
+@import './admin/pages/Discount.css';
+@import './admin/pages/Campaign.css';
+@import './admin/pages/Customers.css';
+@import './admin/pages/Reports.css';
+@import './admin/pages/ActivityLog.css';
+@import './admin/pages/Settings.css';
+
 :root {
   --burnt-orange: #C66A2B;
   --army-green: #4E5B45;
