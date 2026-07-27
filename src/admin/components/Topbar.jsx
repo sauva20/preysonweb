@@ -21,28 +21,62 @@ export default function Topbar({ isSidebarCollapsed, onToggleSidebar }) {
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const searchRef = useRef(null);
 
-  // Compute notifications
-  const lowStockProducts = products.filter(p => p.stock < 5);
-  const newOnlineOrders = orders.filter(o => o.status === 'Pending' && o.source === 'Online');
+  // Compute OP Notifications
+  const lowStockProducts = products.filter(p => p.stock > 0 && p.stock < 5);
+  const outOfStockProducts = products.filter(p => p.stock === 0 || p.isSoldOut);
+  const pendingOrders = orders.filter(o => o.status === 'Pending');
 
   const notifications = [
-    ...newOnlineOrders.map(o => ({
+    ...pendingOrders.map(o => ({
       id: `order-${o.id}`,
       type: 'order',
-      title: 'New Online Order!',
-      message: `Order #${o.id.substring(0, 8)} - ${o.items?.length || 0} items ($${o.total?.toFixed(2) || 0})`,
-      time: new Date(o.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+      category: 'order',
+      badgeTag: o.source === 'Online' ? 'ONLINE ORDER' : 'PESANAN MASUK',
+      title: o.source === 'Online' ? '📦 Pesanan Online Baru!' : '⚡ Pesanan Perlu Diproses',
+      message: `Order #${o.id.substring(0, 8)} • ${o.customerName || o.shippingAddress?.name || 'Customer'} • Rp ${o.total?.toLocaleString('id-ID') || 0}`,
+      time: o.date ? new Date(o.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' WIB' : 'Baru saja',
+      link: '/admin/orders'
+    })),
+    ...outOfStockProducts.map(p => ({
+      id: `outofstock-${p.id}`,
+      type: 'outofstock',
+      category: 'stock',
+      badgeTag: p.isSoldOut ? 'MARKETING SOLD OUT' : 'STOK HABIS',
+      title: `🔥 Produk Habis: ${p.name}`,
+      message: p.isSoldOut ? 'Produk aktif dalam mode Paksa Sold Out.' : 'Stok 0 Pcs! Segera lakukan isi ulang barang.',
+      time: 'Stok 0 Pcs',
+      link: '/admin/products'
     })),
     ...lowStockProducts.map(p => ({
-      id: `stock-${p.id}`,
-      type: 'stock',
-      title: 'Low Stock Alert',
-      message: `${p.name} only has ${p.stock} left in stock.`,
-      time: 'Just now'
+      id: `lowstock-${p.id}`,
+      type: 'lowstock',
+      category: 'stock',
+      badgeTag: 'STOK MENIPIS',
+      title: `⚠️ Stok Menipis: ${p.name}`,
+      message: `Tersisa ${p.stock} item lagi di inventaris toko.`,
+      time: `Sisa ${p.stock} Pcs`,
+      link: '/admin/products'
     }))
   ];
 
+  const [activeFilter, setActiveFilter] = useState('ALL');
   const activeNotifications = notifications.filter(n => !dismissedNotifs.includes(n.id));
+  const filteredNotifications = activeNotifications.filter(n => {
+    if (activeFilter === 'ALL') return true;
+    if (activeFilter === 'ORDER') return n.type === 'order';
+    if (activeFilter === 'STOCK') return n.type === 'lowstock' || n.type === 'outofstock';
+    return true;
+  });
+
+  const handleNotificationClick = (notif) => {
+    setDismissedNotifs(prev => [...prev, notif.id]);
+    setShowNotifications(false);
+    navigate(notif.link);
+  };
+
+  const handleMarkAllRead = () => {
+    setDismissedNotifs(notifications.map(n => n.id));
+  };
 
   const toggleTheme = () => {
     if (isDarkMode) {
@@ -213,39 +247,92 @@ export default function Topbar({ isSidebarCollapsed, onToggleSidebar }) {
         
         <div className="notification-wrapper" ref={notificationRef}>
           <button 
-            className="icon-btn notification-btn"
+            className={`icon-btn notification-btn ${activeNotifications.length > 0 ? 'has-unread' : ''}`}
             onClick={() => setShowNotifications(!showNotifications)}
+            title="Pemberitahuan Sistem"
           >
             <Bell size={20} />
-            {activeNotifications.length > 0 && <span className="notification-badge">{activeNotifications.length}</span>}
+            {activeNotifications.length > 0 && (
+              <span className="notification-badge pulse-badge">
+                {activeNotifications.length}
+              </span>
+            )}
           </button>
           
           {showNotifications && (
-            <div className="notification-dropdown">
+            <div className="notification-dropdown op-notif-dropdown">
               <div className="notification-header">
-                <h3>Notifications</h3>
-                <span className="badge">{activeNotifications.length} New</span>
+                <div className="notif-header-left">
+                  <h3>Pemberitahuan Sistem</h3>
+                  <span className="notif-count-pill">{activeNotifications.length} Baru</span>
+                </div>
+                {activeNotifications.length > 0 && (
+                  <button className="mark-all-read-btn" onClick={handleMarkAllRead}>
+                    Tandai Dibaca
+                  </button>
+                )}
               </div>
+
+              {/* Filter Tabs */}
+              <div className="notif-filter-tabs">
+                <button 
+                  className={`notif-tab ${activeFilter === 'ALL' ? 'active' : ''}`}
+                  onClick={() => setActiveFilter('ALL')}
+                >
+                  Semua ({activeNotifications.length})
+                </button>
+                <button 
+                  className={`notif-tab ${activeFilter === 'ORDER' ? 'active' : ''}`}
+                  onClick={() => setActiveFilter('ORDER')}
+                >
+                  Pesanan ({activeNotifications.filter(n => n.type === 'order').length})
+                </button>
+                <button 
+                  className={`notif-tab ${activeFilter === 'STOCK' ? 'active' : ''}`}
+                  onClick={() => setActiveFilter('STOCK')}
+                >
+                  Stok ({activeNotifications.filter(n => n.category === 'stock').length})
+                </button>
+              </div>
+
               <div className="notification-list">
-                {activeNotifications.length === 0 ? (
-                  <div className="notification-empty">No new notifications</div>
+                {filteredNotifications.length === 0 ? (
+                  <div className="notification-empty">
+                    <div className="empty-notif-icon">✨</div>
+                    <p>Tidak ada pemberitahuan baru.</p>
+                    <span>Semua transaksi & stok aman terkelola!</span>
+                  </div>
                 ) : (
-                  activeNotifications.map(notif => (
-                    <div className="notification-item" key={notif.id}>
+                  filteredNotifications.map(notif => (
+                    <div 
+                      className={`notification-item ${notif.type}`} 
+                      key={notif.id}
+                      onClick={() => handleNotificationClick(notif)}
+                    >
                       <div className={`notification-icon ${notif.type}`}>
-                        {notif.type === 'stock' ? <AlertTriangle size={16} /> : <ShoppingCart size={16} />}
+                        {notif.type === 'order' && <ShoppingCart size={18} />}
+                        {notif.type === 'outofstock' && <X size={18} />}
+                        {notif.type === 'lowstock' && <AlertTriangle size={18} />}
                       </div>
                       <div className="notification-content">
+                        <div className="notif-item-top">
+                          <span className={`notif-badge-tag tag-${notif.type}`}>
+                            {notif.badgeTag}
+                          </span>
+                          <span className="notification-time">{notif.time}</span>
+                        </div>
                         <h4>{notif.title}</h4>
                         <p>{notif.message}</p>
-                        <span className="notification-time">{notif.time}</span>
                       </div>
                       <button 
-                        className="accept-notif-btn"
-                        onClick={() => setDismissedNotifs([...dismissedNotifs, notif.id])}
-                        title="Accept/Dismiss"
+                        className="dismiss-single-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDismissedNotifs(prev => [...prev, notif.id]);
+                        }}
+                        title="Tutup Notifikasi"
                       >
-                        <Check size={16} />
+                        <X size={14} />
                       </button>
                     </div>
                   ))

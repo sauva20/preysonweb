@@ -98,47 +98,51 @@ export default function Dashboard() {
       </div>
 
       <div className="metric-cards">
-        <div className="metric-card">
+        <div className="metric-card clickable-card" onClick={() => navigate('/admin/reports')}>
           <div className="metric-icon-wrapper wallet-icon">
             <TrendingUp size={24} className="metric-icon" />
           </div>
           <div className="metric-info">
             <h3>Total Pendapatan</h3>
             <p className="metric-value">Rp {stats.totalSales.toLocaleString('id-ID')}</p>
-            <span className="metric-trend positive">Data Realtime</span>
+            <span className="metric-trend positive">Lihat Laporan ➔</span>
           </div>
         </div>
         
-        <div className="metric-card">
+        <div className="metric-card clickable-card" onClick={() => navigate('/admin/orders')}>
           <div className="metric-icon-wrapper bag-icon">
             <ShoppingBag size={24} className="metric-icon" />
           </div>
           <div className="metric-info">
-            <h3>Pesanan Baru</h3>
+            <h3>Pesanan Masuk</h3>
             <p className="metric-value">{stats.totalOrders}</p>
-            <span className="metric-trend neutral">Perlu diproses</span>
+            <span className={`metric-trend ${stats.totalOrders > 0 ? 'warning-trend' : 'neutral'}`}>
+              {stats.totalOrders > 0 ? `⚡ ${stats.totalOrders} Perlu Diproses` : 'Tidak Ada Pending'}
+            </span>
           </div>
         </div>
         
-        <div className="metric-card">
+        <div className="metric-card clickable-card" onClick={() => navigate('/admin/products')}>
           <div className="metric-icon-wrapper crown-icon">
             <Award size={24} className="metric-icon" />
           </div>
           <div className="metric-info">
-            <h3>Low Stock</h3>
+            <h3>Stok Menipis / Habis</h3>
             <p className="metric-value text-large">{stats.lowStockProducts} Items</p>
-            <span className="metric-trend positive">Perlu restock</span>
+            <span className={`metric-trend ${stats.lowStockProducts > 0 ? 'negative-trend' : 'positive'}`}>
+              {stats.lowStockProducts > 0 ? `⚠️ Perlu Restock` : 'Stok Aman'}
+            </span>
           </div>
         </div>
 
-        <div className="metric-card">
+        <div className="metric-card clickable-card" onClick={() => navigate('/admin/customers')}>
           <div className="metric-icon-wrapper users-icon">
             <Users size={24} className="metric-icon" />
           </div>
           <div className="metric-info">
             <h3>Total Pelanggan</h3>
             <p className="metric-value">{stats.totalCustomers}</p>
-            <span className="metric-trend positive">Terdaftar</span>
+            <span className="metric-trend positive">Kelola Pelanggan ➔</span>
           </div>
         </div>
       </div>
