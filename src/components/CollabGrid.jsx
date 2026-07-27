@@ -2,38 +2,7 @@ import React from 'react';
 import './CollabGrid.css';
 
 export default function CollabGrid({ title, subtitle, collabs }) {
-  const defaultCollabs = [
-    {
-      name: "ADIPATI BERTIGA",
-      buttonText: "See more",
-      image: "/images/cat_jacket.png",
-      logo: "ADIPATI BERTIGA",
-      logoStyle: 'text'
-    },
-    {
-      name: "QUEENLEKHA",
-      buttonText: "Coming soon",
-      image: "/images/cat_tees.png",
-      logo: "QUEEN LEKHA",
-      logoStyle: 'text'
-    },
-    {
-      name: "BRAP HELMET",
-      buttonText: "See More",
-      image: "/images/placeholder.png",
-      logo: "BRAP HELMET",
-      logoStyle: 'text'
-    },
-    {
-      name: "SUZZY HELMET",
-      buttonText: "See More",
-      image: "/images/hero_bg.png",
-      logo: "SUZZY",
-      logoStyle: 'text'
-    }
-  ];
-
-  const displayCollabs = collabs || defaultCollabs;
+  const displayCollabs = collabs || [];
 
   return (
     <section className="collab-section">

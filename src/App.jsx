@@ -1,5 +1,13 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 import { ProductProvider } from './context/ProductContext';
 import { OrderProvider } from './context/OrderContext';
 import { PromoProvider } from './context/PromoContext';
@@ -20,6 +28,7 @@ import ProductDetail from './pages/ProductDetail';
 import Checkout from './pages/Checkout';
 import Payment from './pages/Payment';
 import OrderSuccess from './pages/OrderSuccess';
+import Contact from './pages/Contact';
 
 // Customer Auth
 import CustomerLogin from './pages/CustomerLogin';
@@ -117,6 +126,7 @@ function App() {
                 <CustomerProvider>
                   <CartProvider>
                     <Router>
+                      <ScrollToTop />
                       <Routes>
                         {/* Storefront Routes */}
                         <Route path="/" element={<Home />} />
@@ -127,6 +137,8 @@ function App() {
                         <Route path="/checkout" element={<Checkout />} />
                         <Route path="/payment/:id" element={<Payment />} />
                         <Route path="/order-success" element={<OrderSuccess />} />
+                        <Route path="/contact" element={<Contact />} />
+                        <Route path="/contact-us" element={<Contact />} />
                         
                         {/* Customer Auth */}
                         <Route path="/login" element={<CustomerLogin />} />

@@ -186,8 +186,20 @@ export default function Campaign() {
         );
       case 'banner':
         return <Banner images={block.config.images} imageUrl1={block.config.imageUrl1} imageUrl2={block.config.imageUrl2} />;
-      case 'collab':
-        return block.config.visible !== false ? <CollabGrid title={block.config.title} collabs={block.config.collabs} /> : <div style={{padding: '50px', textAlign: 'center'}}>Collab Grid (Hidden)</div>;
+      case 'collab': {
+        const hasCollabs = block.config.collabs && block.config.collabs.length > 0;
+        if (block.config.visible === false) {
+          return <div style={{padding: '30px', textAlign: 'center', background: '#f8fafc', color: '#64748b'}}>Collab Grid (Hidden)</div>;
+        }
+        if (!hasCollabs) {
+          return (
+            <div style={{padding: '30px', textAlign: 'center', background: '#f8fafc', color: '#64748b', border: '1px dashed #cbd5e1', margin: '20px'}}>
+              Collab Grid (Blank / Belum disetting)
+            </div>
+          );
+        }
+        return <CollabGrid title={block.config.title} collabs={block.config.collabs} />;
+      }
       default:
         return null;
     }
@@ -507,18 +519,16 @@ export default function Campaign() {
                   </div>
                   
                   {(() => {
-                    const defaultCollabs = [
-                      { id: 'c1', name: "ADIPATI BERTIGA", image: "/images/cat_jacket.png", logo: "ADIPATI BERTIGA", logoStyle: 'text', link: '', isComingSoon: false },
-                      { id: 'c2', name: "QUEENLEKHA", image: "/images/cat_tees.png", logo: "QUEEN LEKHA", logoStyle: 'text', link: '', isComingSoon: true },
-                      { id: 'c3', name: "BRAP HELMET", image: "/images/placeholder.png", logo: "BRAP HELMET", logoStyle: 'text', link: '', isComingSoon: false },
-                      { id: 'c4', name: "SUZZY HELMET", image: "/images/hero_bg.png", logo: "SUZZY", logoStyle: 'text', link: '', isComingSoon: false }
-                    ];
-                    
-                    const collabs = editingBlock.config.collabs || defaultCollabs;
+                    const collabs = editingBlock.config.collabs || [];
                     
                     return (
                       <div>
                         <h4 style={{ fontSize: '13px', marginBottom: '8px', borderBottom: '1px solid var(--admin-border)', paddingBottom: '4px' }}>Collab Cards</h4>
+                        {collabs.length === 0 && (
+                          <p style={{ fontSize: '13px', color: 'var(--admin-text-secondary)', fontStyle: 'italic', marginBottom: '12px' }}>
+                            Belum ada card collab. Klik "+ Add New Collab Card" untuk menambahkan.
+                          </p>
+                        )}
                         {collabs.map((collab, index) => (
                           <div key={collab.id || index} style={{ border: '1px solid var(--admin-border)', padding: '12px', borderRadius: '6px', marginBottom: '12px', position: 'relative' }}>
                             <button 

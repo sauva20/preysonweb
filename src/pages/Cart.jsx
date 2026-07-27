@@ -30,7 +30,7 @@ export default function Cart() {
           <h1 className="cart-title" style={{ marginBottom: 0 }}>YOUR CART</h1>
           {cartItems.length > 0 && (
             <Link to="/catalog" className="cart-continue-btn">
-              <ArrowRight size={16} style={{ transform: 'rotate(180deg)' }} /> Belanja Lagi
+              <ArrowRight size={16} style={{ transform: 'rotate(180deg)' }} /> Continue Shopping
             </Link>
           )}
         </div>

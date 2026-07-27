@@ -9,7 +9,7 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const location = useLocation();
-  const isLightPage = location.pathname.startsWith('/catalog') || location.pathname === '/cart' || location.pathname.startsWith('/product') || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password';
+  const isLightPage = location.pathname.startsWith('/catalog') || location.pathname === '/cart' || location.pathname.startsWith('/product') || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password' || location.pathname.startsWith('/contact');
   
   const { cartCount } = useCart();
 
@@ -37,6 +37,24 @@ export default function Navbar() {
     document.body.classList.toggle('dark-mode');
   };
 
+  const getDesktopLogo = () => {
+    if (isDark) {
+      return '/images/logo_white.png';
+    } else {
+      if (isScrolled) return '/images/logo_black.png';
+      return isLightPage ? '/images/logo_black.png' : '/images/logo_white.png';
+    }
+  };
+
+  const getMobileLogo = () => {
+    if (isDark) {
+      return '/images/logo_mobile_white.png';
+    } else {
+      if (isScrolled) return '/images/logo_mobile_black.png';
+      return isLightPage ? '/images/logo_mobile_black.png' : '/images/logo_mobile_white.png';
+    }
+  };
+
   return (
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''} ${isLightPage ? 'light-page' : ''}`}>
       <div className="navbar-left">
@@ -51,7 +69,7 @@ export default function Navbar() {
         {/* Mobile Menu Drawer */}
         <div className={`mobile-menu-drawer ${isMenuOpen ? 'open' : ''}`}>
           <div className="mobile-menu-header">
-            <img src="/images/logo-mobile.png" alt="PREYSON" className="mobile-logo" />
+            <img src={isDark ? "/images/logo_mobile_white.png" : "/images/logo_mobile_black.png"} alt="PREYSON" className="mobile-logo" />
             <button className="close-btn" onClick={() => setIsMenuOpen(false)}>
               <X size={24} />
             </button>
@@ -68,8 +86,8 @@ export default function Navbar() {
       
       <div className="navbar-center">
         <Link to="/" className="brand-logo">
-          <img src="/images/logo.png" alt="PREYSON MOTO COMPANY" className="logo-img desktop-logo" />
-          <img src="/images/logo-mobile.png" alt="PREYSON" className="logo-img mobile-logo-img" />
+          <img src={getDesktopLogo()} alt="PREYSON MOTO COMPANY" className="logo-img desktop-logo" />
+          <img src={getMobileLogo()} alt="PREYSON" className="logo-img mobile-logo-img" />
         </Link>
       </div>
       
