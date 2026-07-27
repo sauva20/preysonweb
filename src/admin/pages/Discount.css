@@ -37,52 +37,61 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: none;
-  border: none;
-  color: var(--admin-text-muted);
-  font-size: 1rem;
-  font-weight: 500;
+  background: var(--admin-surface, #ffffff);
+  border: 1px solid var(--admin-border, #e2e8f0);
+  color: var(--admin-text-muted, #64748b);
+  font-size: 0.9rem;
+  font-weight: 600;
   padding: 8px 16px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 6px;
   transition: all 0.2s ease;
 }
 
 .tab-btn:hover {
-  background-color: var(--admin-bg-light);
-  color: var(--admin-text);
+  background-color: var(--admin-surface-hover, #f8fafc);
+  color: var(--admin-text, #1e293b);
 }
 
 .tab-btn.active {
-  background-color: var(--admin-accent);
-  color: #000;
+  background-color: var(--admin-text, #0f172a);
+  color: var(--admin-bg, #ffffff);
+  border-color: var(--admin-text, #0f172a);
 }
 
 .table-container {
-  background-color: var(--admin-bg-light);
-  border-radius: 8px;
-  border: 1px solid var(--admin-border);
+  background-color: var(--admin-surface, #ffffff);
+  border-radius: 12px;
+  border: 1px solid var(--admin-border, #e2e8f0);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
   overflow-x: auto;
+  margin-top: 12px;
 }
 
 .promo-table {
   width: 100%;
   border-collapse: collapse;
-}
-
-.promo-table th,
-.promo-table td {
-  padding: 16px;
-  text-align: left;
-  border-bottom: 1px solid var(--admin-border);
+  min-width: 700px;
 }
 
 .promo-table th {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--admin-text-muted);
+  padding: 14px 18px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--admin-text-muted, #64748b);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  background-color: var(--admin-surface-hover, #f8fafc);
+  border-bottom: 1px solid var(--admin-border, #e2e8f0);
+  white-space: nowrap;
+}
+
+.promo-table td {
+  padding: 14px 18px;
+  font-size: 13px;
+  color: var(--admin-text, #1e293b);
+  border-bottom: 1px solid var(--admin-border, #e2e8f0);
+  vertical-align: middle;
 }
 
 .promo-table tr:hover td {

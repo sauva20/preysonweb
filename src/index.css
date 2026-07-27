@@ -25,6 +25,7 @@
 
   /* Admin Theme Variables (Light) */
   --admin-bg: #f4f0e6; /* Base white from guidelines */
+  --admin-bg-light: #ffffff;
   --admin-surface: #ffffff;
   --admin-surface-hover: #f9f9f9;
   --admin-border: #e2e8f0;
@@ -56,6 +57,7 @@ body.dark-mode {
 
   /* Admin Theme Variables (Dark) */
   --admin-bg: #121212;
+  --admin-bg-light: #1e1e1e;
   --admin-surface: #1a1a1a;
   --admin-surface-hover: #222222;
   --admin-border: #333333;
