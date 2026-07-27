@@ -3,6 +3,16 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import './AdminLayout.css';
+import './pages/Dashboard.css';
+import './pages/POS.css';
+import './pages/Products.css';
+import './pages/Orders.css';
+import './pages/Discount.css';
+import './pages/Campaign.css';
+import './pages/Customers.css';
+import './pages/Reports.css';
+import './pages/ActivityLog.css';
+import './pages/Settings.css';
 
 export default function AdminLayout() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
