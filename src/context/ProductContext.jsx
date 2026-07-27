@@ -13,7 +13,10 @@ export function ProductProvider({ children }) {
     fetchProducts();
     fetchCategories();
 
-    const socket = io(SOCKET_URL);
+    const socket = io(SOCKET_URL, {
+      transports: ['polling', 'websocket'],
+      autoConnect: true
+    });
     
     socket.on('stock_updated', () => {
       console.log('Stock updated event received via WebSocket. Refetching products...');
