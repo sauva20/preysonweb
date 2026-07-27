@@ -1,17 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Menu, Search, User, ShoppingBag, X, Moon, Sun } from 'lucide-react';
+import { Menu, Search, User, ShoppingBag, X, Moon, Sun, ChevronDown } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useProducts } from '../context/ProductContext';
 import './Navbar.css';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const [isCategoryHovered, setIsCategoryHovered] = useState(false);
+  const [isMobileCategoryOpen, setIsMobileCategoryOpen] = useState(false);
+
   const location = useLocation();
   const isLightPage = location.pathname.startsWith('/catalog') || location.pathname === '/cart' || location.pathname.startsWith('/product') || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password' || location.pathname.startsWith('/contact');
   
   const { cartCount } = useCart();
+  const { categories: dbCategories } = useProducts() || {};
+
+  const fallbackCategories = [
+    { name: 'Jacket' },
+    { name: 'Tees' },
+    { name: 'Gloves' },
+    { name: 'Cap' },
+    { name: 'Outer' },
+    { name: 'Accessories' }
+  ];
+
+  const displayCategories = (dbCategories && dbCategories.length > 0) ? dbCategories : fallbackCategories;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,7 +79,35 @@ export default function Navbar() {
         </button>
         <ul className="nav-links desktop-only">
           <li><Link to="/">Home</Link></li>
-          <li><Link to="/catalog">Catalog</Link></li>
+          
+          <li 
+            className="nav-item-dropdown"
+            onMouseEnter={() => setIsCategoryHovered(true)}
+            onMouseLeave={() => setIsCategoryHovered(false)}
+          >
+            <Link to="/catalog" className="dropdown-trigger-link">
+              Kategori <ChevronDown size={14} className={`chevron-icon ${isCategoryHovered ? 'rotate' : ''}`} />
+            </Link>
+            
+            <ul className={`nav-dropdown-menu ${isCategoryHovered ? 'show' : ''}`}>
+              {displayCategories.map((cat, idx) => (
+                <li key={cat.id || idx}>
+                  <Link to={`/catalog/${encodeURIComponent(cat.name)}`}>
+                    {cat.name}
+                  </Link>
+                </li>
+              ))}
+              <li className="dropdown-divider"></li>
+              <li>
+                <Link to="/catalog" style={{ fontWeight: 'bold' }}>
+                  Semua Kategori (All)
+                </Link>
+              </li>
+            </ul>
+          </li>
+
+          <li><Link to="/catalog">Product</Link></li>
+          <li><Link to="/contact">Contact</Link></li>
         </ul>
         
         {/* Mobile Menu Drawer */}
@@ -76,7 +120,36 @@ export default function Navbar() {
           </div>
           <ul className="mobile-nav-links">
             <li><Link to="/" onClick={() => setIsMenuOpen(false)}>Home</Link></li>
-            <li><Link to="/catalog" onClick={() => setIsMenuOpen(false)}>Catalog</Link></li>
+            
+            <li className="mobile-dropdown-item">
+              <div 
+                className="mobile-dropdown-header"
+                onClick={() => setIsMobileCategoryOpen(!isMobileCategoryOpen)}
+              >
+                <span>Kategori</span>
+                <ChevronDown size={18} className={`chevron-icon ${isMobileCategoryOpen ? 'rotate' : ''}`} />
+              </div>
+              
+              {isMobileCategoryOpen && (
+                <ul className="mobile-submenu">
+                  {displayCategories.map((cat, idx) => (
+                    <li key={cat.id || idx}>
+                      <Link to={`/catalog/${encodeURIComponent(cat.name)}`} onClick={() => setIsMenuOpen(false)}>
+                        {cat.name}
+                      </Link>
+                    </li>
+                  ))}
+                  <li>
+                    <Link to="/catalog" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold' }}>
+                      Semua Kategori (All)
+                    </Link>
+                  </li>
+                </ul>
+              )}
+            </li>
+
+            <li><Link to="/catalog" onClick={() => setIsMenuOpen(false)}>Product</Link></li>
+            <li><Link to="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link></li>
           </ul>
         </div>
         

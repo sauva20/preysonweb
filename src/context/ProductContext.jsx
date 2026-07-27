@@ -126,9 +126,24 @@ export function ProductProvider({ children }) {
     }
   };
 
+  const toggleSoldOut = async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/products/${id}/toggle-soldout`, {
+        method: 'PATCH'
+      });
+      if (!res.ok) throw new Error('Failed to toggle sold out status');
+      const updatedProduct = await res.json();
+      setProducts(prev => prev.map(p => p.id === id ? updatedProduct : p));
+      return updatedProduct;
+    } catch (err) {
+      console.error('Error toggling sold out status:', err);
+      throw err;
+    }
+  };
+
   return (
     <ProductContext.Provider value={{ 
-      products, addProduct, updateProduct, deleteProduct, fetchProducts,
+      products, addProduct, updateProduct, deleteProduct, toggleSoldOut, fetchProducts,
       categories, addCategory, deleteCategory, fetchCategories
     }}>
       {children}

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   TrendingUp, 
   ShoppingBag, 
@@ -15,6 +16,7 @@ import { useCurrency } from '../../context/CurrencyContext';
 import './Dashboard.css';
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const { orders } = useOrders();
   const { formatPrice } = useCurrency();
   const [period, setPeriod] = useState('today');
@@ -24,6 +26,55 @@ export default function Dashboard() {
     totalCustomers: 0,
     lowStockProducts: 0
   });
+
+  const chartDays = useMemo(() => {
+    const days = [];
+    const now = new Date();
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
+      
+      const dayName = d.toLocaleDateString('id-ID', { weekday: 'short' });
+      const dayNum = d.getDate();
+      const monthName = d.toLocaleDateString('id-ID', { month: 'short' });
+      const label = `${dayName}, ${dayNum} ${monthName}`;
+
+      days.push({
+        dateStr,
+        label,
+        totalSales: 0,
+        count: 0
+      });
+    }
+
+    if (orders && Array.isArray(orders)) {
+      orders.forEach(order => {
+        if (order.date || order.createdAt) {
+          const oDate = new Date(order.date || order.createdAt);
+          const year = oDate.getFullYear();
+          const month = String(oDate.getMonth() + 1).padStart(2, '0');
+          const day = String(oDate.getDate()).padStart(2, '0');
+          const oDateStr = `${year}-${month}-${day}`;
+
+          const found = days.find(d => d.dateStr === oDateStr);
+          if (found) {
+            found.totalSales += parseFloat(order.total || order.subtotal || 0);
+            found.count += 1;
+          }
+        }
+      });
+    }
+
+    const maxSales = Math.max(...days.map(d => d.totalSales), 500000);
+    const total7Days = days.reduce((sum, d) => sum + d.totalSales, 0);
+
+    return { days, maxSales, total7Days };
+  }, [orders]);
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/dashboard/stats?period=${period}`)
@@ -37,7 +88,7 @@ export default function Dashboard() {
       <div className="dashboard-header-block">
         <div className="dashboard-titles">
           <h2>Overview Bisnis</h2>
-          <p>Ringkasan performa hari ini, 12 Jul 2026</p>
+          <p>Ringkasan performa toko Preyson Moto</p>
         </div>
         <div className="dashboard-filters">
           <button className={`filter-tab ${period === 'today' ? 'active' : ''}`} onClick={() => setPeriod('today')}>Hari Ini</button>
@@ -95,15 +146,42 @@ export default function Dashboard() {
       <div className="dashboard-grid">
         {/* Left Column: Chart */}
         <div className="dashboard-chart-section">
-          <h3>Grafik Penjualan (7 Hari Terakhir)</h3>
-          <div className="chart-placeholder">
-            {/* Simple mock chart lines */}
-            <div className="chart-line-bg"></div>
-            <div className="chart-line-bg"></div>
-            <div className="chart-line-bg"></div>
-            <div className="chart-line-bg"></div>
-            <div className="chart-line-bg"></div>
-            <div className="chart-line-bg"></div>
+          <div className="chart-header-info">
+            <div>
+              <h3>Grafik Penjualan (7 Hari Terakhir)</h3>
+              <p className="chart-subtitle">Ringkasan transaksi dan omset harian toko</p>
+            </div>
+            <div className="chart-total-badge">
+              <span>Total 7 Hari:</span>
+              <strong>{formatPrice(chartDays.total7Days)}</strong>
+            </div>
+          </div>
+
+          <div className="real-chart-container">
+            <div className="chart-bars">
+              {chartDays.days.map((item, idx) => {
+                const heightPct = item.totalSales > 0 
+                  ? Math.max(12, (item.totalSales / chartDays.maxSales) * 100)
+                  : 4;
+                return (
+                  <div className="chart-bar-col" key={idx}>
+                    <div className="bar-wrapper">
+                      <div 
+                        className={`bar-fill ${item.totalSales > 0 ? 'active-bar' : 'empty-bar'}`}
+                        style={{ height: `${heightPct}%` }}
+                      >
+                        <div className="bar-tooltip">
+                          <div className="tooltip-date">{item.label}</div>
+                          <div className="tooltip-sales">{formatPrice(item.totalSales)}</div>
+                          <div className="tooltip-count">{item.count} transaksi</div>
+                        </div>
+                      </div>
+                    </div>
+                    <span className="bar-label">{item.label.split(',')[0]}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -112,19 +190,19 @@ export default function Dashboard() {
           <div className="control-panel">
             <h3>Control Panel</h3>
             <div className="control-grid">
-              <button className="control-btn">
+              <button className="control-btn" onClick={() => navigate('/admin/products')} title="Kelola Katalog Produk">
                 <Shirt size={24} />
                 <span>Katalog Gear</span>
               </button>
-              <button className="control-btn">
+              <button className="control-btn" onClick={() => navigate('/admin/orders')} title="Kelola Pesanan Masuk">
                 <Package size={24} />
                 <span>Pesanan</span>
               </button>
-              <button className="control-btn">
+              <button className="control-btn" onClick={() => navigate('/admin/discount')} title="Kelola Voucher & Promo">
                 <Tag size={24} />
                 <span>Promo</span>
               </button>
-              <button className="control-btn">
+              <button className="control-btn" onClick={() => navigate('/admin/reports')} title="Lihat Laporan Keuangan">
                 <BarChart size={24} />
                 <span>Laporan</span>
               </button>

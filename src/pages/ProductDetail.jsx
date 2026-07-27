@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useProducts } from '../context/ProductContext';
 import { useCart } from '../context/CartContext';
@@ -6,7 +6,7 @@ import { useCurrency } from '../context/CurrencyContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ProductGrid from '../components/ProductGrid';
-import { Heart, Minus, Plus, ChevronDown, ChevronUp, Link as LinkIcon } from 'lucide-react';
+import { Heart, Minus, Plus, ChevronDown, ChevronUp, Link as LinkIcon, ZoomIn, ZoomOut, RotateCcw, ChevronLeft, ChevronRight, X, Maximize2 } from 'lucide-react';
 import './ProductDetail.css';
 
 export default function ProductDetail() {
@@ -24,6 +24,65 @@ export default function ProductDetail() {
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+
+  // Lightbox & Zoom States
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [fullscreenIndex, setFullscreenIndex] = useState(0);
+
+  const galleryImages = useMemo(() => {
+    if (!product) return [];
+    const list = [];
+    if (product.image) list.push(product.image);
+    if (product.thumbnails && Array.isArray(product.thumbnails)) {
+      product.thumbnails.forEach(t => {
+        if (t && !list.includes(t)) list.push(t);
+      });
+    }
+    return list;
+  }, [product]);
+
+  const openFullscreen = (imgUrl) => {
+    const idx = galleryImages.indexOf(imgUrl);
+    setFullscreenIndex(idx >= 0 ? idx : 0);
+    setZoomLevel(1);
+    setIsFullscreenOpen(true);
+  };
+
+  const closeFullscreen = () => {
+    setIsFullscreenOpen(false);
+    setZoomLevel(1);
+  };
+
+  const handleZoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + 0.5, 3));
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel(prev => Math.max(prev - 0.5, 1));
+  };
+
+  const toggleDoubleTapZoom = () => {
+    setZoomLevel(prev => (prev > 1 ? 1 : 2));
+  };
+
+  const prevFullscreenImage = () => {
+    setZoomLevel(1);
+    setFullscreenIndex(prev => (prev > 0 ? prev - 1 : galleryImages.length - 1));
+  };
+
+  const nextFullscreenImage = () => {
+    setZoomLevel(1);
+    setFullscreenIndex(prev => (prev < galleryImages.length - 1 ? prev + 1 : 0));
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') closeFullscreen();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     // Scroll to top on load
@@ -96,8 +155,15 @@ export default function ProductDetail() {
               </div>
             ))}
           </div>
-          <div className="pdp-main-image-wrapper">
+          <div 
+            className="pdp-main-image-wrapper clickable-zoom"
+            onClick={() => openFullscreen(mainImage)}
+            title="Klik untuk memperbesar (Fullscreen Zoom)"
+          >
             <img src={mainImage} alt={product.name} className="pdp-main-image" />
+            <div className="zoom-hint-badge">
+              <Maximize2 size={15} /> <span>Fullscreen Zoom</span>
+            </div>
           </div>
         </div>
         
@@ -106,7 +172,12 @@ export default function ProductDetail() {
             <Link to="/">Home</Link> / <Link to="/catalog">Catalog</Link> / <span>{product.name}</span>
           </div>
           
-          <h1 className="pdp-title">{product.name}</h1>
+          <h1 className="pdp-title">
+            {product.name}
+            {(product.isSoldOut || product.stock <= 0) && (
+              <span className="pdp-soldout-tag">SOLD OUT</span>
+            )}
+          </h1>
           <div className="pdp-price">
             {product.discountPrice ? (
               <>
@@ -129,7 +200,7 @@ export default function ProductDetail() {
               {product.sizes.map(sizeObj => {
                 const sizeName = typeof sizeObj === 'string' ? sizeObj : sizeObj.name;
                 const stock = typeof sizeObj === 'string' ? 999 : sizeObj.stock;
-                const isOutOfStock = stock === 0;
+                const isOutOfStock = product.isSoldOut || stock === 0;
 
                 return (
                   <button 
@@ -147,6 +218,7 @@ export default function ProductDetail() {
             {selectedSize && (
               <div className="size-stock-status" style={{ marginTop: '10px' }}>
                 {(() => {
+                   if (product.isSoldOut) return <span className="stock-badge out">Out of stock (Sold Out)</span>;
                    const sObj = product.sizes.find(s => (typeof s === 'string' ? s : s.name) === selectedSize);
                    const sStock = typeof sObj === 'string' ? 999 : (sObj?.stock || 0);
                    if (sStock === 0) return <span className="stock-badge out">Out of stock</span>;
@@ -159,20 +231,20 @@ export default function ProductDetail() {
           
           <div className="pdp-actions">
             <div className="pdp-qty-selector">
-              <button onClick={() => setQuantity(Math.max(1, quantity - 1))}><Minus size={16} /></button>
+              <button onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={product.isSoldOut || product.stock <= 0}><Minus size={16} /></button>
               <span>{quantity}</span>
-              <button onClick={() => setQuantity(quantity + 1)}><Plus size={16} /></button>
+              <button onClick={() => setQuantity(quantity + 1)} disabled={product.isSoldOut || product.stock <= 0}><Plus size={16} /></button>
             </div>
             <button 
-              className="btn btn-primary add-to-cart-btn" 
+              className={`btn btn-primary add-to-cart-btn ${(product.isSoldOut || product.stock <= 0) ? 'is-soldout-btn' : ''}`}
               onClick={handleAddToCart}
-              disabled={!selectedSize || (() => {
+              disabled={product.isSoldOut || product.stock <= 0 || !selectedSize || (() => {
                  const sObj = product.sizes.find(s => (typeof s === 'string' ? s : s.name) === selectedSize);
                  const sStock = typeof sObj === 'string' ? 999 : (sObj?.stock || 0);
                  return sStock === 0;
               })()}
             >
-              {!selectedSize ? 'Select Size' : 'Add to Cart'}
+              {(product.isSoldOut || product.stock <= 0) ? 'STOK HABIS (SOLD OUT)' : (!selectedSize ? 'PILIH UKURAN' : 'TAMBAH KE KERANJANG')}
             </button>
           </div>
           
@@ -347,9 +419,9 @@ export default function ProductDetail() {
           </div>
         </div>
         
-        {product.sizeGuide?.bannerImage !== '' && (
+        {Boolean(product.sizeGuide?.bannerImage && product.sizeGuide.bannerImage.trim() !== '') && (
           <div className="specs-fullwidth-image">
-             <img src={product.sizeGuide?.bannerImage || "/images/hero_bg.png"} alt="Texture detail" className="texture-image" />
+             <img src={product.sizeGuide.bannerImage} alt="Texture detail" className="texture-image" />
           </div>
         )}
       </div>
@@ -370,6 +442,78 @@ export default function ProductDetail() {
       <div className={`pdp-toast ${toastMessage ? 'show' : ''}`}>
         {toastMessage}
       </div>
+
+      {/* Fullscreen Lightbox Modal */}
+      {isFullscreenOpen && (
+        <div className="pdp-lightbox-modal">
+          <div className="lightbox-backdrop" onClick={closeFullscreen}></div>
+          
+          {/* Header Controls */}
+          <div className="lightbox-header">
+            <span className="lightbox-counter">
+              {fullscreenIndex + 1} / {galleryImages.length}
+            </span>
+            
+            <div className="lightbox-zoom-tools">
+              <button onClick={handleZoomOut} disabled={zoomLevel <= 1} title="Zoom Out (-)">
+                <ZoomOut size={18} />
+              </button>
+              <span className="zoom-value">{Math.round(zoomLevel * 100)}%</span>
+              <button onClick={handleZoomIn} disabled={zoomLevel >= 3} title="Zoom In (+)">
+                <ZoomIn size={18} />
+              </button>
+              {zoomLevel > 1 && (
+                <button onClick={() => setZoomLevel(1)} title="Reset Zoom">
+                  <RotateCcw size={16} />
+                </button>
+              )}
+            </div>
+
+            <button onClick={closeFullscreen} className="lightbox-close-btn" title="Tutup (Close X)">
+              <X size={24} />
+            </button>
+          </div>
+
+          {/* Main Image Container */}
+          <div className="lightbox-content" onDoubleClick={toggleDoubleTapZoom}>
+            {galleryImages.length > 1 && (
+              <button className="lightbox-nav-btn prev" onClick={prevFullscreenImage} title="Sebelumnya">
+                <ChevronLeft size={28} />
+              </button>
+            )}
+
+            <div className="lightbox-img-container">
+              <img 
+                src={galleryImages[fullscreenIndex]} 
+                alt={`${product.name} Fullscreen`} 
+                className="lightbox-image"
+                style={{ transform: `scale(${zoomLevel})` }}
+              />
+            </div>
+
+            {galleryImages.length > 1 && (
+              <button className="lightbox-nav-btn next" onClick={nextFullscreenImage} title="Berikutnya">
+                <ChevronRight size={28} />
+              </button>
+            )}
+          </div>
+
+          {/* Bottom Thumbnail Selector */}
+          {galleryImages.length > 1 && (
+            <div className="lightbox-footer-thumbs">
+              {galleryImages.map((img, idx) => (
+                <div 
+                  key={idx} 
+                  className={`lightbox-footer-thumb ${idx === fullscreenIndex ? 'active' : ''}`}
+                  onClick={() => { setFullscreenIndex(idx); setZoomLevel(1); }}
+                >
+                  <img src={img} alt="thumb" />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

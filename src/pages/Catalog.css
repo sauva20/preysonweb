@@ -280,7 +280,7 @@ body:not(.dark-mode) .catalog-product-info {
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 5px;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.5px;
 }
 

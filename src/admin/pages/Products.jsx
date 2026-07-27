@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { useProducts } from '../../context/ProductContext';
-import { Plus, Edit2, Trash2, X, Image as ImageIcon, ChevronDown, Search } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Image as ImageIcon, ChevronDown, Search, Upload, Flame, Eye, EyeOff } from 'lucide-react';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useActivity } from '../../context/ActivityContext';
 import Barcode from 'react-barcode';
-import { confirmDelete, showSuccess } from '../utils/alert';
+import { confirmDelete, showSuccess, showError } from '../utils/alert';
 import Swal from 'sweetalert2';
 import './Products.css';
 
 export default function Products() {
-  const { products, addProduct, updateProduct, deleteProduct, categories, addCategory, deleteCategory } = useProducts();
+  const { products, addProduct, updateProduct, deleteProduct, toggleSoldOut, categories, addCategory, deleteCategory } = useProducts();
   const { formatPrice } = useCurrency();
   const { logActivity } = useActivity();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -272,10 +272,31 @@ export default function Products() {
                 </td>
                 <td>
                   <div className="table-actions">
-                    <button className="action-btn edit" onClick={() => openModal(product)}>
+                    <button 
+                      className={`action-btn soldout-toggle-btn ${product.isSoldOut ? 'is-soldout' : ''}`}
+                      title={product.isSoldOut ? 'Aktifkan Kembali Stok (Normal Mode)' : 'Matikan Stok / Tandai Sold Out (Marketing Mode)'}
+                      onClick={async () => {
+                        try {
+                          const updated = await toggleSoldOut(product.id);
+                          logActivity({
+                            category: 'Produk',
+                            title: 'Status Sold Out Diubah',
+                            description: `Produk "${product.name}" kini dalam status ${updated.isSoldOut ? 'SOLD OUT (Marketing Mode)' : 'Aktif Tersedia'}.`,
+                            status: updated.isSoldOut ? 'warning' : 'success'
+                          });
+                          showSuccess(updated.isSoldOut ? `"${product.name}" ditandai SOLD OUT!` : `"${product.name}" kembali Aktif!`);
+                        } catch (e) {
+                          showError('Gagal mengubah status produk');
+                        }
+                      }}
+                    >
+                      {product.isSoldOut ? <Flame size={15} color="#ef4444" /> : <Eye size={15} />}
+                      <span className="soldout-btn-text">{product.isSoldOut ? 'SOLD OUT' : 'AKTIF'}</span>
+                    </button>
+                    <button className="action-btn edit" onClick={() => openModal(product)} title="Edit Produk">
                       <Edit2 size={16} />
                     </button>
-                    <button className="action-btn delete" onClick={async () => {
+                    <button className="action-btn delete" title="Hapus Produk" onClick={async () => {
                       if (await confirmDelete(`the product "${product.name}"`)) {
                         await deleteProduct(product.id);
                         logActivity({ category: 'Produk', title: 'Produk Dihapus', description: `Produk "${product.name}" telah dihapus secara permanen dari katalog.`, status: 'warning' });
@@ -680,14 +701,114 @@ export default function Products() {
                   
                   {/* Banner Upload Section */}
                   <div className="banner-upload-section" style={{ marginTop: '20px', padding: '20px', border: '1px dashed var(--border-color)', borderRadius: '8px' }}>
-                    <h4 style={{ marginBottom: '12px', color: 'var(--text-primary)' }}>Product Banner (Bottom)</h4>
-                    <div style={{ position: 'relative', width: '100%', height: '120px', background: '#222', borderRadius: '8px', overflow: 'hidden' }}>
-                      <img 
-                        src={formData.sizeGuide?.bannerImage || '/images/hero_bg.png'} 
-                        alt="Banner Preview" 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                      />
-                      <label style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'rgba(0,0,0,0.5)', cursor: 'pointer', color: '#fff', ...(isUploadingImage ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                      <h4 style={{ margin: 0, color: 'var(--text-primary)' }}>Product Banner (Bottom)</h4>
+                      {Boolean(formData.sizeGuide?.bannerImage) && (
+                        <button 
+                          type="button" 
+                          onClick={() => setFormData({ ...formData, sizeGuide: { ...(formData.sizeGuide || {}), bannerImage: '' } })}
+                          style={{
+                            background: '#ef4444',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '6px',
+                            padding: '6px 12px',
+                            fontSize: '0.8rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            transition: 'opacity 0.2s'
+                          }}
+                        >
+                          <X size={14} /> Remove Banner
+                        </button>
+                      )}
+                    </div>
+
+                    {formData.sizeGuide?.bannerImage ? (
+                      <div style={{ position: 'relative', width: '100%', height: '120px', background: '#222', borderRadius: '8px', overflow: 'hidden' }}>
+                        <img 
+                          src={formData.sizeGuide.bannerImage} 
+                          alt="Banner Preview" 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        />
+                        <label 
+                          style={{ 
+                            position: 'absolute', 
+                            top: 0, 
+                            left: 0, 
+                            width: '100%', 
+                            height: '100%', 
+                            display: 'flex', 
+                            justifyContent: 'center', 
+                            alignItems: 'center', 
+                            background: 'rgba(0,0,0,0.5)', 
+                            cursor: 'pointer', 
+                            color: '#fff', 
+                            opacity: isUploadingImage ? 1 : 0, 
+                            transition: 'opacity 0.2s',
+                            ...(isUploadingImage ? { cursor: 'not-allowed' } : {}) 
+                          }}
+                          onMouseEnter={(e) => !isUploadingImage && (e.currentTarget.style.opacity = 1)}
+                          onMouseLeave={(e) => !isUploadingImage && (e.currentTarget.style.opacity = 0)}
+                        >
+                          <input type="file" accept="image/*" style={{ display: 'none' }} disabled={isUploadingImage} onChange={async (e) => {
+                            if (e.target.files && e.target.files.length > 0) {
+                              const url = await uploadImage(e.target.files[0]);
+                              if (url) {
+                                setFormData({ ...formData, sizeGuide: { ...(formData.sizeGuide || {}), bannerImage: url } });
+                              }
+                            }
+                          }} />
+                          {isUploadingImage ? <span style={{ fontWeight: 'bold' }}>UPLOADING...</span> : <span>Click to Change Banner</span>}
+                        </label>
+
+                        {/* Top-Right Close / Cancel Badge Button */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFormData({ ...formData, sizeGuide: { ...(formData.sizeGuide || {}), bannerImage: '' } });
+                          }}
+                          style={{
+                            position: 'absolute',
+                            top: '8px',
+                            right: '8px',
+                            background: '#ef4444',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '28px',
+                            height: '28px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            zIndex: 20,
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.4)'
+                          }}
+                          title="Remove Banner"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <label style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        width: '100%', 
+                        height: '100px', 
+                        background: 'var(--input-bg)', 
+                        border: '1px dashed var(--border-color)', 
+                        borderRadius: '8px', 
+                        cursor: 'pointer', 
+                        color: 'var(--text-secondary)',
+                        transition: 'border-color 0.2s'
+                      }}>
                         <input type="file" accept="image/*" style={{ display: 'none' }} disabled={isUploadingImage} onChange={async (e) => {
                           if (e.target.files && e.target.files.length > 0) {
                             const url = await uploadImage(e.target.files[0]);
@@ -696,9 +817,15 @@ export default function Products() {
                             }
                           }
                         }} />
-                        {isUploadingImage ? <span style={{ fontWeight: 'bold' }}>UPLOADING...</span> : <span>Click to Change Banner</span>}
+                        <Upload size={22} style={{ marginBottom: '6px' }} />
+                        <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>
+                          {isUploadingImage ? 'UPLOADING...' : '+ Upload Product Banner (Bottom)'}
+                        </span>
+                        <span style={{ fontSize: '0.75rem', opacity: 0.7, marginTop: '2px' }}>
+                          Optional: Biarkan kosong jika produk ini tidak pakai banner bawah
+                        </span>
                       </label>
-                    </div>
+                    )}
                   </div>
                 </div>
               </div>

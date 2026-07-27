@@ -45,3 +45,15 @@ export const showSuccess = (title = 'Success') => {
     timerProgressBar: true
   });
 };
+
+export const showError = (title = 'Error') => {
+  Swal.fire({
+    title,
+    icon: 'error',
+    toast: true,
+    position: 'bottom-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true
+  });
+};

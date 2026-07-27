@@ -11,7 +11,7 @@ import './POS.css';
 import './POS-modal.css';
 
 export default function POS() {
-  const { products, categories } = useProducts();
+  const { products, categories, fetchProducts } = useProducts();
   const { addOrder } = useOrders();
   const { formatPrice } = useCurrency();
   const { logActivity } = useActivity();
@@ -167,6 +167,7 @@ export default function POS() {
       await addOrder({
         items: cartItems.map(item => ({
           productId: item.id,
+          size: item.size,
           quantity: item.quantity,
           price: item.price
         })),
@@ -179,6 +180,10 @@ export default function POS() {
         customerName: details.customerName || '',
         customerEmail: details.customerEmail || ''
       });
+
+      if (fetchProducts) {
+        await fetchProducts();
+      }
 
       setCartItems([]);
       setIsCashModalOpen(false);

@@ -122,7 +122,7 @@
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 5px;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .product-info .price {
@@ -145,4 +145,21 @@
 
 .view-all-btn:hover {
   opacity: 0.8;
+}
+
+/* Sold Out Badge Overlay */
+.product-soldout-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  background-color: #111111;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }

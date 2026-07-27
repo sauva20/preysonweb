@@ -138,19 +138,150 @@ body:not(.dark-mode) .metric-trend.negative { color: #dc2626; }
   font-weight: 700;
 }
 
-.chart-placeholder {
-  height: 300px;
+.chart-header-info {
   display: flex;
-  flex-direction: column;
   justify-content: space-between;
-  border-left: 1px solid var(--admin-border);
-  border-bottom: 1px solid var(--admin-border);
-  padding-left: 10px;
+  align-items: flex-start;
+  margin-bottom: 20px;
 }
 
-.chart-line-bg {
+.chart-subtitle {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  margin-top: 2px;
+}
+
+.chart-total-badge {
+  background: var(--admin-surface-hover);
+  border: 1px solid var(--admin-border);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--admin-text);
+}
+
+.chart-total-badge strong {
+  color: var(--admin-accent, #dc5a1e);
+  font-weight: 700;
+}
+
+.real-chart-container {
+  height: 250px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border-bottom: 1px solid var(--admin-border);
+  padding-top: 20px;
+  margin-top: 10px;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 100%;
+  gap: 12px;
+  padding: 0 10px;
+}
+
+.chart-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.bar-wrapper {
+  flex: 1;
   width: 100%;
-  border-bottom: 1px dashed var(--admin-border);
+  max-width: 44px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
+}
+
+.bar-fill {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  cursor: pointer;
+}
+
+.bar-fill.active-bar {
+  background: linear-gradient(180deg, #dc5a1e 0%, #b84410 100%);
+  box-shadow: 0 4px 12px rgba(220, 90, 30, 0.35);
+}
+
+.bar-fill.empty-bar {
+  background: var(--admin-border-dark, #333333);
+  opacity: 0.3;
+}
+
+.bar-fill:hover {
+  transform: scaleY(1.05);
+  filter: brightness(1.15);
+}
+
+.bar-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background: #111111;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 100;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.bar-fill:hover .bar-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-12px);
+}
+
+.tooltip-date {
+  font-weight: 700;
+  color: #aaa;
+  margin-bottom: 2px;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.tooltip-sales {
+  font-weight: 800;
+  font-size: 13px;
+  color: #dc5a1e;
+}
+
+.tooltip-count {
+  font-size: 10px;
+  color: #ddd;
+  margin-top: 2px;
+}
+
+.bar-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--admin-text-muted);
+  margin-top: 10px;
+  text-transform: uppercase;
 }
 
 .dashboard-side-section {

@@ -49,6 +49,9 @@ export default function ProductGrid({ title, subtitle, items, columns = 4, categ
                 {item.aestheticImage && (
                   <div className="product-image hover-img" style={{ backgroundImage: `url(${item.aestheticImage})` }}></div>
                 )}
+                {(item.isSoldOut || item.stock <= 0) && (
+                  <div className="product-soldout-badge">SOLD OUT</div>
+                )}
               </div>
               <div className="product-info">
                 <h3>{item.name}</h3>

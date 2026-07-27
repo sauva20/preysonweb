@@ -909,6 +909,44 @@ body.dark-mode .add-preview-btn:hover {
   color: #fff;
 }
 
+/* Sold Out Marketing Toggle Button */
+.action-btn.soldout-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border: 1px solid var(--admin-border, #ddd);
+  background-color: var(--admin-surface, #fff);
+  color: var(--admin-text-muted, #777);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn.soldout-toggle-btn:hover {
+  background-color: var(--admin-surface-hover, #f0f0f0);
+  color: var(--admin-text, #111);
+  border-color: var(--admin-border-dark, #aaa);
+}
+
+.action-btn.soldout-toggle-btn.is-soldout {
+  background-color: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+}
+
+.action-btn.soldout-toggle-btn.is-soldout:hover {
+  background-color: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+}
+
+.soldout-btn-text {
+  font-size: 10px;
+}
+
 .preview-breadcrumbs {
   display: flex;
   align-items: center;

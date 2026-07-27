@@ -184,7 +184,7 @@ export default function Catalog() {
                         style={{ backgroundImage: `url(${product.aestheticImage})` }}
                       ></div>
                     )}
-                    {product.stock === 0 && <span className="product-badge out-of-stock">SOLD OUT</span>}
+                    {(product.isSoldOut || product.stock <= 0) && <span className="product-badge out-of-stock">SOLD OUT</span>}
                     
 
                   </div>
