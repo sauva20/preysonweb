@@ -15,18 +15,26 @@ export function ProductProvider({ children }) {
     fetchProducts();
     fetchCategories();
 
-    const socket = io(SOCKET_URL, {
-      transports: ['polling'],
-      autoConnect: true
-    });
-    
-    socket.on('stock_updated', () => {
-      console.log('Stock updated event received via WebSocket. Refetching products...');
-      fetchProducts();
-    });
+    let socket = null;
+    const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+    if (isLocal) {
+      try {
+        socket = io(SOCKET_URL, {
+          transports: ['polling'],
+          autoConnect: true
+        });
+        
+        socket.on('stock_updated', () => {
+          fetchProducts();
+        });
+      } catch (e) {
+        console.warn('Socket connection skipped:', e);
+      }
+    }
 
     return () => {
-      socket.disconnect();
+      if (socket) socket.disconnect();
     };
   }, []);
 

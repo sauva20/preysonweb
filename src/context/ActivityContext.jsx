@@ -88,24 +88,33 @@ export const ActivityProvider = ({ children }) => {
         console.error('Failed to fetch activity logs from API:', err);
       });
 
-    // 2. Setup Socket.IO listener for real-time activity updates across admins
-    const socket = io(getBackendUrl(), {
-      transports: ['polling']
-    });
+    // 2. Setup Socket.IO listener for real-time activity updates (local dev only)
+    let socket = null;
+    const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
-    socket.on('activity_added', (newAct) => {
-      setActivities(prev => {
-        if (prev.some(a => a.id === newAct.id)) return prev;
-        return [newAct, ...prev].slice(0, 500);
-      });
-    });
+    if (isLocal) {
+      try {
+        socket = io(getBackendUrl(), {
+          transports: ['polling']
+        });
 
-    socket.on('activities_cleared', () => {
-      setActivities([]);
-    });
+        socket.on('activity_added', (newAct) => {
+          setActivities(prev => {
+            if (prev.some(a => a.id === newAct.id)) return prev;
+            return [newAct, ...prev].slice(0, 500);
+          });
+        });
+
+        socket.on('activities_cleared', () => {
+          setActivities([]);
+        });
+      } catch (e) {
+        console.warn('Activity socket skipped:', e);
+      }
+    }
 
     return () => {
-      socket.disconnect();
+      if (socket) socket.disconnect();
     };
   }, []);
 
