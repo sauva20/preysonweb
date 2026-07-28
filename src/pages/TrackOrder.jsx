@@ -1,3 +1,4 @@
+import { getApiUrl, getBackendUrl } from '../utils/apiConfig';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -30,7 +31,7 @@ export default function TrackOrder() {
       // Clean order ID if user inputs "ORD-12" or "#12"
       const cleanId = orderCode.trim().replace(/^#|^ORD-/i, '');
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/orders`);
+      const res = await fetch(`${getApiUrl()}/orders`);
       const allOrders = await res.json();
 
       if (Array.isArray(allOrders)) {

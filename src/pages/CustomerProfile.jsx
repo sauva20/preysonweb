@@ -1,3 +1,4 @@
+import { getApiUrl, getBackendUrl } from '../utils/apiConfig';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -49,7 +50,7 @@ export default function CustomerProfile() {
 
       if (parsed.email) {
         setIsLoadingOrders(true);
-        fetch(`${import.meta.env.VITE_API_URL}/orders`)
+        fetch(`${getApiUrl()}/orders`)
           .then(res => res.json())
           .then(data => {
             if (Array.isArray(data)) {
@@ -93,7 +94,7 @@ export default function CustomerProfile() {
     setIsSendingOtp(true);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/send-otp`, {
+      const res = await fetch(`${getApiUrl()}/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: user.email })
@@ -136,7 +137,7 @@ export default function CustomerProfile() {
     setIsUpdatingPassword(true);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/reset-password`, {
+      const res = await fetch(`${getApiUrl()}/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: user.email, otp: otpInput, newPassword })

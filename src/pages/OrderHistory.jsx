@@ -1,3 +1,4 @@
+import { getApiUrl, getBackendUrl } from '../utils/apiConfig';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -25,7 +26,7 @@ export default function OrderHistory() {
       const parsed = JSON.parse(savedUser);
       if (parsed.email) {
         setIsLoading(true);
-        fetch(`${import.meta.env.VITE_API_URL}/orders`)
+        fetch(`${getApiUrl()}/orders`)
           .then(res => res.json())
           .then(data => {
             if (Array.isArray(data)) {

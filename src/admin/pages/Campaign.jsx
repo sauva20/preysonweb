@@ -1,3 +1,4 @@
+import { getApiUrl, getBackendUrl } from '../../utils/apiConfig';
 import React, { useState, useEffect } from 'react';
 import { 
   DndContext, 
@@ -41,7 +42,7 @@ export default function Campaign() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/settings`)
+    fetch(`${getApiUrl()}/settings`)
       .then(res => res.json())
       .then(data => {
         if (data.storefrontLayout) {
@@ -62,7 +63,7 @@ export default function Campaign() {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/categories`)
+    fetch(`${getApiUrl()}/categories`)
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(err => console.error('Failed to load categories', err));
@@ -126,7 +127,7 @@ export default function Campaign() {
     setIsSaving(true);
     Swal.fire({ title: 'Publishing Campaign...', text: 'Please wait...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/settings`, {
+      const res = await fetch(`${getApiUrl()}/settings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ storefrontLayout: JSON.stringify(blocks) })
@@ -154,7 +155,7 @@ export default function Campaign() {
     const formData = new FormData();
     formData.append('image', file);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/upload`, {
+      const res = await fetch(`${getApiUrl()}/upload`, {
         method: 'POST',
         body: formData
       });

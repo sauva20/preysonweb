@@ -1,3 +1,4 @@
+import { getApiUrl, getBackendUrl } from '../../utils/apiConfig';
 import React, { useState } from 'react';
 import { useProducts } from '../../context/ProductContext';
 import { Plus, Edit2, Trash2, X, Image as ImageIcon, ChevronDown, Search, Upload, Flame, Eye, EyeOff } from 'lucide-react';
@@ -44,7 +45,7 @@ export default function Products() {
     const data = new FormData();
     data.append('image', file);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/upload`, {
+      const res = await fetch(`${getApiUrl()}/upload`, {
         method: 'POST',
         body: data
       });

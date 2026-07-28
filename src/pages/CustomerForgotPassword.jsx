@@ -1,3 +1,4 @@
+import { getApiUrl, getBackendUrl } from '../utils/apiConfig';
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, KeyRound, Mail, ArrowRight } from 'lucide-react';
@@ -26,7 +27,7 @@ export default function CustomerForgotPassword() {
     setIsLoading(true);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/send-otp`, {
+      const res = await fetch(`${getApiUrl()}/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim() })
@@ -71,7 +72,7 @@ export default function CustomerForgotPassword() {
     setIsLoading(true);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/reset-password`, {
+      const res = await fetch(`${getApiUrl()}/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim(), otp: otpInput.trim(), newPassword })

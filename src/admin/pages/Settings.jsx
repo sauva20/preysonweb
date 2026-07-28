@@ -1,3 +1,4 @@
+import { getApiUrl, getBackendUrl } from '../../utils/apiConfig';
 import React, { useState } from 'react';
 import { Store, CreditCard, Truck, Users, Save, CheckCircle2, QrCode, LogOut } from 'lucide-react';
 import { useCurrency } from '../../context/CurrencyContext';
@@ -57,7 +58,7 @@ export default function Settings() {
 
   const fetchStaff = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/staff`);
+      const res = await fetch(`${getApiUrl()}/staff`);
       if(res.ok) {
         const data = await res.json();
         setStaffList(data);
@@ -78,7 +79,7 @@ export default function Settings() {
     const delayDebounceFn = setTimeout(async () => {
       setIsSearchingArea(true);
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/checkout/search-area?query=${encodeURIComponent(areaSearch)}`);
+        const res = await fetch(`${getApiUrl()}/checkout/search-area?query=${encodeURIComponent(areaSearch)}`);
         const data = await res.json();
         setAreaResults(data.areas || []);
         setShowAreaDropdown(true);
@@ -119,7 +120,7 @@ export default function Settings() {
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/settings`);
+      const res = await fetch(`${getApiUrl()}/settings`);
       if (res.ok) {
         const data = await res.json();
         setAppSettings(prev => ({
@@ -141,7 +142,7 @@ export default function Settings() {
   const handleInviteStaffSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/staff`, {
+      const res = await fetch(`${getApiUrl()}/staff`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newStaff)
@@ -164,7 +165,7 @@ export default function Settings() {
     }
     
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/settings`, {
+      await fetch(`${getApiUrl()}/settings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(appSettings)

@@ -1,3 +1,4 @@
+import { getApiUrl, getBackendUrl } from '../utils/apiConfig';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -35,7 +36,7 @@ export default function Checkout() {
   // Inject Midtrans Script Dynamically
   useEffect(() => {
     let scriptTag = null;
-    fetch(`${import.meta.env.VITE_API_URL}/checkout/config`)
+    fetch(`${getApiUrl()}/checkout/config`)
       .then(res => res.json())
       .then(data => {
         if (data.clientKey) {
@@ -64,7 +65,7 @@ export default function Checkout() {
     const delayDebounceFn = setTimeout(async () => {
       setIsSearchingArea(true);
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/checkout/search-area?query=${encodeURIComponent(areaSearch)}`);
+        const res = await fetch(`${getApiUrl()}/checkout/search-area?query=${encodeURIComponent(areaSearch)}`);
         const data = await res.json();
         setAreaResults(data.areas || []);
         setShowAreaDropdown(true);
@@ -92,7 +93,7 @@ export default function Checkout() {
   // Fetch Shipping Rates when areaId is selected
   useEffect(() => {
     if (formData.areaId) {
-      fetch(`${import.meta.env.VITE_API_URL}/checkout/shipping-rates`, {
+      fetch(`${getApiUrl()}/checkout/shipping-rates`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ destinationAreaId: formData.areaId, destinationPostal: formData.postal })
@@ -119,7 +120,7 @@ export default function Checkout() {
   const handleApplyVoucher = async () => {
     setVoucherError('');
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/checkout/validate-voucher`, {
+      const res = await fetch(`${getApiUrl()}/checkout/validate-voucher`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: voucherCode })
@@ -167,7 +168,7 @@ export default function Checkout() {
         }))
       };
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/checkout/process`, {
+      const res = await fetch(`${getApiUrl()}/checkout/process`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderPayload)

@@ -1,3 +1,4 @@
+import { getApiUrl, getBackendUrl } from '../utils/apiConfig';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -40,7 +41,7 @@ export default function Payment() {
 
   const fetchPaymentStatus = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/orders/${id}/payment-status`);
+      const res = await fetch(`${getApiUrl()}/orders/${id}/payment-status`);
       if (res.ok) {
         const data = await res.json();
         setOrderInfo(data);
@@ -55,7 +56,7 @@ export default function Payment() {
 
   const handleExpire = async () => {
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/orders/${id}/cancel`, { method: 'POST' });
+      await fetch(`${getApiUrl()}/orders/${id}/cancel`, { method: 'POST' });
       setOrderInfo(prev => ({ ...prev, status: 'Expired' }));
     } catch (e) {
       console.error(e);

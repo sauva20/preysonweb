@@ -1,3 +1,4 @@
+import { getApiUrl, getBackendUrl } from './utils/apiConfig';
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
@@ -65,7 +66,7 @@ function Home() {
   ]);
 
   React.useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/settings`)
+    fetch(`${getApiUrl()}/settings`)
       .then(res => res.json())
       .then(data => {
         if (data.storefrontLayout) {

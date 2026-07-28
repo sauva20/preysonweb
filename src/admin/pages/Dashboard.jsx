@@ -1,3 +1,4 @@
+import { getApiUrl, getBackendUrl } from '../../utils/apiConfig';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -77,7 +78,7 @@ export default function Dashboard() {
   }, [orders]);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/dashboard/stats?period=${period}`)
+    fetch(`${getApiUrl()}/dashboard/stats?period=${period}`)
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(err => console.error('Failed to fetch dashboard stats:', err));

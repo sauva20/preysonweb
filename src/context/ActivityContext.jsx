@@ -139,7 +139,7 @@ export const ActivityProvider = ({ children }) => {
       timestamp: new Date().toISOString()
     };
 
-    fetch(`${import.meta.env.VITE_API_URL}/activities`, {
+    fetch(`${getApiUrl()}/activities`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -157,7 +157,7 @@ export const ActivityProvider = ({ children }) => {
   };
 
   const clearActivities = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/activities`, {
+    fetch(`${getApiUrl()}/activities`, {
       method: 'DELETE'
     })
     .then(() => setActivities([]))

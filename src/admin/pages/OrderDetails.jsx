@@ -1,3 +1,4 @@
+import { getApiUrl, getBackendUrl } from '../../utils/apiConfig';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Truck, CheckCircle, Package } from 'lucide-react';
@@ -20,7 +21,7 @@ export default function OrderDetails() {
 
   const fetchOrder = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/orders/${id}`);
+      const res = await fetch(`${getApiUrl()}/orders/${id}`);
       if (res.ok) {
         const data = await res.json();
         setOrder(data);
@@ -36,7 +37,7 @@ export default function OrderDetails() {
     setShippingLoading(true);
     setShippingError('');
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/orders/${id}/ship`, {
+      const res = await fetch(`${getApiUrl()}/orders/${id}/ship`, {
         method: 'POST'
       });
       const data = await res.json();

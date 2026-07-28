@@ -1,3 +1,4 @@
+import { getApiUrl, getBackendUrl } from '../utils/apiConfig';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useProducts } from '../context/ProductContext';
@@ -104,7 +105,7 @@ export default function ProductDetail() {
       setSelectedSize('');
       setQuantity(1);
     } else {
-      fetch(`${import.meta.env.VITE_API_URL}/products/${slugOrId}`)
+      fetch(`${getApiUrl()}/products/${slugOrId}`)
         .then(res => res.json())
         .then(data => {
           if (data && data.id) {

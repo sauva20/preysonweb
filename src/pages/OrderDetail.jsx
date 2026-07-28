@@ -1,3 +1,4 @@
+import { getApiUrl, getBackendUrl } from '../utils/apiConfig';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -19,7 +20,7 @@ export default function OrderDetail() {
     window.scrollTo(0, 0);
     setIsLoading(true);
 
-    fetch(`${import.meta.env.VITE_API_URL}/orders`)
+    fetch(`${getApiUrl()}/orders`)
       .then(res => res.json())
       .then(allOrders => {
         if (Array.isArray(allOrders)) {
@@ -39,7 +40,7 @@ export default function OrderDetail() {
 
   const fetchTracking = (waybill, courier) => {
     setIsLoadingTracking(true);
-    fetch(`${import.meta.env.VITE_API_URL}/tracking/${waybill}?courier=${courier || 'jne'}`)
+    fetch(`${getApiUrl()}/tracking/${waybill}?courier=${courier || 'jne'}`)
       .then(res => res.json())
       .then(data => {
         if (data && data.history) {
