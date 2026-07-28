@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
+import Swal from 'sweetalert2';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import './CustomerAuth.css';
@@ -9,6 +11,8 @@ export default function CustomerRegister() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -34,10 +38,16 @@ export default function CustomerRegister() {
     setError('');
 
     if (password.length < 8) {
-      return setError('Password must be at least 8 characters long.');
+      const msg = 'Password minimal harus 8 karakter!';
+      setError(msg);
+      Swal.fire({ icon: 'warning', title: 'Password Terlalu Pendek', text: msg, confirmButtonColor: '#1d1d1d' });
+      return;
     }
     if (password !== confirmPassword) {
-      return setError('Passwords do not match.');
+      const msg = 'Konfirmasi password tidak cocok dengan password di atas!';
+      setError(msg);
+      Swal.fire({ icon: 'warning', title: 'Password Tidak Cocok', text: msg, confirmButtonColor: '#1d1d1d' });
+      return;
     }
 
     setIsLoading(true);
@@ -54,12 +64,35 @@ export default function CustomerRegister() {
       if (res.ok) {
         localStorage.setItem('customer_token', data.token);
         localStorage.setItem('customer_user', JSON.stringify(data.user));
-        navigate('/'); // Redirect to home
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Registrasi Berhasil!',
+          text: `Selamat bergabung di Preyson Moto Company, ${data.user?.name || name}!`,
+          timer: 2000,
+          showConfirmButton: false
+        }).then(() => {
+          navigate('/profile');
+        });
       } else {
-        setError(data.error || 'Registration failed');
+        const msg = data.error || 'Pendaftaran akun gagal';
+        setError(msg);
+        Swal.fire({
+          icon: 'error',
+          title: 'Registrasi Gagal',
+          text: msg,
+          confirmButtonColor: '#1d1d1d'
+        });
       }
     } catch (err) {
-      setError('Cannot connect to server. Please try again later.');
+      const msg = 'Tidak dapat terhubung ke server. Silakan coba beberapa saat lagi.';
+      setError(msg);
+      Swal.fire({
+        icon: 'error',
+        title: 'Koneksi Terputus',
+        text: msg,
+        confirmButtonColor: '#1d1d1d'
+      });
     } finally {
       setIsLoading(false);
     }
@@ -100,13 +133,24 @@ export default function CustomerRegister() {
             
             <div className="form-group">
               <label>Password</label>
-              <input 
-                type="password" 
-                placeholder="Create a password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="password-input-wrapper">
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  placeholder="Create a password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button 
+                  type="button" 
+                  className="password-toggle-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex="-1"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
               {password && (
                 <div className="password-strength-container">
                   <div className="strength-bar-bg">
@@ -124,13 +168,29 @@ export default function CustomerRegister() {
 
             <div className="form-group">
               <label>Verify Password</label>
-              <input 
-                type="password" 
-                placeholder="Confirm your password" 
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
+              <div className="password-input-wrapper">
+                <input 
+                  type={showConfirmPassword ? "text" : "password"} 
+                  placeholder="Confirm your password" 
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+                <button 
+                  type="button" 
+                  className="password-toggle-btn"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  tabIndex="-1"
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {confirmPassword && (
+                <div style={{ marginTop: '6px', fontSize: '12px', fontWeight: '600', color: password === confirmPassword ? '#10b981' : '#ef4444' }}>
+                  {password === confirmPassword ? '✓ Password cocok!' : '✕ Password tidak cocok / tidak sama!'}
+                </div>
+              )}
             </div>
             
             <button type="submit" className="auth-submit-btn" disabled={isLoading}>

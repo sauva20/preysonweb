@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, User, Lock } from 'lucide-react';
+import { ArrowLeft, User, Lock, Eye, EyeOff } from 'lucide-react';
 import './AdminLogin.css';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -76,15 +77,24 @@ export default function AdminLogin() {
               
               <div className="form-group">
                 <label>Password</label>
-                <div className="input-wrapper">
+                <div className="input-wrapper" style={{ position: 'relative' }}>
                   <Lock size={18} className="input-icon" />
                   <input 
-                    type="password" 
+                    type={showPassword ? "text" : "password"} 
                     placeholder="••••••••" 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    style={{ paddingRight: '40px' }}
                     required
                   />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)}
+                    tabIndex="-1"
+                    style={{ position: 'absolute', right: '12px', background: 'none', border: 'none', color: 'var(--admin-text-muted, #94a3b8)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
               </div>
               

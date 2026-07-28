@@ -6,6 +6,7 @@ import { useCurrency } from '../context/CurrencyContext';
 import { Filter, X, ChevronDown, ShoppingBag, Plus } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { slugify } from '../utils/slugify';
 import './Catalog.css';
 
 export default function Catalog() {
@@ -171,7 +172,7 @@ export default function Catalog() {
                 <div 
                   className="catalog-card" 
                   key={product.id}
-                  onClick={() => navigate(`/product/${product.id}`)}
+                  onClick={() => navigate(`/product/${product.slug || slugify(product.name) || product.id}`)}
                 >
                   <div className="catalog-image-bg">
                     <div 

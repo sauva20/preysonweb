@@ -71,27 +71,44 @@ const INITIAL_LOGS = [
   }
 ];
 
+import { io } from 'socket.io-client';
+
 export const ActivityProvider = ({ children }) => {
-  const [activities, setActivities] = useState(() => {
-    const saved = localStorage.getItem('adminActivityLogs');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      } catch (e) {
-        console.error('Failed to parse activity logs:', e);
-      }
-    }
-    return INITIAL_LOGS;
-  });
+  const [activities, setActivities] = useState([]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem('adminActivityLogs', JSON.stringify(activities));
-    } catch (e) {
-      console.error('Failed to save activity logs to localStorage:', e);
-    }
-  }, [activities]);
+    // 1. Fetch initial activity logs from API
+    fetch(`${import.meta.env.VITE_API_URL}/activities`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setActivities(data);
+        }
+      })
+      .catch(err => {
+        console.error('Failed to fetch activity logs from API:', err);
+      });
+
+    // 2. Setup Socket.IO listener for real-time activity updates across admins
+    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
+      transports: ['polling', 'websocket']
+    });
+
+    socket.on('activity_added', (newAct) => {
+      setActivities(prev => {
+        if (prev.some(a => a.id === newAct.id)) return prev;
+        return [newAct, ...prev].slice(0, 500);
+      });
+    });
+
+    socket.on('activities_cleared', () => {
+      setActivities([]);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   const logActivity = ({ category = 'Sistem', title, description, status = 'info', customUser }) => {
     let userName = customUser || 'Administrator';
@@ -105,22 +122,38 @@ export const ActivityProvider = ({ children }) => {
       }
     }
 
-    const newActivity = {
-      id: `act-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-      timestamp: new Date().toISOString(),
+    const payload = {
       category,
       title,
       description,
       user: userName,
-      status
+      status,
+      timestamp: new Date().toISOString()
     };
 
-    setActivities(prev => [newActivity, ...prev].slice(0, 300)); // Keep max 300 recent logs
+    fetch(`${import.meta.env.VITE_API_URL}/activities`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(savedAct => {
+      setActivities(prev => {
+        if (prev.some(a => a.id === savedAct.id)) return prev;
+        return [savedAct, ...prev].slice(0, 500);
+      });
+    })
+    .catch(err => {
+      console.error('Failed to save activity log to server:', err);
+    });
   };
 
   const clearActivities = () => {
-    setActivities([]);
-    localStorage.removeItem('adminActivityLogs');
+    fetch(`${import.meta.env.VITE_API_URL}/activities`, {
+      method: 'DELETE'
+    })
+    .then(() => setActivities([]))
+    .catch(err => console.error('Failed to clear activities on server:', err));
   };
 
   return (

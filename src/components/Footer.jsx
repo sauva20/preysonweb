@@ -16,14 +16,13 @@ export default function Footer() {
           <h4>USEFUL LINKS</h4>
           <ul>
             <li><Link to="/contact">Contact Us</Link></li>
-            <li><a href="#">Our Stores</a></li>
+            <li><Link to="/">Our Stores</Link></li>
           </ul>
         </div>
         <div className="footer-col">
           <h4>INFORMATION</h4>
           <ul>
-            <li><a href="#">Payment Confirmation</a></li>
-            <li><a href="#">Track your order</a></li>
+            <li><Link to="/track-order">Track your order</Link></li>
           </ul>
         </div>
         <div className="footer-col">

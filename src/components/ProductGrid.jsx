@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProducts } from '../context/ProductContext';
 import { useCurrency } from '../context/CurrencyContext';
+import { slugify } from '../utils/slugify';
 import './ProductGrid.css';
 
 export default function ProductGrid({ title, subtitle, items, columns = 4, categoryId, productIds, viewAllLink }) {
@@ -43,7 +44,7 @@ export default function ProductGrid({ title, subtitle, items, columns = 4, categ
         </div>
         <div className={`product-grid-container cols-${columns}`}>
           {displayItems.map((item, index) => (
-            <div className="product-card" key={item.id || index} onClick={() => navigate(`/product/${item.id}`)}>
+            <div className="product-card" key={item.id || index} onClick={() => navigate(`/product/${item.slug || slugify(item.name) || item.id}`)}>
               <div className="product-image-wrapper">
                 <div className="product-image main-img" style={{ backgroundImage: `url(${item.image})` }}></div>
                 {item.aestheticImage && (

@@ -17,6 +17,8 @@ export default function Products() {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('ALL');
+  const [sortOrder, setSortOrder] = useState('latest');
 
   const [newCatName, setNewCatName] = useState('');
 
@@ -141,12 +143,47 @@ export default function Products() {
 
       if (editingProduct) {
         await updateProduct(editingProduct.id, productData);
-        logActivity({ category: 'Produk', title: 'Pembaruan Produk', description: `Data produk "${productData.name}" (Stok: ${productData.stock}) berhasil diperbarui.`, status: 'info' });
+
+        const changes = [];
+        if (editingProduct.name !== productData.name) changes.push(`Nama: "${editingProduct.name}" ➔ "${productData.name}"`);
+        if (Number(editingProduct.price) !== Number(productData.price)) changes.push(`Harga: Rp ${editingProduct.price?.toLocaleString()} ➔ Rp ${Number(productData.price)?.toLocaleString()}`);
+        if (Number(editingProduct.stock) !== Number(productData.stock)) changes.push(`Stok: ${editingProduct.stock} ➔ ${productData.stock} pcs`);
+        if (Number(editingProduct.categoryId) !== Number(productData.categoryId)) {
+          const oldCat = categories.find(c => c.id === editingProduct.categoryId)?.name || 'Tanpa Kategori';
+          const newCat = categories.find(c => c.id === productData.categoryId)?.name || 'Tanpa Kategori';
+          changes.push(`Kategori: ${oldCat} ➔ ${newCat}`);
+        }
+        if (JSON.stringify(editingProduct.sizes) !== JSON.stringify(productData.sizes)) {
+          const sizeDetails = productData.sizes.map(s => `${s.name}:${s.stock}pcs`).join(', ');
+          changes.push(`Variasi Ukuran & Stok (${sizeDetails})`);
+        }
+        if (editingProduct.image !== productData.image) changes.push(`Gambar utama diganti`);
+
+        const detailMsg = changes.length > 0
+          ? `Mengedit "${editingProduct.name}" - Perubahan: ${changes.join(' | ')}`
+          : `Memperbarui detail produk "${productData.name}" (SKU: ${productData.sku}, Total Stok: ${productData.stock} pcs)`;
+
+        logActivity({
+          category: 'Produk',
+          title: 'Pembaruan Produk',
+          description: detailMsg,
+          status: 'info'
+        });
         Swal.close();
         showSuccess('Product updated successfully');
       } else {
         await addProduct(productData);
-        logActivity({ category: 'Produk', title: 'Produk Baru Ditambahkan', description: `Produk baru "${productData.name}" (Stok awal: ${productData.stock}) ditambahkan ke katalog.`, status: 'success' });
+
+        const sizeDetails = productData.sizes.map(s => `${s.name}:${s.stock}pcs`).join(', ');
+        const catName = categories.find(c => c.id === productData.categoryId)?.name || 'Umum';
+        const detailMsg = `Menambahkan produk baru "${productData.name}" (SKU: ${productData.sku}, Harga: Rp ${Number(productData.price).toLocaleString()}, Stok: ${productData.stock} pcs, Kategori: ${catName}, Size: [${sizeDetails}])`;
+
+        logActivity({
+          category: 'Produk',
+          title: 'Produk Baru Ditambahkan',
+          description: detailMsg,
+          status: 'success'
+        });
         Swal.close();
         showSuccess('Product added successfully');
       }
@@ -194,6 +231,46 @@ export default function Products() {
     </div>
   );
 
+  const filteredAndSortedProducts = products
+    .filter(p => {
+      // Category filter
+      if (selectedCategory !== 'ALL') {
+        const catName = p.category?.name || '';
+        const catId = p.categoryId;
+        if (catName !== selectedCategory && String(catId) !== String(selectedCategory)) {
+          return false;
+        }
+      }
+
+      // Search filter
+      const q = searchQuery.toLowerCase().trim();
+      if (!q) return true;
+      return String(p.name || '').toLowerCase().includes(q) ||
+             String(p.sku || '').toLowerCase().includes(q) ||
+             String(p.category?.name || p.categoryId || '').toLowerCase().includes(q);
+    })
+    .sort((a, b) => {
+      if (sortOrder === 'latest') {
+        return (b.id - a.id);
+      }
+      if (sortOrder === 'oldest') {
+        return (a.id - b.id);
+      }
+      if (sortOrder === 'price-asc') {
+        return Number(a.price) - Number(b.price);
+      }
+      if (sortOrder === 'price-desc') {
+        return Number(b.price) - Number(a.price);
+      }
+      if (sortOrder === 'name-asc') {
+        return String(a.name).localeCompare(String(b.name));
+      }
+      if (sortOrder === 'name-desc') {
+        return String(b.name).localeCompare(String(a.name));
+      }
+      return 0;
+    });
+
   return (
     <div className="products-page">
       <div className="products-header">
@@ -212,20 +289,62 @@ export default function Products() {
         </div>
       </div>
 
-      <div className="search-wrapper" style={{ display: 'flex', alignItems: 'center', backgroundColor: 'var(--admin-surface)', border: '1px solid var(--admin-border)', borderRadius: '8px', padding: '10px 16px', marginBottom: '20px', maxWidth: '420px' }}>
-        <Search size={18} color="var(--admin-text-muted)" style={{ marginRight: '10px' }} />
-        <input
-          type="text"
-          placeholder="Cari produk berdasarkan Nama, SKU, atau Kategori..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ flex: 1, background: 'none', border: 'none', color: 'var(--admin-text)', outline: 'none', fontSize: '13px' }}
-        />
-        {searchQuery && (
-          <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-            <X size={16} />
-          </button>
-        )}
+      {/* Filter and Sort Bar */}
+      <div className="product-filters-bar" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', marginBottom: '20px' }}>
+        <div className="search-wrapper" style={{ display: 'flex', alignItems: 'center', backgroundColor: 'var(--admin-surface)', border: '1px solid var(--admin-border)', borderRadius: '8px', padding: '8px 14px', flex: '1 1 280px', maxWidth: '400px' }}>
+          <Search size={16} color="var(--admin-text-muted)" style={{ marginRight: '8px' }} />
+          <input
+            type="text"
+            placeholder="Cari produk berdasarkan Nama, SKU, atau Kategori..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ flex: 1, background: 'none', border: 'none', color: 'var(--admin-text)', outline: 'none', fontSize: '13px' }}
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+              <X size={14} />
+            </button>
+          )}
+        </div>
+
+        {/* Category Filter Dropdown */}
+        <div className="filter-dropdown-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--admin-surface)', border: '1px solid var(--admin-border)', borderRadius: '8px', padding: '8px 14px' }}>
+          <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--admin-text-muted)' }}>KATEGORI:</span>
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            style={{ background: 'none', border: 'none', color: 'var(--admin-text)', fontSize: '13px', fontWeight: '500', outline: 'none', cursor: 'pointer' }}
+          >
+            <option value="ALL">Semua Kategori ({products.length})</option>
+            {categories.map(c => (
+              <option key={c.id} value={c.name}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Sort Order Dropdown */}
+        <div className="filter-dropdown-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--admin-surface)', border: '1px solid var(--admin-border)', borderRadius: '8px', padding: '8px 14px' }}>
+          <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--admin-text-muted)' }}>URUTKAN:</span>
+          <select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+            style={{ background: 'none', border: 'none', color: 'var(--admin-text)', fontSize: '13px', fontWeight: '500', outline: 'none', cursor: 'pointer' }}
+          >
+            <option value="latest">Terbaru (Latest)</option>
+            <option value="oldest">Terlama (Oldest)</option>
+            <option value="price-asc">Harga: Terendah ke Tertinggi</option>
+            <option value="price-desc">Harga: Tertinggi ke Terendah</option>
+            <option value="name-asc">Nama: A ke Z</option>
+            <option value="name-desc">Nama: Z ke A</option>
+          </select>
+        </div>
+
+        {/* Total Counter */}
+        <div style={{ fontSize: '12px', color: 'var(--admin-text-muted)', marginLeft: 'auto', fontWeight: '500' }}>
+          Menampilkan {filteredAndSortedProducts.length} dari {products.length} produk
+        </div>
       </div>
 
       <div className="products-table-container">
@@ -241,13 +360,7 @@ export default function Products() {
             </tr>
           </thead>
           <tbody>
-            {products.filter(p => {
-              const q = searchQuery.toLowerCase().trim();
-              if (!q) return true;
-              return String(p.name || '').toLowerCase().includes(q) ||
-                     String(p.sku || '').toLowerCase().includes(q) ||
-                     String(p.category?.name || p.categoryId || '').toLowerCase().includes(q);
-            }).map(product => (
+            {filteredAndSortedProducts.map(product => (
               <tr key={product.id}>
                 <td>
                   <div
@@ -299,7 +412,7 @@ export default function Products() {
                     <button className="action-btn delete" title="Hapus Produk" onClick={async () => {
                       if (await confirmDelete(`the product "${product.name}"`)) {
                         await deleteProduct(product.id);
-                        logActivity({ category: 'Produk', title: 'Produk Dihapus', description: `Produk "${product.name}" telah dihapus secara permanen dari katalog.`, status: 'warning' });
+                        logActivity({ category: 'Produk', title: 'Produk Dihapus', description: `Menghapus produk "${product.name}" (SKU: ${product.sku}, Harga: Rp ${product.price?.toLocaleString()}, Total Stok: ${product.stock} pcs) secara permanen dari katalog.`, status: 'warning' });
                         showSuccess('Product deleted successfully');
                       }
                     }}>

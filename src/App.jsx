@@ -34,6 +34,10 @@ import Contact from './pages/Contact';
 import CustomerLogin from './pages/CustomerLogin';
 import CustomerRegister from './pages/CustomerRegister';
 import CustomerForgotPassword from './pages/CustomerForgotPassword';
+import CustomerProfile from './pages/CustomerProfile';
+import OrderHistory from './pages/OrderHistory';
+import OrderDetail from './pages/OrderDetail';
+import TrackOrder from './pages/TrackOrder';
 
 // Admin Components
 import AdminLogin from './admin/pages/AdminLogin';
@@ -133,7 +137,8 @@ function App() {
                         <Route path="/catalog" element={<Catalog />} />
                         <Route path="/catalog/:categoryName" element={<Catalog />} />
                         <Route path="/cart" element={<Cart />} />
-                        <Route path="/product/:id" element={<ProductDetail />} />
+                        <Route path="/product/:slug" element={<ProductDetail />} />
+                        <Route path="/product/id/:id" element={<ProductDetail />} />
                         <Route path="/checkout" element={<Checkout />} />
                         <Route path="/payment/:id" element={<Payment />} />
                         <Route path="/order-success" element={<OrderSuccess />} />
@@ -144,6 +149,10 @@ function App() {
                         <Route path="/login" element={<CustomerLogin />} />
                         <Route path="/register" element={<CustomerRegister />} />
                         <Route path="/forgot-password" element={<CustomerForgotPassword />} />
+                        <Route path="/profile" element={<CustomerProfile />} />
+                        <Route path="/my-orders" element={<OrderHistory />} />
+                        <Route path="/order-detail/:id" element={<OrderDetail />} />
+                        <Route path="/track-order" element={<TrackOrder />} />
                         
                         {/* Admin Auth */}
                         <Route path="/admin/login" element={<AdminLogin />} />

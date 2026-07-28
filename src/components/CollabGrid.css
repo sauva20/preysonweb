@@ -24,6 +24,7 @@
 
 .collab-grid {
   display: flex;
+  justify-content: center;
   overflow-x: auto;
   gap: 20px;
   padding-bottom: 20px; /* Room for scrollbar */

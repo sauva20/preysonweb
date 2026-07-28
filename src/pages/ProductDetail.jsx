@@ -7,10 +7,12 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ProductGrid from '../components/ProductGrid';
 import { Heart, Minus, Plus, ChevronDown, ChevronUp, Link as LinkIcon, ZoomIn, ZoomOut, RotateCcw, ChevronLeft, ChevronRight, X, Maximize2 } from 'lucide-react';
+import { slugify } from '../utils/slugify';
 import './ProductDetail.css';
 
 export default function ProductDetail() {
-  const { id } = useParams();
+  const params = useParams();
+  const slugOrId = params.slug || params.id;
   const navigate = useNavigate();
   const { products } = useProducts();
   const { addToCart } = useCart();
@@ -88,15 +90,33 @@ export default function ProductDetail() {
     // Scroll to top on load
     window.scrollTo(0, 0);
     
-    // Find product
-    const found = products.find(p => p.id === parseInt(id));
+    if (!slugOrId) return;
+
+    const found = products.find(p => {
+      if (!p) return false;
+      const pSlug = p.slug || slugify(p.name);
+      return pSlug === slugOrId || String(p.id) === String(slugOrId);
+    });
+
     if (found) {
       setProduct(found);
       setMainImage(found.image);
       setSelectedSize('');
       setQuantity(1);
+    } else {
+      fetch(`${import.meta.env.VITE_API_URL}/products/${slugOrId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.id) {
+            setProduct(data);
+            setMainImage(data.image);
+            setSelectedSize('');
+            setQuantity(1);
+          }
+        })
+        .catch(err => console.error("Failed to fetch product by slug:", err));
     }
-  }, [id, products]);
+  }, [slugOrId, products]);
 
   if (!product) return <div className="product-not-found">Loading...</div>;
 

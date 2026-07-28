@@ -13,7 +13,7 @@ export default function Navbar() {
   const [isMobileCategoryOpen, setIsMobileCategoryOpen] = useState(false);
 
   const location = useLocation();
-  const isLightPage = location.pathname.startsWith('/catalog') || location.pathname === '/cart' || location.pathname.startsWith('/product') || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password' || location.pathname.startsWith('/contact');
+  const isLightPage = location.pathname.startsWith('/catalog') || location.pathname === '/cart' || location.pathname.startsWith('/product') || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password' || location.pathname.startsWith('/contact') || location.pathname === '/profile';
   
   const { cartCount } = useCart();
   const { categories: dbCategories } = useProducts() || {};
@@ -40,7 +40,6 @@ export default function Navbar() {
 
     window.addEventListener('scroll', handleScroll);
     
-    // Check initial dark mode state
     if (document.body.classList.contains('dark-mode')) {
       setIsDark(true);
     }
@@ -70,6 +69,15 @@ export default function Navbar() {
       return isLightPage ? '/images/logo_mobile_black.png' : '/images/logo_mobile_white.png';
     }
   };
+
+  const customerUser = (() => {
+    try {
+      const saved = localStorage.getItem('customer_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  })();
 
   return (
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''} ${isLightPage ? 'light-page' : ''}`}>
@@ -166,7 +174,17 @@ export default function Navbar() {
       
       <div className="navbar-right">
         <button className="icon-btn"><Search size={20} /></button>
-        <Link to="/login" className="icon-btn"><User size={20} /></Link>
+        <Link 
+          to={customerUser ? "/profile" : "/login"} 
+          className="icon-btn user-btn-wrapper" 
+          style={{ position: 'relative' }}
+          title={customerUser ? `Profile (${customerUser.name})` : "Login"}
+        >
+          <User size={20} />
+          {customerUser && (
+            <span style={{ position: 'absolute', bottom: '2px', right: '2px', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981', border: '1.5px solid var(--bg-primary)' }}></span>
+          )}
+        </Link>
         <Link to="/cart" className="icon-btn cart-btn-wrapper">
           <ShoppingBag size={20} />
           {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}

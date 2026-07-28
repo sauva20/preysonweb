@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
+import Swal from 'sweetalert2';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import './CustomerAuth.css';
@@ -7,6 +9,7 @@ import './CustomerAuth.css';
 export default function CustomerLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -28,12 +31,35 @@ export default function CustomerLogin() {
       if (res.ok) {
         localStorage.setItem('customer_token', data.token);
         localStorage.setItem('customer_user', JSON.stringify(data.user));
-        navigate('/'); // Redirect to home
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Login Berhasil!',
+          text: `Selamat datang kembali, ${data.user?.name || 'Customer'}!`,
+          timer: 1800,
+          showConfirmButton: false
+        }).then(() => {
+          navigate('/profile');
+        });
       } else {
-        setError(data.error || 'Login failed');
+        const msg = data.error || 'Email atau password salah';
+        setError(msg);
+        Swal.fire({
+          icon: 'error',
+          title: 'Login Gagal',
+          text: msg,
+          confirmButtonColor: '#1d1d1d'
+        });
       }
     } catch (err) {
-      setError('Cannot connect to server. Please try again later.');
+      const msg = 'Tidak dapat terhubung ke server. Silakan coba beberapa saat lagi.';
+      setError(msg);
+      Swal.fire({
+        icon: 'error',
+        title: 'Koneksi Terputus',
+        text: msg,
+        confirmButtonColor: '#1d1d1d'
+      });
     } finally {
       setIsLoading(false);
     }
@@ -63,13 +89,24 @@ export default function CustomerLogin() {
             
             <div className="form-group">
               <label>Password</label>
-              <input 
-                type="password" 
-                placeholder="••••••••" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="password-input-wrapper">
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  placeholder="••••••••" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button 
+                  type="button" 
+                  className="password-toggle-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex="-1"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
             
             <div className="form-options">

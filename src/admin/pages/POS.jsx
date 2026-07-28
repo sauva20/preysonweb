@@ -100,8 +100,8 @@ export default function POS() {
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const tax = subtotal * 0.08;
-  const total = subtotal + tax;
+  const tax = 0;
+  const total = subtotal;
 
   const handleQuantity = (cartItemId, delta) => {
     setCartItems(cartItems.map(item => {
@@ -375,10 +375,6 @@ export default function POS() {
               <span>{formatPrice(0)}</span>
             </div>
             <div className="summary-divider"></div>
-            <div className="summary-row">
-              <span>TAX (8%)</span>
-              <span>{formatPrice(tax)}</span>
-            </div>
             <div className="summary-row total-row">
               <span>TOTAL</span>
               <span className="total-amount">{formatPrice(total)}</span>

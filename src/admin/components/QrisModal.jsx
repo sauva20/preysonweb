@@ -153,10 +153,6 @@ export default function QrisModal({ isOpen, onClose, onConfirm, cartItems, subto
               <span>SUBTOTAL</span>
               <span>{formatPrice(subtotal)}</span>
             </div>
-            <div className="totals-row">
-              <span>TAX (8%)</span>
-              <span>{formatPrice(tax)}</span>
-            </div>
             <div className="totals-row grand-total">
               <span>TOTAL</span>
               <span className="accent-color">{formatPrice(total)}</span>
