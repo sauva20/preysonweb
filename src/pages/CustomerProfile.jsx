@@ -104,12 +104,10 @@ export default function CustomerProfile() {
       if (res.ok) {
         setOtpStep(2);
         Swal.fire({
-          icon: 'info',
+          icon: 'success',
           title: 'OTP Code Sent!',
           html: `<p>A 6-digit OTP code has been sent to <strong>${user.email}</strong>.</p>
-                 <div style="background:#f3f4f6; padding:12px; border-radius:8px; margin-top:10px; font-size:20px; font-weight:bold; letter-spacing:3px; color:#c66a2b;">
-                   ${data.otp}
-                 </div>`,
+                 <p style="font-size: 14px; color: #888; margin-top: 15px;">Please check your inbox (or spam folder) for the code.</p>`,
           confirmButtonColor: '#1d1d1d'
         });
       } else {
