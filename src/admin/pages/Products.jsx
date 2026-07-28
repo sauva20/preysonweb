@@ -27,7 +27,9 @@ export default function Products() {
     name: '',
     categoryId: '',
     price: '',
+    eventPrice: 0,
     stock: '',
+    eventStock: 0,
     description: '',
     thumbnails: [],
     sizes: [],
@@ -68,7 +70,9 @@ export default function Products() {
         name: product.name,
         categoryId: product.categoryId || '',
         price: product.price,
+        eventPrice: product.eventPrice || 0,
         stock: product.stock,
+        eventStock: product.eventStock || 0,
         description: product.description || '',
         thumbnails: [product.image, ...(product.thumbnails || [])].filter(Boolean),
         sizes: (product.sizes || []).map(s => typeof s === 'string' ? { name: s, stock: 0 } : s),
@@ -80,7 +84,7 @@ export default function Products() {
       });
     } else {
       setEditingProduct(null);
-      setFormData({ name: '', categoryId: '', price: '', stock: '', description: '', thumbnails: [], sizes: [], sizeGuide: { image: '', metrics: [], measurements: {} }, aestheticImage: '', features: [], materials: [], washing: [] });
+      setFormData({ name: '', categoryId: '', price: '', eventPrice: 0, stock: '', eventStock: 0, description: '', thumbnails: [], sizes: [], sizeGuide: { image: '', metrics: [], measurements: {} }, aestheticImage: '', features: [], materials: [], washing: [] });
     }
     setIsModalOpen(true);
   };
@@ -129,7 +133,9 @@ export default function Products() {
         name: formData.name,
         sku: finalSku,
         price: parseFloat(formData.price),
+        eventPrice: parseFloat(formData.eventPrice) || 0,
         stock: formData.sizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0),
+        eventStock: parseInt(formData.eventStock) || 0,
         image: mainImage,
         categoryId: formData.categoryId ? parseInt(formData.categoryId) : null,
         description: formData.description,
@@ -146,13 +152,13 @@ export default function Products() {
         await updateProduct(editingProduct.id, productData);
 
         const changes = [];
-        if (editingProduct.name !== productData.name) changes.push(`Nama: "${editingProduct.name}" ➔ "${productData.name}"`);
-        if (Number(editingProduct.price) !== Number(productData.price)) changes.push(`Harga: Rp ${editingProduct.price?.toLocaleString()} ➔ Rp ${Number(productData.price)?.toLocaleString()}`);
-        if (Number(editingProduct.stock) !== Number(productData.stock)) changes.push(`Stok: ${editingProduct.stock} ➔ ${productData.stock} pcs`);
+        if (editingProduct.name !== productData.name) changes.push(`Nama: "${editingProduct.name}" Î“â‚§Ã¶ "${productData.name}"`);
+        if (Number(editingProduct.price) !== Number(productData.price)) changes.push(`Harga: Rp ${editingProduct.price?.toLocaleString()} Î“â‚§Ã¶ Rp ${Number(productData.price)?.toLocaleString()}`);
+        if (Number(editingProduct.stock) !== Number(productData.stock)) changes.push(`Stok: ${editingProduct.stock} Î“â‚§Ã¶ ${productData.stock} pcs`);
         if (Number(editingProduct.categoryId) !== Number(productData.categoryId)) {
           const oldCat = categories.find(c => c.id === editingProduct.categoryId)?.name || 'Tanpa Kategori';
           const newCat = categories.find(c => c.id === productData.categoryId)?.name || 'Tanpa Kategori';
-          changes.push(`Kategori: ${oldCat} ➔ ${newCat}`);
+          changes.push(`Kategori: ${oldCat} Î“â‚§Ã¶ ${newCat}`);
         }
         if (JSON.stringify(editingProduct.sizes) !== JSON.stringify(productData.sizes)) {
           const sizeDetails = productData.sizes.map(s => `${s.name}:${s.stock}pcs`).join(', ');
@@ -355,8 +361,8 @@ export default function Products() {
               <th>IMAGE</th>
               <th>NAME & SKU</th>
               <th>CATEGORY</th>
-              <th>PRICE</th>
-              <th>STOCK</th>
+              <th>PRICE (Reg/Event)</th>
+              <th>STOCK (Reg/Event)</th>
               <th>ACTIONS</th>
             </tr>
           </thead>
@@ -378,11 +384,19 @@ export default function Products() {
                 <td>
                   {product.category ? <span className="cat-badge">{product.category.name}</span> : <span className="text-muted">-</span>}
                 </td>
-                <td className="table-price">{formatPrice(product.price)}</td>
+                <td className="table-price">
+                  <div style={{display:'flex', flexDirection:'column', gap:'2px'}}>
+                    <span>{formatPrice(product.price)}</span>
+                    <span style={{fontSize:'11px', color:'#f59e0b'}}>{formatPrice(product.eventPrice || 0)} (Event)</span>
+                  </div>
+                </td>
                 <td>
-                  <span className={`stock-pill ${product.stock < 5 ? 'low-stock' : ''}`}>
-                    {product.stock}
-                  </span>
+                  <div style={{display:'flex', flexDirection:'column', gap:'4px', alignItems:'flex-start'}}>
+                    <span className={`stock-pill ${product.stock < 5 ? 'low-stock' : ''}`}>
+                      {product.stock}
+                    </span>
+                    <span style={{fontSize:'11px', color:'#f59e0b', fontWeight: 'bold', backgroundColor: '#fffbe8', padding: '2px 6px', borderRadius: '4px'}}>{product.eventStock || 0} (Event)</span>
+                  </div>
                 </td>
                 <td>
                   <div className="table-actions">
@@ -517,7 +531,7 @@ export default function Products() {
                                   whiteSpace: 'nowrap'
                                 }}
                               >
-                                {formData.aestheticImage === url ? 'Hover ✓' : 'Set Hover'}
+                                {formData.aestheticImage === url ? 'Hover Î“Â£Ã´' : 'Set Hover'}
                               </button>
                             )}
                           </div>
@@ -559,19 +573,35 @@ export default function Products() {
                         placeholder="PRODUCT NAME"
                       />
 
-                      <div className="price-input-wrapper">
-                        <span className="currency-symbol">Rp</span>
-                        <input
-                          type="text"
-                          className="invisible-input pdp-price-preview"
-                          required
-                          value={formData.price ? Number(formData.price).toLocaleString('id-ID') : ''}
-                          onChange={e => {
-                            const rawValue = e.target.value.replace(/\D/g, '');
-                            setFormData({ ...formData, price: rawValue });
-                          }}
-                          placeholder="0"
-                        />
+                      <div className="price-input-wrapper" style={{display: 'flex', flexDirection: 'column', gap: '8px', border: 'none', padding: 0}}>
+                        <div style={{display: 'flex', alignItems: 'center', borderBottom: '2px solid #000', paddingBottom: '4px'}}>
+                          <span className="currency-symbol">Rp</span>
+                          <input
+                            type="text"
+                            className="invisible-input pdp-price-preview"
+                            required
+                            value={formData.price ? Number(formData.price).toLocaleString('id-ID') : ''}
+                            onChange={e => {
+                              const rawValue = e.target.value.replace(/\D/g, '');
+                              setFormData({ ...formData, price: rawValue });
+                            }}
+                            placeholder="0"
+                          />
+                        </div>
+                        <div style={{display: 'flex', alignItems: 'center', background: '#fffbe8', padding: '4px 8px', borderRadius: '4px', border: '1px solid #fde68a'}}>
+                          <span className="currency-symbol" style={{color: '#d97706', fontSize: '14px', marginRight: '4px'}}>Event: Rp</span>
+                          <input
+                            type="text"
+                            className="invisible-input pdp-price-preview"
+                            style={{color: '#d97706', fontSize: '18px'}}
+                            value={formData.eventPrice ? Number(formData.eventPrice).toLocaleString('id-ID') : ''}
+                            onChange={e => {
+                              const rawValue = e.target.value.replace(/\D/g, '');
+                              setFormData({ ...formData, eventPrice: rawValue });
+                            }}
+                            placeholder="0"
+                          />
+                        </div>
                       </div>
 
                       <div className="pdp-size-section-preview">
@@ -625,15 +655,28 @@ export default function Products() {
                         )}
                       </div>
 
-                      <div className="stock-input-wrapper">
-                        <span className="stock-label">Total Inventory Stock:</span>
-                        <input
-                          type="number"
-                          className="invisible-input small-number-input"
-                          readOnly
-                          value={formData.sizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0)}
-                          placeholder="0"
-                        />
+                      <div className="stock-input-wrapper" style={{flexDirection: 'column', alignItems: 'flex-start', gap: '8px', border: 'none', padding: 0}}>
+                        <div style={{display: 'flex', alignItems: 'center', borderBottom: '1px dashed #ccc', paddingBottom: '4px', width: '100%'}}>
+                          <span className="stock-label">Total Inventory Stock:</span>
+                          <input
+                            type="number"
+                            className="invisible-input small-number-input"
+                            readOnly
+                            value={formData.sizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0)}
+                            placeholder="0"
+                          />
+                        </div>
+                        <div style={{display: 'flex', alignItems: 'center', background: '#fffbe8', padding: '4px 8px', borderRadius: '4px', border: '1px solid #fde68a', width: '100%'}}>
+                          <span className="stock-label" style={{color: '#d97706', marginRight: '6px'}}>Total Event Stock:</span>
+                          <input
+                            type="number"
+                            className="invisible-input small-number-input"
+                            style={{color: '#d97706', fontWeight: 'bold'}}
+                            value={formData.eventStock || ''}
+                            onChange={e => setFormData({ ...formData, eventStock: parseInt(e.target.value) || 0 })}
+                            placeholder="0"
+                          />
+                        </div>
                       </div>
 
                       <div className="pdp-actions-preview">

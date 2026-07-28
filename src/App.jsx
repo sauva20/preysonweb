@@ -1,14 +1,7 @@
-import { getApiUrl, getBackendUrl } from './utils/apiConfig';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { getApiUrl } from './utils/apiConfig';
 
-function ScrollToTop() {
-  const { pathname } = useLocation();
-  React.useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
-  return null;
-}
 import { ProductProvider } from './context/ProductContext';
 import { OrderProvider } from './context/OrderContext';
 import { PromoProvider } from './context/PromoContext';
@@ -16,6 +9,8 @@ import { CustomerProvider } from './context/CustomerContext';
 import { CartProvider } from './context/CartContext';
 import { CurrencyProvider } from './context/CurrencyContext';
 import { ActivityProvider } from './context/ActivityContext';
+import { QrisProvider } from './context/QrisContext';
+import { OfflineSyncProvider } from './context/OfflineSyncContext';
 
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -23,6 +18,8 @@ import ProductGrid from './components/ProductGrid';
 import Banner from './components/Banner';
 import CollabGrid from './components/CollabGrid';
 import Footer from './components/Footer';
+
+// Pages
 import Catalog from './pages/Catalog';
 import Cart from './pages/Cart';
 import ProductDetail from './pages/ProductDetail';
@@ -55,8 +52,16 @@ import Reports from './admin/pages/Reports';
 import Settings from './admin/pages/Settings';
 import ActivityLog from './admin/pages/ActivityLog';
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 function Home() {
-  const [blocks, setBlocks] = React.useState([
+  const [blocks, setBlocks] = useState([
     { id: '1', type: 'hero', config: {} },
     { id: '2', type: 'catalog', config: { title: 'PREYSON RECOMMENDATIONS', subtitle: 'The best choices for your riding style', columns: 4 } },
     { id: '3', type: 'catalog', config: { title: 'NEW RELEASE', subtitle: 'The latest collection from Preyson Moto', columns: 4 } },
@@ -65,7 +70,7 @@ function Home() {
     { id: '6', type: 'catalog', config: { title: 'PRODUCT CATALOG', subtitle: 'Explore the full Preyson collection', columns: 4 } },
   ]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetch(`${getApiUrl()}/settings`)
       .then(res => res.json())
       .then(data => {
@@ -118,68 +123,68 @@ function Home() {
   );
 }
 
-import { QrisProvider } from './context/QrisContext';
-
 function App() {
   return (
     <ActivityProvider>
       <CurrencyProvider>
         <QrisProvider>
-          <ProductProvider>
-            <OrderProvider>
-              <PromoProvider>
-                <CustomerProvider>
-                  <CartProvider>
-                    <Router>
-                      <ScrollToTop />
-                      <Routes>
-                        {/* Storefront Routes */}
-                        <Route path="/" element={<Home />} />
-                        <Route path="/catalog" element={<Catalog />} />
-                        <Route path="/catalog/:categoryName" element={<Catalog />} />
-                        <Route path="/cart" element={<Cart />} />
-                        <Route path="/product/:slug" element={<ProductDetail />} />
-                        <Route path="/product/id/:id" element={<ProductDetail />} />
-                        <Route path="/checkout" element={<Checkout />} />
-                        <Route path="/payment/:id" element={<Payment />} />
-                        <Route path="/order-success" element={<OrderSuccess />} />
-                        <Route path="/contact" element={<Contact />} />
-                        <Route path="/contact-us" element={<Contact />} />
-                        
-                        {/* Customer Auth */}
-                        <Route path="/login" element={<CustomerLogin />} />
-                        <Route path="/register" element={<CustomerRegister />} />
-                        <Route path="/forgot-password" element={<CustomerForgotPassword />} />
-                        <Route path="/profile" element={<CustomerProfile />} />
-                        <Route path="/my-orders" element={<OrderHistory />} />
-                        <Route path="/order-detail/:id" element={<OrderDetail />} />
-                        <Route path="/track-order" element={<TrackOrder />} />
-                        
-                        {/* Admin Auth */}
-                        <Route path="/admin/login" element={<AdminLogin />} />
-                        
-                        {/* Admin Dashboard Routes */}
-                        <Route path="/admin" element={<AdminLayout />}>
-                          <Route index element={<Navigate to="/admin/dashboard" replace />} />
-                          <Route path="dashboard" element={<Dashboard />} />
-                          <Route path="pos" element={<POS />} />
-                          <Route path="orders" element={<Orders />} />
-                          <Route path="orders/:id" element={<OrderDetails />} />
-                          <Route path="discount" element={<Discount />} />
-                          <Route path="campaign" element={<Campaign />} />
-                          <Route path="products" element={<Products />} />
-                          <Route path="customers" element={<Customers />} />
-                          <Route path="reports" element={<Reports />} />
-                          <Route path="activity" element={<ActivityLog />} />
-                          <Route path="settings" element={<Settings />} />
-                        </Route>
-                      </Routes>
-                    </Router>
-                  </CartProvider>
-                </CustomerProvider>
-              </PromoProvider>
-            </OrderProvider>
-          </ProductProvider>
+          <OfflineSyncProvider>
+            <ProductProvider>
+              <OrderProvider>
+                <PromoProvider>
+                  <CustomerProvider>
+                    <CartProvider>
+                      <Router>
+                        <ScrollToTop />
+                        <Routes>
+                          {/* Storefront Routes */}
+                          <Route path="/" element={<Home />} />
+                          <Route path="/catalog" element={<Catalog />} />
+                          <Route path="/catalog/:categoryName" element={<Catalog />} />
+                          <Route path="/cart" element={<Cart />} />
+                          <Route path="/product/:slug" element={<ProductDetail />} />
+                          <Route path="/product/id/:id" element={<ProductDetail />} />
+                          <Route path="/checkout" element={<Checkout />} />
+                          <Route path="/payment/:id" element={<Payment />} />
+                          <Route path="/order-success" element={<OrderSuccess />} />
+                          <Route path="/contact" element={<Contact />} />
+                          <Route path="/contact-us" element={<Contact />} />
+                          
+                          {/* Customer Auth */}
+                          <Route path="/login" element={<CustomerLogin />} />
+                          <Route path="/register" element={<CustomerRegister />} />
+                          <Route path="/forgot-password" element={<CustomerForgotPassword />} />
+                          <Route path="/profile" element={<CustomerProfile />} />
+                          <Route path="/my-orders" element={<OrderHistory />} />
+                          <Route path="/order-detail/:id" element={<OrderDetail />} />
+                          <Route path="/track-order" element={<TrackOrder />} />
+                          
+                          {/* Admin Auth */}
+                          <Route path="/admin/login" element={<AdminLogin />} />
+                          
+                          {/* Admin Dashboard Routes */}
+                          <Route path="/admin" element={<AdminLayout />}>
+                            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                            <Route path="dashboard" element={<Dashboard />} />
+                            <Route path="pos" element={<POS />} />
+                            <Route path="orders" element={<Orders />} />
+                            <Route path="orders/:id" element={<OrderDetails />} />
+                            <Route path="discount" element={<Discount />} />
+                            <Route path="campaign" element={<Campaign />} />
+                            <Route path="products" element={<Products />} />
+                            <Route path="customers" element={<Customers />} />
+                            <Route path="reports" element={<Reports />} />
+                            <Route path="activity" element={<ActivityLog />} />
+                            <Route path="settings" element={<Settings />} />
+                          </Route>
+                        </Routes>
+                      </Router>
+                    </CartProvider>
+                  </CustomerProvider>
+                </PromoProvider>
+              </OrderProvider>
+            </ProductProvider>
+          </OfflineSyncProvider>
         </QrisProvider>
       </CurrencyProvider>
     </ActivityProvider>

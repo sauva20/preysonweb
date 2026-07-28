@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
-import { Search, Trash2, Minus, Plus, X } from 'lucide-react';
+import { Search, Trash2, Minus, Plus, X, Plane, WifiOff, CloudUpload } from 'lucide-react';
 import { useProducts } from '../../context/ProductContext';
 import { useOrders } from '../../context/OrderContext';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useActivity } from '../../context/ActivityContext';
+import { useOfflineSync } from '../../context/OfflineSyncContext';
 import CashModal from '../components/CashModal';
 import QrisModal from '../components/QrisModal';
 import './POS.css';
@@ -15,6 +16,7 @@ export default function POS() {
   const { addOrder } = useOrders();
   const { formatPrice } = useCurrency();
   const { logActivity } = useActivity();
+  const { pendingOrders, addPendingOrder, syncNow, isSyncing } = useOfflineSync();
   const [cartItems, setCartItems] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState('CASH');
   const [activeCategory, setActiveCategory] = useState('ALL');
@@ -22,6 +24,12 @@ export default function POS() {
   const [isQrisModalOpen, setIsQrisModalOpen] = useState(false);
   const [selectedProductForSize, setSelectedProductForSize] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const [isEventMode, setIsEventMode] = useState(() => localStorage.getItem('isEventMode') === 'true');
+
+  useEffect(() => {
+    localStorage.setItem('isEventMode', isEventMode);
+  }, [isEventMode]);
 
   // Barcode Scanner State
   const [scanBuffer, setScanBuffer] = useState('');
@@ -72,18 +80,23 @@ export default function POS() {
       sizesObj = typeof product.sizes === 'string' ? JSON.parse(product.sizes) : (product.sizes || []);
     } catch (e) { }
 
+    const stockToUse = isEventMode ? product.eventStock : product.stock;
+    const priceToUse = isEventMode ? product.eventPrice : product.price;
+
     if (sizesObj.length > 0 && typeof sizesObj[0] === 'object') {
-      setSelectedProductForSize({ product, sizes: sizesObj });
+      setSelectedProductForSize({ product, sizes: sizesObj, priceToUse, stockToUse });
     } else {
-      addToCart(product, 'OS', product.stock);
+      addToCart(product, 'OS', stockToUse, priceToUse);
     }
   };
 
-  const addToCart = (product, sizeName, maxStock) => {
+  const addToCart = (product, sizeName, maxStock, priceOverride) => {
     if (maxStock <= 0) {
       Swal.fire({ icon: 'error', text: 'Out of stock!', confirmButtonColor: 'var(--admin-accent)' });
       return;
     }
+    const price = priceOverride !== undefined ? priceOverride : (isEventMode ? product.eventPrice : product.price);
+    
     const existing = cartItems.find(item => item.id === product.id && item.size === sizeName);
     if (existing) {
       if (existing.quantity >= maxStock) {
@@ -95,7 +108,7 @@ export default function POS() {
       ));
     } else {
       // Need a unique key for cart items if same product different sizes
-      setCartItems([...cartItems, { ...product, cartItemId: Date.now() + Math.random(), quantity: 1, size: sizeName, maxStock }]);
+      setCartItems([...cartItems, { ...product, cartItemId: Date.now() + Math.random(), quantity: 1, size: sizeName, maxStock, price }]);
     }
   };
 
@@ -164,7 +177,7 @@ export default function POS() {
 
   const processOrder = async (details = {}) => {
     try {
-      await addOrder({
+      const orderPayload = {
         items: cartItems.map(item => ({
           productId: item.id,
           size: item.size,
@@ -178,10 +191,22 @@ export default function POS() {
         paymentMethod,
         status: 'Completed',
         customerName: details.customerName || '',
-        customerEmail: details.customerEmail || ''
-      });
+        customerEmail: details.customerEmail || '',
+        date: new Date().toISOString(),
+        isEvent: isEventMode
+      };
 
-      if (fetchProducts) {
+      if (isEventMode || !navigator.onLine) {
+        // Save to offline queue
+        addPendingOrder(orderPayload);
+        Swal.fire({ icon: 'success', title: 'Tersimpan Offline!', text: 'Transaksi disimpan di memori. Jangan lupa Sync saat online.', confirmButtonColor: 'var(--admin-accent)' });
+      } else {
+        // Send directly to API
+        await addOrder(orderPayload);
+        Swal.fire({ icon: 'success', title: 'Success!', text: 'Transaction Successful! Added to Orders.', confirmButtonColor: 'var(--admin-accent)' });
+      }
+
+      if (fetchProducts && !isEventMode && navigator.onLine) {
         await fetchProducts();
       }
 
@@ -194,7 +219,6 @@ export default function POS() {
         description: `Pembayaran ${paymentMethod} atas ${cartItems.length} jenis item senilai ${formatPrice(total)} diproses.`,
         status: 'success'
       });
-      Swal.fire({ icon: 'success', title: 'Success!', text: 'Transaction Successful! Added to Orders.', confirmButtonColor: 'var(--admin-accent)' });
     } catch (err) {
       Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to process transaction.', confirmButtonColor: 'var(--admin-accent)' });
     }
@@ -227,6 +251,43 @@ export default function POS() {
               </button>
             )}
           </div>
+        </div>
+
+        {/* Offline Sync & Event Mode Banner */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: isEventMode ? '#fff3cd' : 'var(--admin-surface)', border: isEventMode ? '1px solid #ffe69c' : '1px solid var(--admin-border)', borderRadius: '6px', padding: '12px 16px', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button 
+              onClick={() => setIsEventMode(!isEventMode)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '8px', 
+                backgroundColor: isEventMode ? '#f59e0b' : 'var(--admin-bg)', 
+                color: isEventMode ? '#fff' : 'var(--admin-text)', 
+                border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold'
+              }}
+            >
+              <Plane size={16} /> 
+              {isEventMode ? 'MODE LUAR NEGERI (AKTIF)' : 'MODE LUAR NEGERI'}
+            </button>
+            {pendingOrders.length > 0 && (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ef4444', fontWeight: 'bold', fontSize: '13px' }}>
+                <WifiOff size={16} /> {pendingOrders.length} Transaksi Tertunda!
+              </span>
+            )}
+          </div>
+
+          {pendingOrders.length > 0 && (
+            <button 
+              onClick={syncNow}
+              disabled={isSyncing}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px', 
+                backgroundColor: '#3b82f6', color: '#fff', border: 'none', 
+                padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold'
+              }}
+            >
+              <CloudUpload size={16} /> {isSyncing ? 'Menyinkronkan...' : 'SYNC SEKARANG'}
+            </button>
+          )}
         </div>
 
         <div className="pos-filters">
@@ -285,7 +346,7 @@ export default function POS() {
                   style={product.image ? { backgroundImage: `url('${product.image}')` } : {}}
                 >
                   <div className="pos-badges">
-                    <span className={`pos-stock-badge ${product.stock < 5 ? 'low-stock' : ''}`}>{product.stock} IN STOCK</span>
+                    <span className={`pos-stock-badge ${(isEventMode ? product.eventStock : product.stock) < 5 ? 'low-stock' : ''}`}>{isEventMode ? product.eventStock : product.stock} IN STOCK</span>
                     {product.sold > 0 && <span className="pos-sold-badge">{product.sold} SOLD</span>}
                   </div>
                 </div>
@@ -293,7 +354,7 @@ export default function POS() {
                   <h4>{product.name}</h4>
                   <div className="pos-card-footer">
                     <span className="sku">{product.sku}</span>
-                    <span className="price">{formatPrice(product.price)}</span>
+                    <span className="price">{formatPrice(isEventMode ? product.eventPrice : product.price)}</span>
                   </div>
                 </div>
               </div>
@@ -423,19 +484,22 @@ export default function POS() {
             <h2>Select Size for {selectedProductForSize.product.name}</h2>
             <div className="size-grid">
               {selectedProductForSize.sizes.map((s, idx) => {
-                const inCart = cartItems.find(item => item.id === selectedProductForSize.product.id && item.size === s.name);
-                const cartQty = inCart ? inCart.quantity : 0;
-                const remainingStock = s.stock - cartQty;
-                const isDisabled = remainingStock <= 0;
+                const sObj = typeof s === 'string' ? { name: s, stock: selectedProductForSize.product.stock } : s;
+                const actualStock = isEventMode ? selectedProductForSize.stockToUse : sObj.stock;
                 return (
                   <button
                     key={idx}
-                    className={`size-btn ${isDisabled ? 'out-of-stock' : ''}`}
-                    disabled={isDisabled}
-                    onClick={() => addToCart(selectedProductForSize.product, s.name, s.stock)}
+                    className={`size-btn ${actualStock <= 0 ? 'disabled' : ''}`}
+                    onClick={() => {
+                      if (actualStock > 0) {
+                        addToCart(selectedProductForSize.product, sObj.name, actualStock, selectedProductForSize.priceToUse);
+                        setSelectedProductForSize(null);
+                      }
+                    }}
+                    disabled={actualStock <= 0}
                   >
-                    <div className="size-name">{s.name}</div>
-                    <div className="size-stock">{remainingStock} left</div>
+                    <span className="size-name">{sObj.name}</span>
+                    <span className="size-stock">{actualStock > 0 ? `${actualStock} in stock` : 'Out of stock'}</span>
                   </button>
                 );
               })}

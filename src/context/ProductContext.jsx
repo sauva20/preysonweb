@@ -8,14 +8,27 @@ const API_URL = getApiUrl();
 const SOCKET_URL = getBackendUrl();
 
 export function ProductProvider({ children }) {
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState(() => {
+    const cached = localStorage.getItem('offline_products');
+    return cached ? JSON.parse(cached) : [];
+  });
+  const [categories, setCategories] = useState(() => {
+    const cached = localStorage.getItem('offline_categories');
+    return cached ? JSON.parse(cached) : [];
+  });
 
   useEffect(() => {
     fetchProducts();
     fetchCategories();
 
-    // Socket IO disabled for shared hosting
+    const handleForceRefetch = () => {
+      fetchProducts();
+    };
+    window.addEventListener('force_refetch_products', handleForceRefetch);
+
+    return () => {
+      window.removeEventListener('force_refetch_products', handleForceRefetch);
+    };
   }, []);
 
   const fetchProducts = async () => {
@@ -24,8 +37,10 @@ export function ProductProvider({ children }) {
       if (!res.ok) throw new Error('Failed to fetch products');
       const data = await res.json();
       setProducts(data);
+      localStorage.setItem('offline_products', JSON.stringify(data));
     } catch (err) {
-      console.error('Error fetching products:', err);
+      console.error('Error fetching products, using cached data if available:', err);
+      // Fallback to cache is handled by initial state, but we can also set it here if needed
     }
   };
 
@@ -35,8 +50,9 @@ export function ProductProvider({ children }) {
       if (!res.ok) throw new Error('Failed to fetch categories');
       const data = await res.json();
       setCategories(data);
+      localStorage.setItem('offline_categories', JSON.stringify(data));
     } catch (err) {
-      console.error('Error fetching categories:', err);
+      console.error('Error fetching categories, using cached data if available:', err);
     }
   };
 
