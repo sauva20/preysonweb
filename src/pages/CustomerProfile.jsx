@@ -81,34 +81,88 @@ export default function CustomerProfile() {
     });
   };
 
-  const handleSaveSecurity = (e) => {
+  const [otpStep, setOtpStep] = useState(1); // 1: Request OTP, 2: Enter OTP & New Password
+  const [otpInput, setOtpInput] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
+  const handleSendOtp = async () => {
+    if (!user || !user.email) return;
+    setIsSendingOtp(true);
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/send-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        setOtpStep(2);
+        Swal.fire({
+          icon: 'info',
+          title: 'OTP Code Sent!',
+          html: `<p>A 6-digit OTP code has been sent to <strong>${user.email}</strong>.</p>
+                 <div style="background:#f3f4f6; padding:12px; border-radius:8px; margin-top:10px; font-size:20px; font-weight:bold; letter-spacing:3px; color:#c66a2b;">
+                   ${data.otp}
+                 </div>`,
+          confirmButtonColor: '#1d1d1d'
+        });
+      } else {
+        Swal.fire({ icon: 'error', title: 'Failed to Send OTP', text: data.error || 'Please try again.', confirmButtonColor: '#1d1d1d' });
+      }
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Cannot connect to server.', confirmButtonColor: '#1d1d1d' });
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtpAndSavePassword = async (e) => {
     e.preventDefault();
-    if (securityData.newPassword.length < 8) {
-      return Swal.fire({
-        icon: 'warning',
-        title: 'Password Too Short',
-        text: 'New password must be at least 8 characters long.',
-        confirmButtonColor: 'var(--burnt-orange)'
-      });
+    if (!otpInput || otpInput.trim().length < 6) {
+      return Swal.fire({ icon: 'warning', title: 'Invalid OTP', text: 'Please enter the 6-digit verification code.', confirmButtonColor: '#1d1d1d' });
     }
-    if (securityData.newPassword !== securityData.confirmPassword) {
-      return Swal.fire({
-        icon: 'warning',
-        title: 'Password Mismatch',
-        text: 'New password and confirmation password do not match.',
-        confirmButtonColor: 'var(--burnt-orange)'
-      });
+    if (newPassword.length < 8) {
+      return Swal.fire({ icon: 'warning', title: 'Password Too Short', text: 'New password must be at least 8 characters long.', confirmButtonColor: '#1d1d1d' });
+    }
+    if (newPassword !== confirmPassword) {
+      return Swal.fire({ icon: 'warning', title: 'Password Mismatch', text: 'New password and confirmation password do not match.', confirmButtonColor: '#1d1d1d' });
     }
 
-    Swal.fire({
-      icon: 'success',
-      title: 'Password Changed!',
-      text: 'Your password has been updated successfully.',
-      timer: 2000,
-      showConfirmButton: false
-    });
+    setIsUpdatingPassword(true);
 
-    setSecurityData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, otp: otpInput, newPassword })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Password Updated!',
+          text: 'Your password has been updated successfully via OTP verification.',
+          timer: 2200,
+          showConfirmButton: false
+        });
+        setOtpStep(1);
+        setOtpInput('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        Swal.fire({ icon: 'error', title: 'Update Failed', text: data.error || 'Invalid or expired OTP code.', confirmButtonColor: '#1d1d1d' });
+      }
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Cannot connect to server.', confirmButtonColor: '#1d1d1d' });
+    } finally {
+      setIsUpdatingPassword(false);
+    }
   };
 
   const handleLogout = () => {
@@ -408,48 +462,95 @@ export default function CustomerProfile() {
         {activeTab === 'security' && (
           <div className="profile-card">
             <div className="profile-card-header">
-              <h3>Security & Password Management</h3>
+              <h3>Security & OTP Password Verification</h3>
             </div>
-            <form onSubmit={handleSaveSecurity}>
-              <div className="profile-form-grid" style={{ maxWidth: '600px' }}>
-                <div className="profile-form-group">
-                  <label>Current Password</label>
-                  <input 
-                    type="password" 
-                    placeholder="••••••••"
-                    value={securityData.currentPassword}
-                    onChange={(e) => setSecurityData({ ...securityData, currentPassword: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="profile-form-group">
-                  <label>New Password</label>
-                  <input 
-                    type="password" 
-                    placeholder="Minimum 8 characters"
-                    value={securityData.newPassword}
-                    onChange={(e) => setSecurityData({ ...securityData, newPassword: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="profile-form-group">
-                  <label>Confirm New Password</label>
-                  <input 
-                    type="password" 
-                    placeholder="Repeat new password"
-                    value={securityData.confirmPassword}
-                    onChange={(e) => setSecurityData({ ...securityData, confirmPassword: e.target.value })}
-                    required
-                  />
-                </div>
+            
+            {otpStep === 1 ? (
+              <div style={{ maxWidth: '550px' }}>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '20px', lineHeight: '1.5' }}>
+                  For enhanced account security, password updates require email OTP verification. An authentication OTP code will be sent to your registered email: <strong>{user.email}</strong>.
+                </p>
+                <button 
+                  type="button" 
+                  className="profile-save-btn" 
+                  onClick={handleSendOtp} 
+                  disabled={isSendingOtp}
+                >
+                  {isSendingOtp ? 'SENDING OTP...' : 'SEND OTP TO EMAIL'}
+                </button>
               </div>
+            ) : (
+              <form onSubmit={handleVerifyOtpAndSavePassword}>
+                <div style={{ backgroundColor: 'rgba(198, 106, 43, 0.08)', padding: '14px 20px', borderRadius: '10px', marginBottom: '24px', fontSize: '13px', color: 'var(--burnt-orange)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>
+                    📩 OTP code sent to <strong>{user.email}</strong>
+                  </span>
+                  <button 
+                    type="button" 
+                    onClick={handleSendOtp} 
+                    disabled={isSendingOtp} 
+                    style={{ background: 'none', border: 'none', color: 'var(--burnt-orange)', textDecoration: 'underline', fontWeight: 'bold', cursor: 'pointer' }}
+                  >
+                    Resend OTP
+                  </button>
+                </div>
 
-              <button type="submit" className="profile-save-btn">
-                UPDATE PASSWORD
-              </button>
-            </form>
+                <div className="profile-form-grid" style={{ maxWidth: '600px' }}>
+                  <div className="profile-form-group">
+                    <label>6-Digit Verification OTP Code</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. 592014" 
+                      maxLength={6}
+                      value={otpInput}
+                      onChange={(e) => setOtpInput(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="profile-form-group">
+                    <label>New Password</label>
+                    <input 
+                      type="password" 
+                      placeholder="Minimum 8 characters"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="profile-form-group">
+                    <label>Confirm New Password</label>
+                    <input 
+                      type="password" 
+                      placeholder="Repeat new password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                    />
+                    {confirmPassword && (
+                      <div style={{ marginTop: '6px', fontSize: '12px', fontWeight: '600', color: newPassword === confirmPassword ? '#10b981' : '#ef4444' }}>
+                        {newPassword === confirmPassword ? '✓ Password cocok!' : '✕ Password tidak cocok!'}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                  <button type="submit" className="profile-save-btn" disabled={isUpdatingPassword}>
+                    {isUpdatingPassword ? 'VERIFYING...' : 'VERIFY OTP & UPDATE PASSWORD'}
+                  </button>
+                  <button 
+                    type="button" 
+                    className="profile-save-btn" 
+                    onClick={() => setOtpStep(1)}
+                    style={{ backgroundColor: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+                  >
+                    CANCEL
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         )}
       </div>

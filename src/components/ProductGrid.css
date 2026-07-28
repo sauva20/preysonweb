@@ -32,26 +32,30 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 30px;
+  gap: 24px;
   margin-bottom: 40px;
 }
 
-@media (max-width: 1024px) {
-  .product-grid-container.cols-4 {
-    grid-template-columns: repeat(3, 1fr);
-  }
+.product-card {
+  flex: 0 0 calc(25% - 18px);
+  max-width: 300px;
+  min-width: 220px;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.3s ease;
 }
 
 @media (max-width: 768px) {
   .product-grid-section {
-    padding: 40px 15px;
+    padding: 30px 12px;
   }
   .product-grid-container {
     gap: 12px;
   }
-  .product-grid-container.cols-4,
-  .product-grid-container.cols-2 {
-    grid-template-columns: repeat(2, 1fr);
+  .product-card {
+    flex: 0 0 calc(50% - 6px);
+    max-width: calc(50% - 6px);
+    min-width: 0;
   }
   .product-info h3 {
     font-size: 13px;
@@ -59,22 +63,6 @@
   .product-info .price {
     font-size: 13px;
   }
-}
-
-@media (max-width: 480px) {
-  .product-grid-container.cols-4,
-  .product-grid-container.cols-2 {
-    grid-template-columns: repeat(2, 1fr); /* 2 columns is better for e-commerce mobile */
-  }
-}
-
-.product-card {
-  flex: 0 0 calc(25% - 22.5px);
-  max-width: 300px;
-  min-width: 240px;
-  text-align: left;
-  cursor: pointer;
-  transition: transform 0.3s ease;
 }
 
 .product-card:hover {

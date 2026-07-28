@@ -184,7 +184,7 @@ body:not(.dark-mode) .sort-icon {
 .catalog-card {
   flex: 0 0 calc(25% - 19px);
   max-width: 300px;
-  min-width: 250px;
+  min-width: 220px;
   background-color: var(--bg-primary);
   border-radius: 12px;
   overflow: hidden;
@@ -192,6 +192,17 @@ body:not(.dark-mode) .sort-icon {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .catalog-grid {
+    gap: 12px;
+  }
+  .catalog-card {
+    flex: 0 0 calc(50% - 6px);
+    max-width: calc(50% - 6px);
+    min-width: 0;
+  }
 }
 
 body:not(.dark-mode) .catalog-card {
