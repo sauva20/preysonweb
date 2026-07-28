@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { io } from 'socket.io-client';
+
 import { getApiUrl, getBackendUrl } from '../utils/apiConfig';
 
 const ActivityContext = createContext();
@@ -10,7 +10,7 @@ export const useActivity = () => {
     return {
       activities: [],
       logActivity: () => console.warn('ActivityContext not found in hierarchy'),
-      clearActivities: () => {}
+      clearActivities: () => { }
     };
   }
   return context;
@@ -88,34 +88,7 @@ export const ActivityProvider = ({ children }) => {
         console.error('Failed to fetch activity logs from API:', err);
       });
 
-    // 2. Setup Socket.IO listener for real-time activity updates (local dev only)
-    let socket = null;
-    const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-
-    if (isLocal) {
-      try {
-        socket = io(getBackendUrl(), {
-          transports: ['polling']
-        });
-
-        socket.on('activity_added', (newAct) => {
-          setActivities(prev => {
-            if (prev.some(a => a.id === newAct.id)) return prev;
-            return [newAct, ...prev].slice(0, 500);
-          });
-        });
-
-        socket.on('activities_cleared', () => {
-          setActivities([]);
-        });
-      } catch (e) {
-        console.warn('Activity socket skipped:', e);
-      }
-    }
-
-    return () => {
-      if (socket) socket.disconnect();
-    };
+    // Socket IO disabled for shared hosting
   }, []);
 
   const logActivity = ({ category = 'Sistem', title, description, status = 'info', customUser }) => {
@@ -126,7 +99,7 @@ export const ActivityProvider = ({ children }) => {
         try {
           const u = JSON.parse(storedUser);
           userName = u.name || (u.role === 'cashier' ? 'Kasir Utama' : 'Administrator');
-        } catch (err) {}
+        } catch (err) { }
       }
     }
 
@@ -144,24 +117,24 @@ export const ActivityProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
-    .then(res => res.json())
-    .then(savedAct => {
-      setActivities(prev => {
-        if (prev.some(a => a.id === savedAct.id)) return prev;
-        return [savedAct, ...prev].slice(0, 500);
+      .then(res => res.json())
+      .then(savedAct => {
+        setActivities(prev => {
+          if (prev.some(a => a.id === savedAct.id)) return prev;
+          return [savedAct, ...prev].slice(0, 500);
+        });
+      })
+      .catch(err => {
+        console.error('Failed to save activity log to server:', err);
       });
-    })
-    .catch(err => {
-      console.error('Failed to save activity log to server:', err);
-    });
   };
 
   const clearActivities = () => {
     fetch(`${getApiUrl()}/activities`, {
       method: 'DELETE'
     })
-    .then(() => setActivities([]))
-    .catch(err => console.error('Failed to clear activities on server:', err));
+      .then(() => setActivities([]))
+      .catch(err => console.error('Failed to clear activities on server:', err));
   };
 
   return (

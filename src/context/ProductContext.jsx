@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { io } from 'socket.io-client';
+
 
 import { getApiUrl, getBackendUrl } from '../utils/apiConfig';
 
@@ -15,27 +15,7 @@ export function ProductProvider({ children }) {
     fetchProducts();
     fetchCategories();
 
-    let socket = null;
-    const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-
-    if (isLocal) {
-      try {
-        socket = io(SOCKET_URL, {
-          transports: ['polling'],
-          autoConnect: true
-        });
-        
-        socket.on('stock_updated', () => {
-          fetchProducts();
-        });
-      } catch (e) {
-        console.warn('Socket connection skipped:', e);
-      }
-    }
-
-    return () => {
-      if (socket) socket.disconnect();
-    };
+    // Socket IO disabled for shared hosting
   }, []);
 
   const fetchProducts = async () => {
@@ -155,7 +135,7 @@ export function ProductProvider({ children }) {
   };
 
   return (
-    <ProductContext.Provider value={{ 
+    <ProductContext.Provider value={{
       products, addProduct, updateProduct, deleteProduct, toggleSoldOut, fetchProducts,
       categories, addCategory, deleteCategory, fetchCategories
     }}>
