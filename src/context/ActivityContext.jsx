@@ -90,7 +90,7 @@ export const ActivityProvider = ({ children }) => {
 
     // 2. Setup Socket.IO listener for real-time activity updates across admins
     const socket = io(getBackendUrl(), {
-      transports: ['polling', 'websocket']
+      transports: ['polling']
     });
 
     socket.on('activity_added', (newAct) => {

@@ -16,7 +16,7 @@ export function ProductProvider({ children }) {
     fetchCategories();
 
     const socket = io(SOCKET_URL, {
-      transports: ['polling', 'websocket'],
+      transports: ['polling'],
       autoConnect: true
     });
     
