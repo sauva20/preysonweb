@@ -1,7 +1,9 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 
+import { getApiUrl } from '../utils/apiConfig';
+
 const OrderContext = createContext();
-const API_URL = `${import.meta.env.VITE_API_URL}`;
+const API_URL = getApiUrl();
 
 export function OrderProvider({ children }) {
   const [orders, setOrders] = useState([]);

@@ -1,7 +1,9 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 
+import { getApiUrl } from '../utils/apiConfig';
+
 const PromoContext = createContext();
-const API_URL = `${import.meta.env.VITE_API_URL}`;
+const API_URL = getApiUrl();
 
 export function PromoProvider({ children }) {
   // Global Vouchers State (Mapped from Campaigns)

@@ -1,4 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { io } from 'socket.io-client';
+import { getApiUrl, getBackendUrl } from '../utils/apiConfig';
 
 const ActivityContext = createContext();
 
@@ -67,18 +69,15 @@ const INITIAL_LOGS = [
     title: 'Konfigurasi QRIS & Toko',
     description: 'Pembaruan tarif pajak (VAT 11%) dan metode pengiriman reguler toko berhasil disimpan.',
     user: 'Administrator',
-    status: 'warning'
   }
 ];
-
-import { io } from 'socket.io-client';
 
 export const ActivityProvider = ({ children }) => {
   const [activities, setActivities] = useState([]);
 
   useEffect(() => {
     // 1. Fetch initial activity logs from API
-    fetch(`${import.meta.env.VITE_API_URL}/activities`)
+    fetch(`${getApiUrl()}/activities`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -90,7 +89,7 @@ export const ActivityProvider = ({ children }) => {
       });
 
     // 2. Setup Socket.IO listener for real-time activity updates across admins
-    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
+    const socket = io(getBackendUrl(), {
       transports: ['polling', 'websocket']
     });
 

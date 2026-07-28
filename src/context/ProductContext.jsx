@@ -1,9 +1,11 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { io } from 'socket.io-client';
 
+import { getApiUrl, getBackendUrl } from '../utils/apiConfig';
+
 const ProductContext = createContext();
-const API_URL = `${import.meta.env.VITE_API_URL}`;
-const SOCKET_URL = import.meta.env.VITE_BACKEND_URL;
+const API_URL = getApiUrl();
+const SOCKET_URL = getBackendUrl();
 
 export function ProductProvider({ children }) {
   const [products, setProducts] = useState([]);
