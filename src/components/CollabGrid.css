@@ -58,13 +58,14 @@
   }
   .collab-grid {
     gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
-    overflow-x: visible;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 20px;
   }
   .collab-card {
-    flex: 0 0 calc(50% - 6px);
-    min-width: 0;
+    flex: 0 0 240px; /* Lebar card di mobile agar pas saat di-scroll */
+    min-width: 240px;
   }
   .collab-info {
     padding: 16px 12px;
@@ -80,7 +81,8 @@
 
 @media (max-width: 480px) {
   .collab-card {
-    flex: 0 0 calc(50% - 6px);
+    flex: 0 0 200px;
+    min-width: 200px;
   }
 }
 
