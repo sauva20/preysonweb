@@ -9,13 +9,13 @@
 .section-title {
   font-family: var(--font-heading);
   font-size: 3.5rem;
-  letter-spacing: 4px;
+  letter-spacing: 0px;
   margin-top: -0.5rem;
   margin-bottom: 0.5rem;
   padding: 0 1rem;
   text-transform: uppercase;
   color: var(--text-primary);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .carousel-wrapper {

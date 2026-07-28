@@ -12,11 +12,11 @@
 }
 
 .campaign-titles h2 {
-  font-family: var(--font-heading, 'Barlow Condensed', sans-serif);
+  font-family: var(--font-heading, 'Josefin Sans', sans-serif);
   font-size: 28px;
-  font-weight: 800;
+  font-weight: 500;
   color: var(--admin-text);
-  letter-spacing: 1px;
+  letter-spacing: 0px;
 }
 
 .campaign-titles p {

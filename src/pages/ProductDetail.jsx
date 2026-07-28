@@ -222,7 +222,7 @@ export default function ProductDetail() {
                    const sObj = product.sizes.find(s => (typeof s === 'string' ? s : s.name) === selectedSize);
                    const sStock = typeof sObj === 'string' ? 999 : (sObj?.stock || 0);
                    if (sStock === 0) return <span className="stock-badge out">Out of stock</span>;
-                   if (sStock < 5) return <span className="stock-badge low">Sisa {sStock} lagi!</span>;
+                   if (sStock < 5) return <span className="stock-badge low">Only {sStock} left!</span>;
                    return <span className="stock-badge in">In stock</span>;
                 })()}
               </div>
@@ -290,7 +290,21 @@ export default function ProductDetail() {
               </button>
               {isSizeGuideOpen && (
                 <div className="accordion-content">
-                  {product.sizeGuide?.metrics?.length > 0 && product.sizes?.length > 0 ? (
+                  {/* Size Guide Image */}
+                  {Boolean(product.sizeGuide?.image && product.sizeGuide.image.trim() !== '') && (
+                    <div className="size-guide-img-wrapper" style={{ marginBottom: (product.sizeGuide?.metrics?.length > 0 && product.sizes?.length > 0) ? '16px' : '0' }}>
+                      <img 
+                        src={product.sizeGuide.image} 
+                        alt="Size Guide Chart" 
+                        style={{ width: '100%', height: 'auto', borderRadius: '8px', display: 'block', cursor: 'pointer' }}
+                        onClick={() => window.open(product.sizeGuide.image, '_blank')}
+                        title="Click to view full size"
+                      />
+                    </div>
+                  )}
+
+                  {/* Size Guide Metric Table */}
+                  {product.sizeGuide?.metrics?.length > 0 && product.sizes?.length > 0 && (
                     <div className="size-guide-table-wrapper">
                       <table className="size-guide-table">
                         <thead>
@@ -314,7 +328,11 @@ export default function ProductDetail() {
                         </tbody>
                       </table>
                     </div>
-                  ) : (
+                  )}
+
+                  {/* Fallback if neither image nor metric table is provided */}
+                  {(!product.sizeGuide?.image || product.sizeGuide.image.trim() === '') &&
+                   (!product.sizeGuide?.metrics?.length || !product.sizes?.length) && (
                     <p>Our sizing is true to fit. If you prefer a looser fit, we recommend sizing up. For exact measurements, please contact our support team.</p>
                   )}
                 </div>

@@ -86,7 +86,7 @@ export default function Navbar() {
             onMouseLeave={() => setIsCategoryHovered(false)}
           >
             <Link to="/catalog" className="dropdown-trigger-link">
-              Kategori <ChevronDown size={14} className={`chevron-icon ${isCategoryHovered ? 'rotate' : ''}`} />
+              Catalog <ChevronDown size={14} className={`chevron-icon ${isCategoryHovered ? 'rotate' : ''}`} />
             </Link>
             
             <ul className={`nav-dropdown-menu ${isCategoryHovered ? 'show' : ''}`}>
@@ -100,13 +100,13 @@ export default function Navbar() {
               <li className="dropdown-divider"></li>
               <li>
                 <Link to="/catalog" style={{ fontWeight: 'bold' }}>
-                  Semua Kategori (All)
+                  All Categories
                 </Link>
               </li>
             </ul>
           </li>
 
-          <li><Link to="/catalog">Product</Link></li>
+          <li><Link to="/catalog">Products</Link></li>
           <li><Link to="/contact">Contact</Link></li>
         </ul>
         
@@ -126,7 +126,7 @@ export default function Navbar() {
                 className="mobile-dropdown-header"
                 onClick={() => setIsMobileCategoryOpen(!isMobileCategoryOpen)}
               >
-                <span>Kategori</span>
+                <span>Catalog</span>
                 <ChevronDown size={18} className={`chevron-icon ${isMobileCategoryOpen ? 'rotate' : ''}`} />
               </div>
               
@@ -141,14 +141,14 @@ export default function Navbar() {
                   ))}
                   <li>
                     <Link to="/catalog" onClick={() => setIsMenuOpen(false)} style={{ fontWeight: 'bold' }}>
-                      Semua Kategori (All)
+                      All Categories
                     </Link>
                   </li>
                 </ul>
               )}
             </li>
 
-            <li><Link to="/catalog" onClick={() => setIsMenuOpen(false)}>Product</Link></li>
+            <li><Link to="/catalog" onClick={() => setIsMenuOpen(false)}>Products</Link></li>
             <li><Link to="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link></li>
           </ul>
         </div>

@@ -28,7 +28,7 @@ export default function Products() {
     description: '',
     thumbnails: [],
     sizes: [],
-    sizeGuide: { metrics: [], measurements: {} },
+    sizeGuide: { image: '', metrics: [], measurements: {} },
     aestheticImage: '',
     features: [],
     materials: [],
@@ -69,7 +69,7 @@ export default function Products() {
         description: product.description || '',
         thumbnails: [product.image, ...(product.thumbnails || [])].filter(Boolean),
         sizes: (product.sizes || []).map(s => typeof s === 'string' ? { name: s, stock: 0 } : s),
-        sizeGuide: product.sizeGuide || { metrics: [], measurements: {} },
+        sizeGuide: product.sizeGuide || { image: '', metrics: [], measurements: {} },
         aestheticImage: product.aestheticImage || '',
         features: product.features || [],
         materials: product.materials || [],
@@ -77,7 +77,7 @@ export default function Products() {
       });
     } else {
       setEditingProduct(null);
-      setFormData({ name: '', categoryId: '', price: '', stock: '', description: '', thumbnails: [], sizes: [], sizeGuide: { metrics: [], measurements: {} }, aestheticImage: '', features: [], materials: [], washing: [] });
+      setFormData({ name: '', categoryId: '', price: '', stock: '', description: '', thumbnails: [], sizes: [], sizeGuide: { image: '', metrics: [], measurements: {} }, aestheticImage: '', features: [], materials: [], washing: [] });
     }
     setIsModalOpen(true);
   };
@@ -547,6 +547,85 @@ export default function Products() {
                         <div className="accordion-preview" style={{ paddingBottom: '10px' }}>
                           <div className="accordion-header-preview">Size Guide <span className="arrow-down">^</span></div>
                           <div className="accordion-content-preview" style={{ marginTop: '10px', display: 'block' }}>
+                            {/* Upload Size Guide Image */}
+                            <div style={{ marginBottom: '16px' }}>
+                              <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--admin-text-muted)', marginBottom: '6px', textTransform: 'uppercase' }}>
+                                Size Guide Image (Optional)
+                              </div>
+                              {formData.sizeGuide?.image ? (
+                                <div style={{ position: 'relative', width: '100%', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--admin-border)', background: '#f8f9fa' }}>
+                                  <img 
+                                    src={formData.sizeGuide.image} 
+                                    alt="Size Guide" 
+                                    style={{ width: '100%', maxHeight: '220px', objectFit: 'contain', display: 'block', padding: '8px' }} 
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setFormData({
+                                      ...formData,
+                                      sizeGuide: { ...(formData.sizeGuide || {}), image: '' }
+                                    })}
+                                    style={{
+                                      position: 'absolute',
+                                      top: '6px',
+                                      right: '6px',
+                                      background: 'rgba(239, 68, 68, 0.9)',
+                                      color: '#fff',
+                                      border: 'none',
+                                      borderRadius: '50%',
+                                      width: '24px',
+                                      height: '24px',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center'
+                                    }}
+                                    title="Remove Size Guide Image"
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                </div>
+                              ) : (
+                                <label style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: '8px',
+                                  padding: '14px',
+                                  border: '1px dashed var(--admin-border)',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  background: 'var(--admin-surface)',
+                                  fontSize: '12px',
+                                  color: 'var(--admin-text-muted)',
+                                  transition: 'all 0.2s'
+                                }}>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    style={{ display: 'none' }}
+                                    disabled={isUploadingImage}
+                                    onChange={async (e) => {
+                                      if (e.target.files && e.target.files.length > 0) {
+                                        const url = await uploadImage(e.target.files[0]);
+                                        if (url) {
+                                          setFormData({
+                                            ...formData,
+                                            sizeGuide: { ...(formData.sizeGuide || {}), image: url }
+                                          });
+                                        }
+                                      }
+                                    }}
+                                  />
+                                  <Upload size={16} />
+                                  <span>{isUploadingImage ? 'Uploading Image...' : 'Upload Size Guide Image'}</span>
+                                </label>
+                              )}
+                            </div>
+
+                            <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--admin-text-muted)', marginBottom: '6px', textTransform: 'uppercase' }}>
+                              Size Guide Table (Optional)
+                            </div>
                             <div className="metric-input-wrapper">
                               <input
                                 type="text"
@@ -639,9 +718,9 @@ export default function Products() {
                                 </table>
                               </div>
                             )}
-                            {(!formData.sizeGuide?.metrics?.length || !formData.sizes.length) && (
+                            {(!formData.sizeGuide?.metrics?.length || !formData.sizes.length) && !formData.sizeGuide?.image && (
                               <div className="size-guide-empty-state">
-                                Add "Available Sizes" first, then add "Metrics" above to create a size guide.
+                                Upload a Size Guide Image above, or add "Available Sizes" + "Metrics" to create a table (or use both).
                               </div>
                             )}
                           </div>

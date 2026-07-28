@@ -15,10 +15,10 @@
   display: inline-block;
   font-family: var(--font-heading);
   font-size: 5rem;
-  letter-spacing: -2px;
+  letter-spacing: 0px;
   line-height: 1;
   text-transform: uppercase;
-  font-weight: 700;
+  font-weight: 500;
   margin: 0;
 }
 

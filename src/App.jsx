@@ -53,11 +53,11 @@ import ActivityLog from './admin/pages/ActivityLog';
 function Home() {
   const [blocks, setBlocks] = React.useState([
     { id: '1', type: 'hero', config: {} },
-    { id: '2', type: 'catalog', config: { title: 'REKOMENDASI PREYSON', subtitle: 'Pilihan terbaik untuk gaya berkendara Anda', columns: 4 } },
-    { id: '3', type: 'catalog', config: { title: 'NEW RELEASE', subtitle: 'Koleksi terbaru dari Preyson Moto', columns: 4 } },
+    { id: '2', type: 'catalog', config: { title: 'PREYSON RECOMMENDATIONS', subtitle: 'The best choices for your riding style', columns: 4 } },
+    { id: '3', type: 'catalog', config: { title: 'NEW RELEASE', subtitle: 'The latest collection from Preyson Moto', columns: 4 } },
     { id: '4', type: 'banner', config: { imageUrl1: '/images/hero_bg.png', imageUrl2: '/images/cat_jacket.png' } },
     { id: '5', type: 'collab', config: { title: 'Colabs', visible: true } },
-    { id: '6', type: 'catalog', config: { title: 'KATALOG PRODUK', subtitle: 'Jelajahi seluruh koleksi Preyson', columns: 4 } },
+    { id: '6', type: 'catalog', config: { title: 'PRODUCT CATALOG', subtitle: 'Explore the full Preyson collection', columns: 4 } },
   ]);
 
   React.useEffect(() => {
