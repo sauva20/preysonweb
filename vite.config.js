@@ -19,14 +19,14 @@ export default defineConfig({
         display: 'standalone',
         icons: [
           {
-            src: 'https://via.placeholder.com/192/F97316/FFFFFF?text=POS',
+            src: '/vite.svg',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/svg+xml'
           },
           {
-            src: 'https://via.placeholder.com/512/F97316/FFFFFF?text=POS',
+            src: '/vite.svg',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/svg+xml'
           }
         ]
       },
