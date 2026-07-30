@@ -3,8 +3,9 @@ import { X, Delete } from 'lucide-react';
 import { useCurrency } from '../../context/CurrencyContext';
 import './CashModal.css';
 
-export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subtotal, tax, total }) {
-  const { formatPrice } = useCurrency();
+export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subtotal, tax, total, isEventMode }) {
+  const { formatPrice, formatEventPrice, eventCurrency } = useCurrency();
+  const displayPrice = (amount) => isEventMode ? formatEventPrice(amount) : formatPrice(amount);
   const [received, setReceived] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
@@ -67,7 +68,7 @@ export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subto
                     <span>SKU: {item.sku} | SIZE: {item.size}</span>
                   </div>
                   <div className="cash-item-price">
-                    {formatPrice(item.price * item.quantity)}
+                    {displayPrice(item.price * item.quantity)}
                   </div>
                 </div>
               ))}
@@ -99,11 +100,11 @@ export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subto
           <div className="cash-modal-totals">
             <div className="totals-row">
               <span>SUBTOTAL</span>
-              <span>{formatPrice(subtotal)}</span>
+              <span>{displayPrice(subtotal)}</span>
             </div>
             <div className="totals-row grand-total">
               <span>TOTAL</span>
-              <span className="accent-color">{formatPrice(total)}</span>
+              <span className="accent-color">{displayPrice(total)}</span>
             </div>
           </div>
         </div>
@@ -118,7 +119,7 @@ export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subto
           <div className="cash-entry-display">
             <span className="entry-label">RECEIVED</span>
             <div className="entry-value">
-              <span className="currency-symbol">Rp</span>
+              <span className="currency-symbol">{isEventMode ? eventCurrency : 'Rp'}</span>
               <input 
                 type="number" 
                 inputMode="numeric" 
@@ -133,9 +134,19 @@ export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subto
 
           <div className="quick-amounts">
             <button onClick={() => handleQuickAdd(total)}>Uang Pas</button>
-            <button onClick={() => handleQuickAdd(50000)}>50.000</button>
-            <button onClick={() => handleQuickAdd(100000)}>100.000</button>
-            <button onClick={() => handleQuickAdd(200000)}>200.000</button>
+            {isEventMode ? (
+              <>
+                <button onClick={() => handleQuickAdd(50)}>50</button>
+                <button onClick={() => handleQuickAdd(100)}>100</button>
+                <button onClick={() => handleQuickAdd(200)}>200</button>
+              </>
+            ) : (
+              <>
+                <button onClick={() => handleQuickAdd(50000)}>50.000</button>
+                <button onClick={() => handleQuickAdd(100000)}>100.000</button>
+                <button onClick={() => handleQuickAdd(200000)}>200.000</button>
+              </>
+            )}
           </div>
 
           <div className="numpad">
@@ -149,7 +160,7 @@ export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subto
 
           <div className="change-due">
             <span>CHANGE DUE</span>
-            <span>{changeDue > 0 ? formatPrice(changeDue) : formatPrice(0)}</span>
+            <span>{changeDue > 0 ? displayPrice(changeDue) : displayPrice(0)}</span>
           </div>
 
           <div className="cash-modal-actions">

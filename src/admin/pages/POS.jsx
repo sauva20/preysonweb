@@ -12,9 +12,9 @@ import './POS.css';
 import './POS-modal.css';
 
 export default function POS() {
-  const { products, categories, fetchProducts } = useProducts();
+  const { products, categories, fetchProducts, deductStockLocally } = useProducts();
   const { addOrder } = useOrders();
-  const { formatPrice } = useCurrency();
+  const { formatPrice, formatEventPrice } = useCurrency();
   const { logActivity } = useActivity();
   const { pendingOrders, addPendingOrder, syncNow, isSyncing } = useOfflineSync();
   const [cartItems, setCartItems] = useState([]);
@@ -116,6 +116,10 @@ export default function POS() {
   const tax = 0;
   const total = subtotal;
 
+  const displayPrice = (amount) => {
+    return isEventMode ? formatEventPrice(amount) : formatPrice(amount);
+  };
+
   const handleQuantity = (cartItemId, delta) => {
     setCartItems(cartItems.map(item => {
       if (item.cartItemId === cartItemId) {
@@ -197,8 +201,11 @@ export default function POS() {
       };
 
       if (isEventMode || !navigator.onLine) {
-        // Save to offline queue
+        // Save to offline queue and instantly deduct stock locally
         addPendingOrder(orderPayload);
+        if (deductStockLocally) {
+          deductStockLocally(orderPayload.items, isEventMode);
+        }
         Swal.fire({ icon: 'success', title: 'Tersimpan Offline!', text: 'Transaksi disimpan di memori. Jangan lupa Sync saat online.', confirmButtonColor: 'var(--admin-accent)' });
       } else {
         // Send directly to API
@@ -354,7 +361,7 @@ export default function POS() {
                   <h4>{product.name}</h4>
                   <div className="pos-card-footer">
                     <span className="sku">{product.sku}</span>
-                    <span className="price">{formatPrice(isEventMode ? product.eventPrice : product.price)}</span>
+                    <span className="price">{displayPrice(isEventMode ? product.eventPrice : product.price)}</span>
                   </div>
                 </div>
               </div>
@@ -376,7 +383,7 @@ export default function POS() {
             <div className="pos-cart-item" key={item.cartItemId}>
               <div className="pos-cart-item-row">
                 <h4>{item.name}</h4>
-                <span className="pos-item-price">{formatPrice(item.price * item.quantity)}</span>
+                <span className="pos-item-price">{displayPrice(item.price * item.quantity)}</span>
               </div>
               <div className="pos-cart-item-meta">
                 SIZE: {item.size} | {item.sku}
@@ -429,16 +436,16 @@ export default function POS() {
           <div className="cart-summary">
             <div className="summary-row">
               <span>SUBTOTAL</span>
-              <span>{formatPrice(subtotal)}</span>
+              <span>{displayPrice(subtotal)}</span>
             </div>
             <div className="summary-row">
               <span>DISCOUNT</span>
-              <span>{formatPrice(0)}</span>
+              <span>{displayPrice(0)}</span>
             </div>
             <div className="summary-divider"></div>
             <div className="summary-row total-row">
               <span>TOTAL</span>
-              <span className="total-amount">{formatPrice(total)}</span>
+              <span className="total-amount">{displayPrice(total)}</span>
             </div>
           </div>
 
@@ -457,6 +464,7 @@ export default function POS() {
           tax={tax}
           onClose={() => setIsCashModalOpen(false)}
           onConfirm={(details) => processOrder(details)}
+          isEventMode={isEventMode}
         />
       )}
 
@@ -469,6 +477,7 @@ export default function POS() {
           tax={tax}
           onClose={() => setIsQrisModalOpen(false)}
           onConfirm={(details) => processOrder(details)}
+          isEventMode={isEventMode}
         />
       )}
 

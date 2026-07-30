@@ -68,8 +68,8 @@ function makeDynamicQris(staticQris, amount) {
   }
 }
 
-export default function QrisModal({ isOpen, onClose, onConfirm, cartItems, subtotal, tax, total }) {
-  const { formatPrice } = useCurrency();
+export default function QrisModal({ isOpen, onClose, onConfirm, cartItems, subtotal, tax, total, isEventMode }) {
+  const { formatPrice, formatEventPrice, eventExchangeRate, eventCurrency } = useCurrency();
   const { qrisStaticString } = useQris();
   
   const [customerName, setCustomerName] = useState('');
@@ -99,7 +99,12 @@ export default function QrisModal({ isOpen, onClose, onConfirm, cartItems, subto
 
   if (!isOpen) return null;
 
-  const dynamicQris = makeDynamicQris(qrisStaticString, total);
+  const displayPrice = (amount) => isEventMode ? formatEventPrice(amount) : formatPrice(amount);
+
+  // Cross-border QRIS calculation
+  // Indonesian QRIS (51/52 ID) MUST be in IDR.
+  const qrisAmount = isEventMode ? total * eventExchangeRate : total;
+  const dynamicQris = makeDynamicQris(qrisStaticString, qrisAmount);
   
   const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60);
@@ -119,9 +124,9 @@ export default function QrisModal({ isOpen, onClose, onConfirm, cartItems, subto
               <div className="qris-item-row" key={idx}>
                 <div className="qris-item-info">
                   <h4>{item.name}</h4>
-                  <span>{item.quantity} x {formatPrice(item.price)}</span>
+                  <span>{item.quantity} x {displayPrice(item.price)}</span>
                 </div>
-                <div className="qris-item-price">{formatPrice(item.price * item.quantity)}</div>
+                <div className="qris-item-price">{displayPrice(item.price * item.quantity)}</div>
               </div>
             ))}
           </div>
@@ -151,12 +156,19 @@ export default function QrisModal({ isOpen, onClose, onConfirm, cartItems, subto
           <div className="qris-modal-totals">
             <div className="totals-row">
               <span>SUBTOTAL</span>
-              <span>{formatPrice(subtotal)}</span>
+              <span>{displayPrice(subtotal)}</span>
             </div>
             <div className="totals-row grand-total">
               <span>TOTAL</span>
-              <span className="accent-color">{formatPrice(total)}</span>
+              <span className="accent-color">{displayPrice(total)}</span>
             </div>
+            {isEventMode && (
+              <div style={{ marginTop: '16px', padding: '12px', backgroundColor: 'var(--admin-surface)', borderRadius: '6px', fontSize: '12px', border: '1px solid var(--admin-border-dark)' }}>
+                <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: 'var(--admin-text)' }}>CROSS-BORDER QRIS (IDR Equivalent)</p>
+                <p style={{ margin: 0, color: 'var(--admin-text-muted)' }}>1 {eventCurrency} = Rp {eventExchangeRate.toLocaleString('id-ID')}</p>
+                <p style={{ margin: '4px 0 0 0', fontWeight: 'bold', color: '#10b981' }}>Customer pays: Rp {qrisAmount.toLocaleString('id-ID')}</p>
+              </div>
+            )}
           </div>
         </div>
 

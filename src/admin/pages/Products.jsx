@@ -11,7 +11,7 @@ import './Products.css';
 
 export default function Products() {
   const { products, addProduct, updateProduct, deleteProduct, toggleSoldOut, categories, addCategory, deleteCategory } = useProducts();
-  const { formatPrice } = useCurrency();
+  const { formatPrice, currency, eventCurrency, formatEventPrice } = useCurrency();
   const { logActivity } = useActivity();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCatModalOpen, setIsCatModalOpen] = useState(false);
@@ -387,7 +387,7 @@ export default function Products() {
                 <td className="table-price">
                   <div style={{display:'flex', flexDirection:'column', gap:'2px'}}>
                     <span>{formatPrice(product.price)}</span>
-                    <span style={{fontSize:'11px', color:'#f59e0b'}}>{formatPrice(product.eventPrice || 0)} (Event)</span>
+                    <span style={{fontSize:'11px', color:'#f59e0b'}}>{formatEventPrice(product.eventPrice || 0)} (Event)</span>
                   </div>
                 </td>
                 <td>
@@ -575,7 +575,7 @@ export default function Products() {
 
                       <div className="price-input-wrapper" style={{display: 'flex', flexDirection: 'column', gap: '8px', border: 'none', padding: 0}}>
                         <div style={{display: 'flex', alignItems: 'center', borderBottom: '2px solid #000', paddingBottom: '4px'}}>
-                          <span className="currency-symbol">Rp</span>
+                          <span className="currency-symbol">{currency === 'IDR' ? 'Rp' : currency}</span>
                           <input
                             type="text"
                             className="invisible-input pdp-price-preview"
@@ -589,7 +589,7 @@ export default function Products() {
                           />
                         </div>
                         <div style={{display: 'flex', alignItems: 'center', background: '#fffbe8', padding: '4px 8px', borderRadius: '4px', border: '1px solid #fde68a'}}>
-                          <span className="currency-symbol" style={{color: '#d97706', fontSize: '14px', marginRight: '4px'}}>Event: Rp</span>
+                          <span className="currency-symbol" style={{color: '#d97706', fontSize: '14px', marginRight: '4px'}}>Event: {eventCurrency === 'IDR' ? 'Rp' : eventCurrency}</span>
                           <input
                             type="text"
                             className="invisible-input pdp-price-preview"

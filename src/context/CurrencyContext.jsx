@@ -23,9 +23,19 @@ export const CurrencyProvider = ({ children }) => {
     return localStorage.getItem('storeCurrency') || 'IDR';
   });
 
+  const [eventCurrency, setEventCurrency] = useState(() => {
+    return localStorage.getItem('eventCurrency') || 'MYR';
+  });
+
+  const [eventExchangeRate, setEventExchangeRate] = useState(() => {
+    return Number(localStorage.getItem('eventExchangeRate')) || 3500;
+  });
+
   useEffect(() => {
     localStorage.setItem('storeCurrency', currency);
-  }, [currency]);
+    localStorage.setItem('eventCurrency', eventCurrency);
+    localStorage.setItem('eventExchangeRate', eventExchangeRate.toString());
+  }, [currency, eventCurrency, eventExchangeRate]);
 
   const formatPrice = (priceInIDR) => {
     if (typeof priceInIDR !== 'number') return priceInIDR;
@@ -41,8 +51,23 @@ export const CurrencyProvider = ({ children }) => {
     }).format(convertedAmount);
   };
 
+  const formatEventPrice = (amount) => {
+    if (typeof amount !== 'number') return amount;
+    const locale = LOCALE_MAP[eventCurrency] || 'en-US';
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: eventCurrency,
+      minimumFractionDigits: 2,
+    }).format(amount);
+  };
+
   return (
-    <CurrencyContext.Provider value={{ currency, setCurrency, formatPrice }}>
+    <CurrencyContext.Provider value={{ 
+      currency, setCurrency, formatPrice,
+      eventCurrency, setEventCurrency,
+      eventExchangeRate, setEventExchangeRate,
+      formatEventPrice
+    }}>
       {children}
     </CurrencyContext.Provider>
   );

@@ -19,7 +19,8 @@ export default function Settings() {
   }, [activeTab]);
 
   const [isSaved, setIsSaved] = useState(false);
-  const { currency, setCurrency } = useCurrency();
+  const currencyContext = useCurrency();
+  const { currency, setCurrency } = currencyContext;
   const { qrisStaticString, updateQrisString } = useQris();
 
 
@@ -82,7 +83,6 @@ export default function Settings() {
         const res = await fetch(`${getApiUrl()}/checkout/search-area?query=${encodeURIComponent(areaSearch)}`);
         const data = await res.json();
         setAreaResults(data.areas || []);
-        setShowAreaDropdown(true);
       } catch(err) {
         console.error(err);
       }
@@ -280,7 +280,10 @@ export default function Settings() {
                       <input 
                         type="text" 
                         value={areaSearch} 
-                        onChange={e => setAreaSearch(e.target.value)} 
+                        onChange={e => {
+                          setAreaSearch(e.target.value);
+                          setShowAreaDropdown(true);
+                        }} 
                         placeholder="Cari Kecamatan / Kota (Biteship Autocomplete)"
                         onFocus={() => { if(areaResults.length > 0) setShowAreaDropdown(true); }}
                       />
@@ -356,6 +359,33 @@ export default function Settings() {
                       <option value="Asia/Makassar">Asia/Makassar (WITA)</option>
                       <option value="Asia/Jayapura">Asia/Jayapura (WIT)</option>
                     </select>
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group half">
+                    <label>Event / Overseas Currency</label>
+                    <select 
+                      value={currencyContext.eventCurrency} 
+                      onChange={e => currencyContext.setEventCurrency(e.target.value)}
+                    >
+                      <option value="MYR">MYR - Malaysian Ringgit</option>
+                      <option value="SGD">SGD - Singapore Dollar</option>
+                      <option value="USD">USD - US Dollar</option>
+                      <option value="IDR">IDR - Indonesian Rupiah</option>
+                    </select>
+                  </div>
+                  <div className="form-group half">
+                    <label>Event Exchange Rate (to IDR)</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span>1 {currencyContext.eventCurrency} = Rp</span>
+                      <input 
+                        type="number" 
+                        value={currencyContext.eventExchangeRate} 
+                        onChange={e => currencyContext.setEventExchangeRate(Number(e.target.value))} 
+                        style={{ flex: 1 }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

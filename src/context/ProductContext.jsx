@@ -150,9 +150,55 @@ export function ProductProvider({ children }) {
     }
   };
 
+  const deductStockLocally = (items, isEventMode) => {
+    setProducts(prev => {
+      const newProducts = prev.map(p => {
+        const orderItemsForProduct = items.filter(i => i.productId === p.id);
+        if (orderItemsForProduct.length === 0) return p;
+
+        let totalDeducted = 0;
+        let newSizes = p.sizes;
+        try {
+          if (typeof newSizes === 'string') newSizes = JSON.parse(newSizes);
+        } catch(e) {}
+        
+        let sizeUpdated = false;
+
+        orderItemsForProduct.forEach(item => {
+          totalDeducted += item.quantity;
+          if (item.size && item.size !== 'OS' && Array.isArray(newSizes)) {
+            newSizes = newSizes.map(s => {
+              if (s.name === item.size) {
+                sizeUpdated = true;
+                return { ...s, stock: Math.max(0, s.stock - item.quantity) };
+              }
+              return s;
+            });
+          }
+        });
+
+        const updatedP = { ...p };
+        if (isEventMode) {
+          updatedP.eventStock = Math.max(0, (updatedP.eventStock || 0) - totalDeducted);
+        } else {
+          updatedP.stock = Math.max(0, (updatedP.stock || 0) - totalDeducted);
+        }
+        
+        if (sizeUpdated) {
+          updatedP.sizes = JSON.stringify(newSizes);
+        }
+        
+        return updatedP;
+      });
+      
+      localStorage.setItem('offline_products', JSON.stringify(newProducts));
+      return newProducts;
+    });
+  };
+
   return (
     <ProductContext.Provider value={{
-      products, addProduct, updateProduct, deleteProduct, toggleSoldOut, fetchProducts,
+      products, addProduct, updateProduct, deleteProduct, toggleSoldOut, fetchProducts, deductStockLocally,
       categories, addCategory, deleteCategory, fetchCategories
     }}>
       {children}
