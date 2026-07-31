@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Menu, Search, User, ShoppingBag, X, Moon, Sun, ChevronDown } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductContext';
@@ -11,8 +11,12 @@ export default function Navbar() {
   const [isDark, setIsDark] = useState(false);
   const [isCategoryHovered, setIsCategoryHovered] = useState(false);
   const [isMobileCategoryOpen, setIsMobileCategoryOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const location = useLocation();
+  const navigate = useNavigate();
+  
   const isLightPage = location.pathname.startsWith('/catalog') || location.pathname === '/cart' || location.pathname.startsWith('/product') || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password' || location.pathname.startsWith('/contact') || location.pathname === '/profile';
   
   const { cartCount } = useCart();
@@ -172,8 +176,41 @@ export default function Navbar() {
         </Link>
       </div>
       
-      <div className="navbar-right">
-        <button className="icon-btn"><Search size={20} /></button>
+      <div className="navbar-right" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+        
+        {/* Search Bar */}
+        <div className={`nav-search-wrapper ${isSearchOpen ? 'open' : ''}`} style={{ display: 'flex', alignItems: 'center' }}>
+          {isSearchOpen && (
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if (searchQuery.trim()) {
+                navigate(`/catalog?search=${encodeURIComponent(searchQuery.trim())}`);
+                setIsSearchOpen(false);
+                setSearchQuery('');
+              }
+            }}>
+              <input 
+                type="text" 
+                placeholder="Search products..." 
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                autoFocus
+                onBlur={() => { if(!searchQuery) setIsSearchOpen(false) }}
+                className="nav-search-input"
+                style={{
+                  border: '1px solid #ccc', borderRadius: '20px',
+                  backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)',
+                  padding: '6px 14px', outline: 'none', width: '160px', fontSize: '14px',
+                  marginRight: '10px', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
+                }}
+              />
+            </form>
+          )}
+          <button className="icon-btn" onClick={() => setIsSearchOpen(!isSearchOpen)}>
+            <Search size={20} />
+          </button>
+        </div>
+
         <Link 
           to={customerUser ? "/profile" : "/login"} 
           className="icon-btn user-btn-wrapper" 

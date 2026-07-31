@@ -195,6 +195,10 @@ body:not(.dark-mode) .navbar.light-page:not(.scrolled) .nav-links a:hover {
   box-shadow: 2px 0 10px rgba(0,0,0,0.1);
 }
 
+body.dark-mode .mobile-menu-drawer {
+  background-color: #1a1a1a;
+}
+
 .mobile-menu-drawer.open {
   left: 0;
 }
@@ -217,6 +221,10 @@ body:not(.dark-mode) .navbar.light-page:not(.scrolled) .nav-links a:hover {
   cursor: pointer;
 }
 
+body.dark-mode .close-btn {
+  color: #fff;
+}
+
 .mobile-nav-links {
   display: flex;
   flex-direction: column;
@@ -235,8 +243,16 @@ body:not(.dark-mode) .navbar.light-page:not(.scrolled) .nav-links a:hover {
   transition: color 0.3s;
 }
 
+body.dark-mode .mobile-nav-links a {
+  color: #fff;
+}
+
 .mobile-nav-links a:hover {
   color: #666;
+}
+
+body.dark-mode .mobile-nav-links a:hover {
+  color: #aaa;
 }
 
 .mobile-menu-overlay {

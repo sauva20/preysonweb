@@ -261,7 +261,7 @@ export default function Settings() {
                     <input 
                       type="tel" 
                       value={appSettings.store_phone} 
-                      onChange={e => setAppSettings({...appSettings, store_phone: e.target.value})} 
+                      onChange={e => setAppSettings({...appSettings, store_phone: e.target.value.replace(/[^\d+\s-]/g, '')})} 
                     />
                   </div>
                 </div>

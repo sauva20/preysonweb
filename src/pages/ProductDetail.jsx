@@ -259,11 +259,7 @@ export default function ProductDetail() {
             <button 
               className={`btn btn-primary add-to-cart-btn ${(product.isSoldOut || product.stock <= 0) ? 'is-soldout-btn' : ''}`}
               onClick={handleAddToCart}
-              disabled={product.isSoldOut || product.stock <= 0 || !selectedSize || (() => {
-                 const sObj = product.sizes.find(s => (typeof s === 'string' ? s : s.name) === selectedSize);
-                 const sStock = typeof sObj === 'string' ? 999 : (sObj?.stock || 0);
-                 return sStock === 0;
-              })()}
+              disabled={product.isSoldOut || product.stock <= 0}
             >
               {(product.isSoldOut || product.stock <= 0) ? 'STOK HABIS (SOLD OUT)' : (!selectedSize ? 'PILIH UKURAN' : 'TAMBAH KE KERANJANG')}
             </button>
@@ -272,12 +268,12 @@ export default function ProductDetail() {
           <button 
             className="btn pdp-wishlist-btn"
             style={{ backgroundColor: '#1a1a1a', color: '#fff', borderColor: '#1a1a1a', fontWeight: 'bold', width: '100%' }}
-            disabled={!selectedSize || (() => {
-               const sObj = product.sizes.find(s => (typeof s === 'string' ? s : s.name) === selectedSize);
-               const sStock = typeof sObj === 'string' ? 999 : (sObj?.stock || 0);
-               return sStock === 0;
-            })()}
+            disabled={product.isSoldOut || product.stock <= 0}
             onClick={() => {
+              if (!selectedSize) {
+                alert("Please select a size first");
+                return;
+              }
               handleAddToCart();
               navigate('/cart');
             }}

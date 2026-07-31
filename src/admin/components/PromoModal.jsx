@@ -126,7 +126,13 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
                 </div>
                 <div className="form-group">
                   <label>Usage Limit (Total)</label>
-                  <input type="number" value={usageLimit} onChange={e => setUsageLimit(e.target.value)} placeholder="Leave blank for unlimited" />
+                  <input 
+                    type="number" 
+                    value={usageLimit} 
+                    onChange={e => setUsageLimit(e.target.value)} 
+                    onKeyDown={(e) => ['e', 'E', '+', '-'].includes(e.key) && e.preventDefault()}
+                    placeholder="Leave blank for unlimited" 
+                  />
                 </div>
               </>
             )}
@@ -149,7 +155,15 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
             </div>
             <div className="form-group">
               <label>Discount Value</label>
-              <input type="number" value={value} onChange={e => setValue(e.target.value)} required min="1" max={promoType === 'percentage' ? 100 : 99999} />
+              <input 
+                type="number" 
+                value={value} 
+                onChange={e => setValue(e.target.value)} 
+                onKeyDown={(e) => ['e', 'E', '+', '-'].includes(e.key) && e.preventDefault()}
+                required 
+                min="1" 
+                max={promoType === 'percentage' ? 100 : 999999999} 
+              />
             </div>
 
             {/* MORE VOUCHER FIELDS */}
@@ -157,12 +171,24 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
               <>
                 <div className="form-group">
                   <label>Minimum Spend (Rp)</label>
-                  <input type="number" value={minSpend} onChange={e => setMinSpend(e.target.value)} placeholder="0" />
+                  <input 
+                    type="number" 
+                    value={minSpend} 
+                    onChange={e => setMinSpend(e.target.value)} 
+                    onKeyDown={(e) => ['e', 'E', '+', '-'].includes(e.key) && e.preventDefault()}
+                    placeholder="0" 
+                  />
                 </div>
                 {promoType === 'percentage' && (
                   <div className="form-group">
                     <label>Maximum Discount (Rp)</label>
-                    <input type="number" value={maxDiscount} onChange={e => setMaxDiscount(e.target.value)} placeholder="No limit" />
+                    <input 
+                      type="number" 
+                      value={maxDiscount} 
+                      onChange={e => setMaxDiscount(e.target.value)} 
+                      onKeyDown={(e) => ['e', 'E', '+', '-'].includes(e.key) && e.preventDefault()}
+                      placeholder="No limit" 
+                    />
                   </div>
                 )}
               </>
@@ -170,11 +196,11 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
 
             <div className="form-group">
               <label>Valid From</label>
-              <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} required />
+              <input type="datetime-local" value={startDate} onChange={e => setStartDate(e.target.value)} required />
             </div>
             <div className="form-group">
               <label>Valid Until</label>
-              <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} required />
+              <input type="datetime-local" value={endDate} onChange={e => setEndDate(e.target.value)} required />
             </div>
 
             {/* PRODUCT SELECTOR FOR DISCOUNT */}

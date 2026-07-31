@@ -119,10 +119,11 @@ export default function Discount() {
                     </td>
                     <td>
                       <button 
-                        className={`status-toggle ${v.isActive ? 'active' : 'inactive'}`}
-                        onClick={() => toggleVoucherStatus(v.id)}
+                        className={`status-toggle ${v.isExpired ? 'expired' : (v.isActive ? 'active' : 'inactive')}`}
+                        onClick={() => !v.isExpired && toggleVoucherStatus(v.id)}
+                        disabled={v.isExpired}
                       >
-                        {v.isActive ? 'Active' : 'Inactive'}
+                        {v.isExpired ? 'Expired' : (v.isActive ? 'Active' : 'Inactive')}
                       </button>
                     </td>
                     <td>
@@ -174,10 +175,11 @@ export default function Discount() {
                     </td>
                     <td>
                       <button 
-                        className={`status-toggle ${d.isActive ? 'active' : 'inactive'}`}
-                        onClick={() => toggleDiscountStatus(d.id)}
+                        className={`status-toggle ${d.isExpired ? 'expired' : (d.isActive ? 'active' : 'inactive')}`}
+                        onClick={() => !d.isExpired && toggleDiscountStatus(d.id)}
+                        disabled={d.isExpired}
                       >
-                        {d.isActive ? 'Active' : 'Inactive'}
+                        {d.isExpired ? 'Expired' : (d.isActive ? 'Active' : 'Inactive')}
                       </button>
                     </td>
                     <td>

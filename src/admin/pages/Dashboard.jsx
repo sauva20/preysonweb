@@ -217,7 +217,7 @@ export default function Dashboard() {
           <div className="recent-transactions">
             <div className="section-header-row">
               <h3>Transaksi Terakhir</h3>
-              <a href="#" className="see-all">Lihat Semua</a>
+              <a href="#" className="see-all" onClick={(e) => { e.preventDefault(); navigate('/admin/orders'); }}>Lihat Semua</a>
             </div>
             
             <div className="transaction-list">

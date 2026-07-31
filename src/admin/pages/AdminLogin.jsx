@@ -71,6 +71,7 @@ export default function AdminLogin() {
                     placeholder="admin@preyson.com" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    style={{ paddingLeft: '3rem' }}
                     required
                   />
                 </div>
@@ -85,7 +86,7 @@ export default function AdminLogin() {
                     placeholder="••••••••" 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    style={{ paddingRight: '40px' }}
+                    style={{ paddingLeft: '3rem', paddingRight: '40px' }}
                     required
                   />
                   <button 

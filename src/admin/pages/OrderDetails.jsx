@@ -1,13 +1,17 @@
 import { getApiUrl, getBackendUrl } from '../../utils/apiConfig';
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Truck, CheckCircle, Package } from 'lucide-react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Truck, CheckCircle, Package, Trash2 } from 'lucide-react';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useActivity } from '../../context/ActivityContext';
+import { useOrders } from '../../context/OrderContext';
+import Swal from 'sweetalert2';
 import './Orders.css'; // Reuse some admin styles
 
 export default function OrderDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { deleteOrder } = useOrders();
   const { formatPrice } = useCurrency();
   const { logActivity } = useActivity();
   const [order, setOrder] = useState(null);
@@ -64,8 +68,39 @@ export default function OrderDetails() {
           </Link>
           <h2>Order {order.id}</h2>
         </div>
-        <div className={`status-badge ${order.status.toLowerCase()}`}>
-          {order.status}
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div className={`status-badge ${order.status.toLowerCase()}`}>
+            {order.status}
+          </div>
+          <button 
+            className="admin-btn-secondary" 
+            style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '6px', color: '#ef4444', borderColor: '#fecaca', backgroundColor: '#fef2f2' }}
+            onClick={async () => {
+              const result = await Swal.fire({
+                title: 'Hapus Pesanan?',
+                text: "Stok akan dikembalikan dan pesanan ini akan dihapus permanen dari sistem. Anda yakin?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus!'
+              });
+              
+              if (result.isConfirmed) {
+                try {
+                  await deleteOrder(order.id);
+                  Swal.fire('Terhapus!', 'Pesanan berhasil dihapus dan stok dikembalikan.', 'success');
+                  logActivity({ category: 'Pesanan', title: 'Hapus Pesanan', description: `Pesanan ${order.id} dihapus dan stok dikembalikan.`, status: 'warning' });
+                  navigate('/admin/orders');
+                } catch (err) {
+                  Swal.fire('Error', 'Gagal menghapus pesanan', 'error');
+                }
+              }
+            }}
+          >
+            <Trash2 size={16} />
+            Delete Order
+          </button>
         </div>
       </div>
 

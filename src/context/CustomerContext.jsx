@@ -26,12 +26,12 @@ export function CustomerProvider({ children }) {
           id: c.id,
           name: c.name,
           email: c.email,
-          phone: c.phone || '-', // if phone is added later
-          address: '-', // Add mapping if address fields are added
-          city: '-',
+          phone: c.phone || '-', 
+          address: c.address || '-', 
+          city: c.city || '-',
           totalOrders,
           totalSpent,
-          status: 'Active',
+          status: c.status || 'Active',
           joinDate: c.createdAt
         };
       });
@@ -58,14 +58,32 @@ export function CustomerProvider({ children }) {
     }
   };
 
-  const updateCustomer = (id, updatedData) => {
-    setCustomers(customers.map(c => 
-      c.id === id ? { ...c, ...updatedData } : c
-    ));
+  const updateCustomer = async (id, updatedData) => {
+    try {
+      const res = await fetch(`${API_URL}/customers/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedData)
+      });
+      if (!res.ok) throw new Error('Failed to update customer');
+      fetchCustomers();
+    } catch (err) {
+      console.error('Error updating customer:', err);
+      throw err;
+    }
   };
 
-  const deleteCustomer = (id) => {
-    setCustomers(customers.filter(c => c.id !== id));
+  const deleteCustomer = async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/customers/${id}`, {
+        method: 'DELETE'
+      });
+      if (!res.ok) throw new Error('Failed to delete customer');
+      fetchCustomers();
+    } catch (err) {
+      console.error('Error deleting customer:', err);
+      throw err;
+    }
   };
 
   return (

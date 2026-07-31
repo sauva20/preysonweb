@@ -57,8 +57,22 @@ export function OrderProvider({ children }) {
     }
   };
 
+  const deleteOrder = async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/orders/${id}`, {
+        method: 'DELETE'
+      });
+      if (!res.ok) throw new Error('Failed to delete order');
+      setOrders(prev => prev.filter(order => order.id !== id));
+      return true;
+    } catch (err) {
+      console.error('Error deleting order:', err);
+      throw err;
+    }
+  };
+
   return (
-    <OrderContext.Provider value={{ orders, addOrder, updateOrderStatus, fetchOrders }}>
+    <OrderContext.Provider value={{ orders, addOrder, updateOrderStatus, fetchOrders, deleteOrder }}>
       {children}
     </OrderContext.Provider>
   );

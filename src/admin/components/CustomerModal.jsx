@@ -61,7 +61,7 @@ export default function CustomerModal({ isOpen, onClose, onSubmit, initialData }
             
             <div className="form-group">
               <label>Phone Number *</label>
-              <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required placeholder="e.g. 081234567890" />
+              <input type="tel" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, ''))} required placeholder="e.g. 081234567890" />
             </div>
 
             <div className="form-group full-width">

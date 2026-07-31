@@ -10,6 +10,7 @@ export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subto
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -39,6 +40,10 @@ export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subto
 
   const handleConfirm = () => {
     if (!canConfirm) return;
+    if (!customerName.trim()) {
+      alert("Customer Name wajib diisi!");
+      return;
+    }
     setShowConfirm(true);
   };
 
@@ -53,7 +58,7 @@ export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subto
   };
 
   return (
-    <div className="modal-backdrop cash-modal-backdrop" onClick={onClose}>
+    <div className="modal-backdrop cash-modal-backdrop" onClick={() => setShowCancelConfirm(true)}>
       <div className="cash-modal" onClick={e => e.stopPropagation()}>
         
         {/* LEFT PANEL: SUMMARY & CUSTOMER */}
@@ -78,12 +83,13 @@ export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subto
           <div className="cash-modal-section">
             <h3 className="section-title">CUSTOMER DETAILS</h3>
             <div className="form-group">
-              <label>CUSTOMER NAME</label>
+              <label>CUSTOMER NAME *</label>
               <input 
                 type="text" 
-                placeholder="ENTER NAME" 
+                placeholder="ENTER NAME (WAJIB)" 
                 value={customerName}
                 onChange={e => setCustomerName(e.target.value)}
+                style={{ borderColor: !customerName.trim() ? '#fca5a5' : 'var(--admin-border)' }}
               />
             </div>
             <div className="form-group">
@@ -113,7 +119,7 @@ export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subto
         <div className="cash-modal-right">
           <div className="cash-modal-header">
             <h3>💵 CASH ENTRY</h3>
-            <button className="close-btn" onClick={onClose}><X size={20} /></button>
+            <button className="close-btn" onClick={() => setShowCancelConfirm(true)}><X size={20} /></button>
           </div>
 
           <div className="cash-entry-display">
@@ -164,7 +170,7 @@ export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subto
           </div>
 
           <div className="cash-modal-actions">
-            <button className="btn-cancel" onClick={onClose}>CANCEL</button>
+            <button className="btn-cancel" onClick={() => setShowCancelConfirm(true)}>CANCEL</button>
             <button 
               className="btn-confirm" 
               onClick={handleConfirm}
@@ -184,6 +190,22 @@ export default function CashModal({ isOpen, onClose, onConfirm, cartItems, subto
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
               <button style={{ padding: '10px 20px', background: '#e5e7eb', border: 'none', borderRadius: '4px', cursor: 'pointer', color: '#374151', fontWeight: '600' }} onClick={() => setShowConfirm(false)}>Batal</button>
               <button style={{ padding: '10px 20px', background: '#cf5a16', border: 'none', borderRadius: '4px', cursor: 'pointer', color: '#fff', fontWeight: '600' }} onClick={processConfirm}>Ya, Selesaikan</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCancelConfirm && (
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: '#fff', padding: '24px', borderRadius: '8px', textAlign: 'center', maxWidth: '320px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+            <h4 style={{ color: '#111', marginBottom: '12px', fontSize: '1.2rem', fontWeight: 'bold' }}>Batalkan Transaksi?</h4>
+            <p style={{ color: '#555', marginBottom: '24px', fontSize: '0.95rem' }}>Yakin ingin membatalkan transaksi ini?</p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button style={{ padding: '10px 20px', background: '#e5e7eb', border: 'none', borderRadius: '4px', cursor: 'pointer', color: '#374151', fontWeight: '600' }} onClick={() => setShowCancelConfirm(false)}>Tidak</button>
+              <button style={{ padding: '10px 20px', background: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', color: '#fff', fontWeight: '600' }} onClick={() => {
+                setShowCancelConfirm(false);
+                onClose();
+              }}>Ya, Batal</button>
             </div>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { useProducts } from '../../context/ProductContext';
 import { useCurrency } from '../../context/CurrencyContext';
 import { 
   TrendingUp, TrendingDown, DollarSign, ShoppingBag, Package, 
-  AlertTriangle, AlertCircle, ShoppingCart 
+  AlertTriangle, AlertCircle, ShoppingCart, ChevronDown, Filter, Printer 
 } from 'lucide-react';
 import './Reports.css';
 
@@ -13,9 +13,29 @@ export default function Reports() {
   const { products } = useProducts();
   const { formatPrice } = useCurrency();
   const [activeTab, setActiveTab] = useState('overview');
+  const [dateFilter, setDateFilter] = useState('All Time');
+  const [isDateDropdownOpen, setIsDateDropdownOpen] = useState(false);
 
   // --- Calculations for Executive Summary ---
-  const completedOrders = orders.filter(o => o.status === 'Completed' || o.status === 'Pending'); // Including Pending as revenue for now
+  const filteredOrders = orders.filter(order => {
+    let matchesDate = true;
+    if (dateFilter !== 'All Time') {
+      const orderDate = new Date(order.date);
+      const now = new Date();
+      if (dateFilter === 'Today') {
+        matchesDate = orderDate.toDateString() === now.toDateString();
+      } else if (dateFilter === 'This Week') {
+        const weekAgo = new Date(now.setDate(now.getDate() - 7));
+        matchesDate = orderDate >= weekAgo;
+      } else if (dateFilter === 'This Month') {
+        const monthAgo = new Date(now.setMonth(now.getMonth() - 1));
+        matchesDate = orderDate >= monthAgo;
+      }
+    }
+    return matchesDate;
+  });
+
+  const completedOrders = filteredOrders.filter(o => o.status === 'Completed' || o.status === 'Pending'); // Including Pending as revenue for now
   
   const totalRevenue = completedOrders.reduce((sum, order) => sum + order.total, 0);
   const totalOrdersCount = completedOrders.length;
@@ -53,12 +73,48 @@ export default function Reports() {
 
   return (
     <div className="reports-page">
-      <div className="reports-header">
+      <div className="reports-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div className="page-titles">
           <h2>Analytics & Reports</h2>
           <p>Comprehensive overview of your store's performance and inventory health.</p>
         </div>
+        <div className="filter-group" style={{ marginTop: '15px', display: 'flex', gap: '15px', alignItems: 'center' }}>
+          <button 
+            className="action-btn-outline" 
+            style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+            onClick={() => window.print()}
+          >
+            <Printer size={16} />
+            Print Report
+          </button>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Filter size={16} color="var(--admin-text-muted)" />
+          <div className="custom-dropdown-wrapper">
+            <button 
+              className="custom-dropdown-toggle"
+              onClick={() => setIsDateDropdownOpen(!isDateDropdownOpen)}
+            >
+              {dateFilter}
+              <ChevronDown size={14} />
+            </button>
+            {isDateDropdownOpen && (
+              <div className="custom-dropdown-menu" style={{ right: 0, left: 'auto' }}>
+                {['All Time', 'Today', 'This Week', 'This Month'].map(d => (
+                  <div 
+                    key={d}
+                    className={`dropdown-item ${dateFilter === d ? 'active' : ''}`}
+                    onClick={() => { setDateFilter(d); setIsDateDropdownOpen(false); }}
+                  >
+                    {d}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
+    </div>
 
       <div className="reports-tabs">
         <button 

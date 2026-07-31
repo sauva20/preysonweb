@@ -19,7 +19,8 @@ export function PromoProvider({ children }) {
       value: 20,
       startDate: '2026-07-15',
       endDate: '2026-07-30',
-      isActive: false
+      isActive: false,
+      isExpired: new Date('2026-07-30T23:59:59.999Z') < new Date()
     }
   ]);
 
@@ -33,19 +34,27 @@ export function PromoProvider({ children }) {
       if (!res.ok) throw new Error('Failed to fetch campaigns');
       const data = await res.json();
       
-      const mapped = data.map(c => ({
-        id: c.id,
-        code: c.code,
-        type: 'percentage',
-        value: c.discountPct,
-        minSpend: 0,
-        maxDiscount: null,
-        usageLimit: null,
-        usageCount: 0,
-        startDate: c.startDate,
-        endDate: c.endDate,
-        isActive: true
-      }));
+      const mapped = data.map(c => {
+        // Assume end of day for the endDate
+        const expireDate = new Date(c.endDate);
+        expireDate.setHours(23, 59, 59, 999);
+        const isExpired = expireDate < new Date();
+
+        return {
+          id: c.id,
+          code: c.code,
+          type: 'percentage',
+          value: c.discountPct,
+          minSpend: 0,
+          maxDiscount: null,
+          usageLimit: null,
+          usageCount: 0,
+          startDate: c.startDate,
+          endDate: c.endDate,
+          isActive: c.status === 'Active' && !isExpired,
+          isExpired: isExpired
+        };
+      });
       setVouchers(mapped);
     } catch (err) {
       console.error('Error fetching campaigns:', err);
@@ -90,8 +99,22 @@ export function PromoProvider({ children }) {
     }
   };
 
-  const toggleVoucherStatus = (id) => {
-    setVouchers(vouchers.map(v => v.id === id ? { ...v, isActive: !v.isActive } : v));
+  const toggleVoucherStatus = async (id) => {
+    const voucher = vouchers.find(v => v.id === id);
+    if (!voucher) return;
+    const newStatus = voucher.isActive ? 'Inactive' : 'Active';
+    try {
+      const res = await fetch(`${API_URL}/campaigns/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (res.ok) {
+        setVouchers(vouchers.map(v => v.id === id ? { ...v, isActive: !v.isActive } : v));
+      }
+    } catch (err) {
+      console.error('Error toggling campaign status:', err);
+    }
   };
 
   // Discount Methods

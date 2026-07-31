@@ -146,6 +146,9 @@
   background-color: rgba(234, 179, 8, 0.1);
   color: #eab308;
 }
+.orders-table tr.clickable-row:hover {
+  background-color: var(--admin-bg);
+}
 
 .view-details-btn {
   display: flex;

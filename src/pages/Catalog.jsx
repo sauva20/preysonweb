@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useProducts } from '../context/ProductContext';
 import { useCart } from '../context/CartContext';
 import { useCurrency } from '../context/CurrencyContext';
@@ -14,6 +14,9 @@ export default function Catalog() {
   const { addToCart } = useCart();
   const { formatPrice } = useCurrency();
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const searchQuery = searchParams.get('search') || '';
   
   // State for filters
   const [activeCategory, setActiveCategory] = useState('All');
@@ -68,6 +71,12 @@ export default function Catalog() {
     // Filter by size
     if (activeSize !== 'All') {
       result = result.filter(p => p.sizes && p.sizes.includes(activeSize));
+    }
+
+    // Filter by search query
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(p => p.name.toLowerCase().includes(q) || (p.description && p.description.toLowerCase().includes(q)));
     }
 
     // Sort
@@ -129,21 +138,20 @@ export default function Catalog() {
             <span className="product-count">({filteredAndSortedProducts.length} products)</span>
           </button>
 
-          <div className="top-sort-wrapper custom-dropdown" onClick={() => setIsSortOpen(!isSortOpen)}>
-            <div className="top-sort-selected">
+          <div className="top-sort-wrapper custom-dropdown">
+            <div className="top-sort-selected" onClick={(e) => { e.stopPropagation(); setIsSortOpen(!isSortOpen); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
               {sortOptions.find(o => o.value === sortOption)?.label || 'NEWEST'}
+              <ChevronDown className={`sort-icon ${isSortOpen ? 'open' : ''}`} size={16} />
             </div>
-            <ChevronDown className={`sort-icon ${isSortOpen ? 'open' : ''}`} size={16} />
             
             {isSortOpen && (
-              <>
-                <div className="custom-dropdown-overlay" onClick={(e) => { e.stopPropagation(); setIsSortOpen(false); }}></div>
                 <div className="custom-dropdown-menu">
                   {sortOptions.map(option => (
                     <div 
                       key={option.value} 
                       className={`custom-dropdown-item ${sortOption === option.value ? 'active' : ''}`}
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setSortOption(option.value);
                         setIsSortOpen(false);
                       }}
@@ -152,10 +160,18 @@ export default function Catalog() {
                     </div>
                   ))}
                 </div>
-              </>
             )}
           </div>
         </div>
+
+
+        {searchQuery && (
+          <div style={{ padding: '0 2rem', marginBottom: '1rem' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 500 }}>
+              Search results for: "<span style={{ fontWeight: 700 }}>{searchQuery}</span>"
+            </h3>
+          </div>
+        )}
 
         {/* Product Grid */}
         <div className="catalog-content">
@@ -163,8 +179,8 @@ export default function Catalog() {
             <div className="empty-state">
               <ShoppingBag size={48} className="empty-icon" />
               <h3>No products found</h3>
-              <p>Try changing your filter criteria.</p>
-              <button className="btn clear-btn mt-4" onClick={() => { setActiveCategory('All'); setActiveSize('All'); }}>Clear Filters</button>
+              <p>Try changing your filter criteria or search query.</p>
+              <button className="btn clear-btn mt-4" onClick={() => { setActiveCategory('All'); setActiveSize('All'); navigate('/catalog'); }}>Clear Filters & Search</button>
             </div>
           ) : (
             <div className="catalog-grid">
