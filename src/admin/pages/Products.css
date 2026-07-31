@@ -294,7 +294,6 @@ body.dark-mode .table-barcode {
   font-size: 2.2rem;
   font-family: var(--font-heading, 'Josefin Sans', sans-serif);
   color: #1a1a1a;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 500;
   width: 100%;

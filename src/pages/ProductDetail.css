@@ -98,7 +98,7 @@ body:not(.dark-mode) .pdp-thumb.active {
   font-size: 0.75rem;
   color: var(--text-secondary);
   margin-bottom: 20px;
-  text-transform: uppercase;
+  
   letter-spacing: 1px;
 }
 
@@ -551,7 +551,7 @@ body:not(.dark-mode) .section-title {
   color: var(--text-primary);
   margin-bottom: 40px;
   line-height: 1.4;
-  text-transform: uppercase;
+  
 }
 
 body:not(.dark-mode) .specs-highlight-text {
@@ -567,7 +567,7 @@ body:not(.dark-mode) .specs-highlight-text {
   font-family: var(--font-heading);
   color: var(--text-primary);
   margin-bottom: 15px;
-  text-transform: uppercase;
+  
 }
 
 body:not(.dark-mode) .spec-block h4 {

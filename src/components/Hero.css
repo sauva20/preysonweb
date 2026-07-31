@@ -83,7 +83,7 @@
   font-weight: 500;
   letter-spacing: 0px;
   line-height: 1.2;
-  text-transform: uppercase;
+  
   color: var(--pure-white);
   text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.8);
 }
