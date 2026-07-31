@@ -103,10 +103,15 @@ export default function Campaign() {
   };
 
   const handleAddBlock = (type) => {
+    let config = {};
+    if (type === 'catalog') config = { title: 'NEW SECTION', columns: 4 };
+    if (type === 'banner') config = { images: ['/images/hero_bg.png'] };
+    if (type === 'collab') config = { title: 'Colabs', visible: true, collabs: [] };
+
     const newBlock = {
       id: Date.now().toString(),
       type,
-      config: type === 'catalog' ? { title: 'NEW SECTION', columns: 4 } : {}
+      config
     };
     setBlocks([...blocks, newBlock]);
   };
