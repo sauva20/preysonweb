@@ -8,6 +8,7 @@ import { useActivity } from '../../context/ActivityContext';
 import { useOfflineSync } from '../../context/OfflineSyncContext';
 import CashModal from '../components/CashModal';
 import QrisModal from '../components/QrisModal';
+import InvoiceModal from '../components/InvoiceModal';
 import './POS.css';
 import './POS-modal.css';
 
@@ -22,6 +23,7 @@ export default function POS() {
   const [activeCategory, setActiveCategory] = useState('ALL');
   const [isCashModalOpen, setIsCashModalOpen] = useState(false);
   const [isQrisModalOpen, setIsQrisModalOpen] = useState(false);
+  const [completedOrder, setCompletedOrder] = useState(null);
   const [selectedProductForSize, setSelectedProductForSize] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -184,6 +186,7 @@ export default function POS() {
       const orderPayload = {
         items: cartItems.map(item => ({
           productId: item.id,
+          name: item.name,
           size: item.size,
           quantity: item.quantity,
           price: item.price
@@ -196,6 +199,8 @@ export default function POS() {
         status: 'Completed',
         customerName: details.customerName || '',
         customerEmail: details.customerEmail || '',
+        received: details.received || 0,
+        change: details.change || 0,
         date: new Date().toISOString(),
         isEvent: isEventMode
       };
@@ -206,11 +211,10 @@ export default function POS() {
         if (deductStockLocally) {
           deductStockLocally(orderPayload.items, isEventMode);
         }
-        Swal.fire({ icon: 'success', title: 'Tersimpan Offline!', text: 'Transaksi disimpan di memori. Jangan lupa Sync saat online.', confirmButtonColor: 'var(--admin-accent)' });
+        // Instead of Swal, we show Invoice
       } else {
         // Send directly to API
         await addOrder(orderPayload);
-        Swal.fire({ icon: 'success', title: 'Success!', text: 'Transaction Successful! Added to Orders.', confirmButtonColor: 'var(--admin-accent)' });
       }
 
       if (fetchProducts && !isEventMode && navigator.onLine) {
@@ -220,6 +224,8 @@ export default function POS() {
       setCartItems([]);
       setIsCashModalOpen(false);
       setIsQrisModalOpen(false);
+      setCompletedOrder(orderPayload); // Open the invoice modal
+      
       logActivity({
         category: 'POS',
         title: `Transaksi POS Berhasil (${paymentMethod})`,
@@ -477,6 +483,15 @@ export default function POS() {
           tax={tax}
           onClose={() => setIsQrisModalOpen(false)}
           onConfirm={(details) => processOrder(details)}
+          isEventMode={isEventMode}
+        />
+      )}
+
+      {completedOrder && (
+        <InvoiceModal
+          isOpen={true}
+          onClose={() => setCompletedOrder(null)}
+          order={completedOrder}
           isEventMode={isEventMode}
         />
       )}

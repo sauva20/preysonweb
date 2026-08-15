@@ -1,0 +1,646 @@
+import { getApiUrl, getBackendUrl } from '../../utils/apiConfig';
+import React, { useState } from 'react';
+import { useProducts } from '../../context/ProductContext';
+import { Plus, Edit2, Trash2, X, Image as ImageIcon, ChevronDown, Search, Upload, Flame, Eye, EyeOff } from 'lucide-react';
+import { useCurrency } from '../../context/CurrencyContext';
+import { useActivity } from '../../context/ActivityContext';
+import Barcode from 'react-barcode';
+import { confirmDelete, showSuccess, showError } from '../utils/alert';
+import Swal from 'sweetalert2';
+import './Products.css';
+
+export default function Products() {
+  const { products, addProduct, updateProduct, deleteProduct, toggleSoldOut, categories, addCategory, deleteCategory } = useProducts();
+  const { formatPrice } = useCurrency();
+  const { logActivity } = useActivity();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCatModalOpen, setIsCatModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('ALL');
+
+  const [newCatName, setNewCatName] = useState('');
+
+  const [formData, setFormData] = useState({
+    name: '',
+    categoryId: '',
+    price: '',
+    eventPrice: 0,
+    stock: '',
+    eventStock: 0,
+    description: '',
+    thumbnails: [],
+    sizes: [],
+    sizeGuide: { image: '', metrics: [], measurements: {} },
+    aestheticImage: '',
+    features: [],
+    materials: [],
+    washing: []
+  });
+
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  const uploadImage = async (file) => {
+    setIsUploadingImage(true);
+    const data = new FormData();
+    data.append('image', file);
+    try {
+      const res = await fetch(`${getApiUrl()}/upload`, {
+        method: 'POST',
+        body: data
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      const json = await res.json();
+      return json.url;
+    } catch (err) {
+      console.error('Error uploading image:', err);
+      Swal.fire({ title: 'Failed to upload image', icon: 'error', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
+      return null;
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const openModal = (product = null) => {
+    if (product) {
+      setEditingProduct(product);
+      setFormData({
+        name: product.name,
+        categoryId: product.categoryId,
+        price: product.price,
+        eventPrice: product.eventPrice || 0,
+        stock: product.stock,
+        eventStock: product.eventStock || 0,
+        description: product.description,
+        thumbnails: product.thumbnails || [],
+        sizes: product.sizes || [],
+        sizeGuide: product.sizeGuide || { image: '', metrics: [], measurements: {} },
+        aestheticImage: product.aestheticImage || '',
+        features: product.features || [],
+        materials: product.materials || [],
+        washing: product.washing || []
+      });
+    } else {
+      setEditingProduct(null);
+      setFormData({
+        name: '',
+        categoryId: '',
+        price: '',
+        eventPrice: 0,
+        stock: '',
+        eventStock: 0,
+        description: '',
+        thumbnails: [],
+        sizes: [],
+        sizeGuide: { image: '', metrics: [], measurements: {} },
+        aestheticImage: '',
+        features: [],
+        materials: [],
+        washing: []
+      });
+    }
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingProduct(null);
+  };
+
+  const handleAddCategory = (e) => {
+    e.preventDefault();
+    if (!newCatName.trim()) return;
+    addCategory(newCatName);
+    setNewCatName('');
+  };
+
+  const handleDeleteCategory = (catId) => {
+    confirmDelete(() => {
+      deleteCategory(catId);
+    }, "Delete this category?");
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const payload = { ...formData };
+    if (editingProduct) {
+      updateProduct(editingProduct.id, payload);
+    } else {
+      addProduct(payload);
+    }
+    closeModal();
+  };
+
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCat = selectedCategory === 'ALL' || p.categoryId === selectedCategory;
+    return matchesSearch && matchesCat;
+  });
+
+  return (
+    <div className="admin-page admin-products">
+      <div className="admin-header">
+        <h1>Manage Products</h1>
+        <div className="admin-header-actions">
+          <button className="admin-btn secondary" onClick={() => setIsCatModalOpen(true)}>
+            Manage Categories
+          </button>
+          <button className="admin-btn primary" onClick={() => openModal()}>
+            <Plus size={16} /> Add Product
+          </button>
+        </div>
+      </div>
+
+      <div className="admin-toolbar">
+        <div className="search-bar">
+          <Search size={18} />
+          <input 
+            type="text" 
+            placeholder="Search products..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <div className="filter-group">
+          <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+            <option value="ALL">All Categories</option>
+            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div className="admin-card">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Price (Regular/Event)</th>
+              <th>Stock (Regular/Event)</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredProducts.map(product => {
+              const cat = categories.find(c => c.id === product.categoryId);
+              return (
+                <tr key={product.id}>
+                  <td>
+                    <div className="product-cell">
+                      <div className="product-thumb">
+                        {product.thumbnails && product.thumbnails[0] ? (
+                          <img src={product.thumbnails[0]} alt={product.name} />
+                        ) : (
+                          <div className="placeholder-img"><ImageIcon size={16} /></div>
+                        )}
+                      </div>
+                      <span className="product-name">{product.name}</span>
+                    </div>
+                  </td>
+                  <td>{cat ? cat.name : 'Uncategorized'}</td>
+                  <td>
+                    <div style={{display:'flex', flexDirection:'column', gap:'2px'}}>
+                      <span>{formatPrice(product.price)}</span>
+                      <span style={{fontSize:'12px', color:'#f59e0b'}}>{formatPrice(product.eventPrice || 0)} (Event)</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{display:'flex', flexDirection:'column', gap:'2px'}}>
+                      <span>{product.sizes ? product.sizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0) : product.stock}</span>
+                      <span style={{fontSize:'12px', color:'#f59e0b'}}>{product.eventStock || 0} (Event)</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span className={`status-badge ${product.isSoldOut ? 'sold-out' : 'active'}`}>
+                      {product.isSoldOut ? 'Sold Out' : 'Active'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="action-buttons">
+                      <button className="action-btn" onClick={() => toggleSoldOut(product.id)} title="Toggle Sold Out">
+                        {product.isSoldOut ? <Eye size={16} /> : <EyeOff size={16} />}
+                      </button>
+                      <button className="action-btn" onClick={() => openModal(product)}><Edit2 size={16} /></button>
+                      <button className="action-btn delete" onClick={() => confirmDelete(() => deleteProduct(product.id))}><Trash2 size={16} /></button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {isCatModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '400px' }}>
+            <div className="modal-header">
+              <h2>Manage Categories</h2>
+              <button className="close-btn" onClick={() => setIsCatModalOpen(false)}><X size={20} /></button>
+            </div>
+            <div className="modal-body">
+              <form onSubmit={handleAddCategory} style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+                <input 
+                  type="text" 
+                  value={newCatName} 
+                  onChange={(e) => setNewCatName(e.target.value)} 
+                  placeholder="New Category Name" 
+                  className="admin-input" 
+                  style={{ flex: 1 }}
+                />
+                <button type="submit" className="admin-btn primary">Add</button>
+              </form>
+              <ul className="category-list">
+                {categories.map(cat => (
+                  <li key={cat.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px', borderBottom: '1px solid #eee' }}>
+                    <span>{cat.name}</span>
+                    <button className="action-btn delete" onClick={() => handleDeleteCategory(cat.id)}><Trash2 size={16} /></button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content large" style={{ maxWidth: '1000px', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
+            <div className="modal-header">
+              <h2>{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
+              <button className="close-btn" onClick={closeModal}><X size={20} /></button>
+            </div>
+            <div className="modal-body" style={{ overflowY: 'auto', flex: 1, padding: '0', background: '#f5f5f5' }}>
+              <div className="product-editor-layout">
+                <div className="product-preview-section">
+                  <div className="mobile-preview-container">
+                    <div className="mobile-preview-header">Live Preview</div>
+                    <div className="mobile-preview-screen">
+                      
+                      <div className="preview-image-carousel">
+                        {formData.thumbnails && formData.thumbnails.length > 0 ? (
+                          <img src={formData.thumbnails[0]} alt="Preview" />
+                        ) : (
+                          <div className="preview-no-image">No Image</div>
+                        )}
+                        {formData.aestheticImage && (
+                          <div className="preview-aesthetic-badge"><Flame size={12}/></div>
+                        )}
+                      </div>
+
+                      <div className="preview-info-box">
+                        <div className="preview-brand">PREYSON MOTO</div>
+                        <div className="preview-title">{formData.name || 'Product Title'}</div>
+                        <div className="preview-price">{formatPrice(formData.price || 0)}</div>
+                      </div>
+
+                      <div className="pdp-actions-preview">
+                        <div className="pdp-qty-selector-preview">
+                          <button type="button">-</button>
+                          <span>1</span>
+                          <button type="button">+</button>
+                        </div>
+                        <button type="button" className="add-to-cart-btn-preview">ADD TO CART</button>
+                      </div>
+
+                      <div className="pdp-accordions-preview">
+                        <div className="accordion-preview">
+                          <div className="accordion-header-preview">Product Details <span className="arrow-down">^</span></div>
+                          <div className="accordion-content-preview">
+                            <textarea
+                              className="invisible-textarea"
+                              rows="4"
+                              value={formData.description}
+                              onChange={e => setFormData({ ...formData, description: e.target.value })}
+                              placeholder="Type product description here..."
+                            />
+                          </div>
+                        </div>
+                        <div className="accordion-preview" style={{ paddingBottom: '10px' }}>
+                          <div className="accordion-header-preview">Size Guide <span className="arrow-down">^</span></div>
+                          <div className="accordion-content-preview" style={{ marginTop: '10px', display: 'block' }}>
+                            <div style={{ marginBottom: '16px' }}>
+                              <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--admin-text-muted)', marginBottom: '6px', textTransform: 'uppercase' }}>
+                                Size Guide Image (Optional)
+                              </div>
+                              {formData.sizeGuide?.image ? (
+                                <div style={{ position: 'relative', width: '100%', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--admin-border)', background: '#f8f9fa' }}>
+                                  <img 
+                                    src={formData.sizeGuide.image} 
+                                    alt="Size Guide" 
+                                    style={{ width: '100%', maxHeight: '220px', objectFit: 'contain', display: 'block', padding: '8px' }} 
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setFormData({
+                                      ...formData,
+                                      sizeGuide: { ...(formData.sizeGuide || {}), image: '' }
+                                    })}
+                                    style={{
+                                      position: 'absolute', top: '8px', right: '8px',
+                                      background: 'white', border: 'none', borderRadius: '50%',
+                                      width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                      cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.1)', color: 'var(--danger)'
+                                    }}
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                </div>
+                              ) : (
+                                <label className="image-upload-box" style={{ height: '120px', margin: 0 }}>
+                                  <input type="file" hidden accept="image/*" onChange={async (e) => {
+                                    if(e.target.files[0]) {
+                                      const url = await uploadImage(e.target.files[0]);
+                                      if(url) {
+                                        setFormData({...formData, sizeGuide: { ...(formData.sizeGuide || {}), image: url }});
+                                      }
+                                    }
+                                  }} />
+                                  <Upload size={20} style={{ color: 'var(--admin-text-muted)' }} />
+                                  <span style={{ fontSize: '13px', color: 'var(--admin-text-muted)', marginTop: '8px' }}>
+                                    {isUploadingImage ? 'Uploading...' : 'Upload Image'}
+                                  </span>
+                                </label>
+                              )}
+                            </div>
+
+                            <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--admin-text-muted)', marginBottom: '6px', textTransform: 'uppercase' }}>
+                              Measurements (CM)
+                            </div>
+                            
+                            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                              <input 
+                                type="text" 
+                                id="newMetricInput"
+                                className="admin-input" 
+                                style={{ flex: 1, padding: '6px 8px', fontSize: '13px', border: '1px solid var(--admin-border)', borderRadius: '4px' }} 
+                                placeholder="e.g. Chest" 
+                              />
+                              <button 
+                                type="button" 
+                                className="admin-btn secondary" 
+                                style={{ padding: '6px 12px', fontSize: '13px' }}
+                                onClick={() => {
+                                  const input = document.getElementById('newMetricInput');
+                                  if (input.value.trim() && !(formData.sizeGuide?.metrics || []).includes(input.value.trim())) {
+                                    setFormData({
+                                      ...formData,
+                                      sizeGuide: {
+                                        ...(formData.sizeGuide || {}),
+                                        metrics: [...(formData.sizeGuide?.metrics || []), input.value.trim()]
+                                      }
+                                    });
+                                    input.value = '';
+                                  }
+                                }}
+                              >
+                                Add Metric
+                              </button>
+                            </div>
+
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
+                              {(formData.sizeGuide?.metrics || []).map((m, i) => (
+                                <span key={i} style={{ 
+                                  background: 'var(--admin-bg)', padding: '4px 8px', borderRadius: '4px', fontSize: '12px',
+                                  display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid var(--admin-border)'
+                                }}>
+                                  {m}
+                                  <X 
+                                    size={12} 
+                                    style={{ cursor: 'pointer', opacity: 0.5 }} 
+                                    onClick={() => {
+                                      const newMetrics = formData.sizeGuide.metrics.filter(metric => metric !== m);
+                                      const newMeasurements = { ...formData.sizeGuide.measurements };
+                                      Object.keys(newMeasurements).forEach(size => {
+                                        delete newMeasurements[size][m];
+                                      });
+                                      setFormData({
+                                        ...formData,
+                                        sizeGuide: {
+                                          ...formData.sizeGuide,
+                                          metrics: newMetrics,
+                                          measurements: newMeasurements
+                                        }
+                                      });
+                                    }}
+                                  />
+                                </span>
+                              ))}
+                            </div>
+                            
+                            <table className="admin-table size-guide-table" style={{ fontSize: '13px' }}>
+                              <thead>
+                                <tr>
+                                  <th style={{ padding: '8px' }}>Size</th>
+                                  {(formData.sizeGuide?.metrics || []).map(m => (
+                                    <th key={m} style={{ padding: '8px' }}>{m}</th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {(formData.sizes || []).map(s => (
+                                  <tr key={s.size}>
+                                    <td style={{ padding: '8px', fontWeight: 'bold' }}>{s.size}</td>
+                                    {(formData.sizeGuide?.metrics || []).map(m => (
+                                      <td key={m} style={{ padding: '8px' }}>
+                                        <input 
+                                          type="text" 
+                                          style={{ width: '100%', padding: '4px', border: '1px solid #ddd', borderRadius: '4px', textAlign: 'center' }}
+                                          placeholder="-"
+                                          value={formData.sizeGuide?.measurements?.[s.size]?.[m] || ''}
+                                          onChange={(e) => {
+                                            setFormData({
+                                              ...formData,
+                                              sizeGuide: {
+                                                ...(formData.sizeGuide || {}),
+                                                measurements: {
+                                                  ...(formData.sizeGuide?.measurements || {}),
+                                                  [s.size]: {
+                                                    ...(formData.sizeGuide?.measurements?.[s.size] || {}),
+                                                    [m]: e.target.value
+                                                  }
+                                                }
+                                              }
+                                            });
+                                          }}
+                                        />
+                                      </td>
+                                    ))}
+                                  </tr>
+                                ))}
+                                {(!formData.sizes || formData.sizes.length === 0) && (
+                                  <tr>
+                                    <td colSpan={(formData.sizeGuide?.metrics || []).length + 1} style={{ textAlign: 'center', padding: '16px', color: '#999', fontStyle: 'italic' }}>
+                                      Add product sizes first
+                                    </td>
+                                  </tr>
+                                )}
+                              </tbody>
+                            </table>
+
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="product-settings-section">
+                  <div className="settings-header">
+                    <h3>Product Settings</h3>
+                  </div>
+                  
+                  <div className="settings-body">
+                    <div className="admin-form-group">
+                      <label>Product Name</label>
+                      <input type="text" className="admin-input" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
+                    </div>
+
+                    <div className="admin-form-row">
+                      <div className="admin-form-group">
+                        <label>Category</label>
+                        <select className="admin-input" value={formData.categoryId} onChange={e => setFormData({ ...formData, categoryId: e.target.value })} required>
+                          <option value="">Select Category</option>
+                          {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                        </select>
+                      </div>
+                      <div className="admin-form-group">
+                        <label>Base Price (Rp)</label>
+                        <input type="number" className="admin-input" value={formData.price} onChange={e => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })} required />
+                      </div>
+                    </div>
+
+                    <div className="admin-form-row">
+                      <div className="admin-form-group">
+                        <label style={{color: '#f59e0b'}}>Event Price (Rp)</label>
+                        <input type="number" className="admin-input" value={formData.eventPrice} onChange={e => setFormData({ ...formData, eventPrice: parseInt(e.target.value) || 0 })} placeholder="0" />
+                      </div>
+                      <div className="admin-form-group">
+                        <label style={{color: '#f59e0b'}}>Total Event Stock</label>
+                        <input type="number" className="admin-input" value={formData.eventStock} onChange={e => setFormData({ ...formData, eventStock: parseInt(e.target.value) || 0 })} placeholder="0" />
+                      </div>
+                    </div>
+
+                    <div className="admin-form-group">
+                      <label>Product Images</label>
+                      <div className="image-upload-grid">
+                        {formData.thumbnails.map((img, i) => (
+                          <div key={i} className="uploaded-image">
+                            <img src={img} alt="" />
+                            <button type="button" onClick={() => setFormData({ ...formData, thumbnails: formData.thumbnails.filter((_, idx) => idx !== i) })}><X size={14} /></button>
+                          </div>
+                        ))}
+                        <label className="image-upload-box">
+                          <input type="file" hidden accept="image/*" onChange={async (e) => {
+                            if (e.target.files[0]) {
+                              const url = await uploadImage(e.target.files[0]);
+                              if (url) setFormData({ ...formData, thumbnails: [...formData.thumbnails, url] });
+                            }
+                          }} />
+                          <Plus size={24} />
+                          <span>Add Image</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="admin-form-group">
+                      <label>Aesthetic Image (For Collabs/Banners)</label>
+                      {formData.aestheticImage ? (
+                        <div className="uploaded-image" style={{ width: '150px', height: '150px' }}>
+                          <img src={formData.aestheticImage} alt="" style={{ objectFit: 'cover' }} />
+                          <button type="button" onClick={() => setFormData({ ...formData, aestheticImage: '' })}><X size={14} /></button>
+                        </div>
+                      ) : (
+                        <label className="image-upload-box" style={{ width: '150px', height: '150px' }}>
+                          <input type="file" hidden accept="image/*" onChange={async (e) => {
+                            if (e.target.files[0]) {
+                              const url = await uploadImage(e.target.files[0]);
+                              if (url) setFormData({ ...formData, aestheticImage: url });
+                            }
+                          }} />
+                          <Plus size={24} />
+                          <span>Add Image</span>
+                        </label>
+                      )}
+                    </div>
+
+                    <div className="admin-form-group">
+                      <label>Sizes & Stock (Online)</label>
+                      <div className="sizes-list">
+                        {formData.sizes.map((s, i) => (
+                          <div key={i} className="size-row" style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
+                            <input 
+                              type="text" 
+                              placeholder="Size (e.g. M)" 
+                              className="admin-input" 
+                              value={s.size} 
+                              onChange={(e) => {
+                                const newSizes = [...formData.sizes];
+                                newSizes[i].size = e.target.value;
+                                setFormData({ ...formData, sizes: newSizes });
+                              }} 
+                              style={{ width: '80px' }}
+                            />
+                            <input 
+                              type="number" 
+                              placeholder="Stock" 
+                              className="admin-input" 
+                              value={s.stock} 
+                              onChange={(e) => {
+                                const newSizes = [...formData.sizes];
+                                newSizes[i].stock = parseInt(e.target.value) || 0;
+                                setFormData({ ...formData, sizes: newSizes });
+                              }} 
+                              style={{ flex: 1 }}
+                            />
+                            <input 
+                              type="text" 
+                              placeholder="Barcode" 
+                              className="admin-input" 
+                              value={s.barcode || ''} 
+                              onChange={(e) => {
+                                const newSizes = [...formData.sizes];
+                                newSizes[i].barcode = e.target.value;
+                                setFormData({ ...formData, sizes: newSizes });
+                              }} 
+                              style={{ flex: 1 }}
+                            />
+                            <button 
+                              type="button" 
+                              className="action-btn delete" 
+                              onClick={() => setFormData({ ...formData, sizes: formData.sizes.filter((_, idx) => idx !== i) })}
+                            >
+                              <X size={18} />
+                            </button>
+                          </div>
+                        ))}
+                        <button 
+                          type="button" 
+                          className="admin-btn secondary" 
+                          onClick={() => setFormData({ ...formData, sizes: [...formData.sizes, { size: '', stock: 0, barcode: '' }] })}
+                        >
+                          <Plus size={16} /> Add Size
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <div className="settings-footer">
+                    <button className="admin-btn secondary" onClick={closeModal} style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: 'bold' }}>Cancel</button>
+                    <button className="admin-btn primary" onClick={handleSubmit} style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: 'bold', display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                      <Edit2 size={18} /> Save Product
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

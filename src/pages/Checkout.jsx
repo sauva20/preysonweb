@@ -33,28 +33,6 @@ export default function Checkout() {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [voucherError, setVoucherError] = useState('');
 
-  // Inject Midtrans Script Dynamically
-  useEffect(() => {
-    let scriptTag = null;
-    fetch(`${getApiUrl()}/checkout/config`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.clientKey) {
-          scriptTag = document.createElement('script');
-          scriptTag.src = data.isProduction 
-            ? 'https://app.midtrans.com/snap/snap.js'
-            : 'https://app.sandbox.midtrans.com/snap/snap.js';
-          scriptTag.setAttribute('data-client-key', data.clientKey);
-          scriptTag.async = true;
-          document.body.appendChild(scriptTag);
-        }
-      })
-      .catch(err => console.error("Failed to load Midtrans config", err));
-
-    return () => {
-      if (scriptTag) document.body.removeChild(scriptTag);
-    }
-  }, []);
 
   // Search Area Effect
   useEffect(() => {
@@ -175,11 +153,11 @@ export default function Checkout() {
       });
       const data = await res.json();
       
-      if (data.token === 'dummy_token' || data.token) {
+      if (data.orderId) {
         clearCart();
         navigate('/payment/' + data.orderId);
       } else {
-        alert("Failed to initiate payment. Please make sure Midtrans is configured properly in Admin Settings.");
+        alert("Failed to initiate payment.");
       }
     } catch (error) {
       console.error(error);

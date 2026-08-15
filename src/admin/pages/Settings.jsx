@@ -26,7 +26,7 @@ export default function Settings() {
 
 
   const [paymentMethods, setPaymentMethods] = useState([
-    { id: 'midtrans', name: 'Midtrans (Virtual Account, GoPay)', active: true, apiKey: 'Mid-server-*******' }
+    { id: 'qris_manual', name: 'QRIS Dinamis & Notifikasi WA (Fonnte)', active: true }
   ]);
 
   const [localQrisString, setLocalQrisString] = useState(qrisStaticString);
@@ -104,9 +104,8 @@ export default function Settings() {
   };
 
   const [appSettings, setAppSettings] = useState({
-    midtrans_server_key: '',
-    midtrans_client_key: '',
-    midtrans_is_production: 'false',
+    fonnte_token: '',
+    admin_wa_number: '',
     biteship_api_key: '',
     store_name: 'Preyson Moto',
     store_email: 'hello@preysonmoto.com',
@@ -431,37 +430,27 @@ export default function Settings() {
                         <span className="slider round"></span>
                       </label>
                     </div>
-                    {payment.active && payment.id === 'midtrans' && (
+                    {payment.active && payment.id === 'qris_manual' && (
                       <div className="toggle-card-body">
                         <div className="form-group">
-                          <label>Midtrans Server Key</label>
+                          <label>Fonnte Token (WA API)</label>
                           <input 
                             type="text" 
-                            value={appSettings.midtrans_server_key} 
-                            onChange={(e) => setAppSettings({...appSettings, midtrans_server_key: e.target.value})} 
+                            value={appSettings.fonnte_token} 
+                            onChange={(e) => setAppSettings({...appSettings, fonnte_token: e.target.value})} 
                           />
                         </div>
                         <div className="form-group">
-                          <label>Midtrans Client Key</label>
+                          <label>Admin WhatsApp Number (e.g., 0812...)</label>
                           <input 
                             type="text" 
-                            value={appSettings.midtrans_client_key} 
-                            onChange={(e) => setAppSettings({...appSettings, midtrans_client_key: e.target.value})} 
+                            value={appSettings.admin_wa_number} 
+                            onChange={(e) => setAppSettings({...appSettings, admin_wa_number: e.target.value})} 
                           />
-                        </div>
-                        <div className="form-group">
-                          <label>Environment</label>
-                          <select 
-                            value={appSettings.midtrans_is_production}
-                            onChange={(e) => setAppSettings({...appSettings, midtrans_is_production: e.target.value})}
-                          >
-                            <option value="false">Sandbox</option>
-                            <option value="true">Production</option>
-                          </select>
                         </div>
                       </div>
                     )}
-                    {payment.active && payment.id !== 'midtrans' && (
+                    {payment.active && payment.id !== 'qris_manual' && (
                       <div className="toggle-card-body">
                         <div className="form-group">
                           <label>API Key / Account Info</label>
