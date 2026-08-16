@@ -234,7 +234,7 @@ export default function Orders() {
                 </td>
                 <td className="order-total">{formatPrice(order.total)}</td>
                 <td>
-                  <span className={`status-badge ${order.status.toLowerCase()}`}>
+                  <span className={`status-badge ${order.status.replace(/\s+/g, '-').toLowerCase()}`}>
                     {order.status}
                   </span>
                 </td>

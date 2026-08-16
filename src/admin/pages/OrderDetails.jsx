@@ -69,9 +69,50 @@ export default function OrderDetails() {
           <h2>Order {order.id}</h2>
         </div>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <div className={`status-badge ${order.status.toLowerCase()}`}>
-            {order.status}
-          </div>
+          <select 
+            value={order.status}
+            onChange={async (e) => {
+              const newStatus = e.target.value;
+              try {
+                const res = await fetch(`${getApiUrl()}/orders/${order.id}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ status: newStatus })
+                });
+                if (res.ok) {
+                  setOrder({...order, status: newStatus});
+                  logActivity({ category: 'Pesanan', title: 'Update Status Pesanan', description: `Status pesanan ${order.id} diubah menjadi ${newStatus}.`, status: 'info' });
+                  Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Status berhasil diperbarui',
+                    showConfirmButton: false,
+                    timer: 3000
+                  });
+                } else {
+                  throw new Error('Gagal update status');
+                }
+              } catch (err) {
+                Swal.fire('Error', err.message, 'error');
+              }
+            }}
+            className={`status-badge ${order.status.replace(/\s+/g, '-').toLowerCase()}`}
+            style={{
+              cursor: 'pointer',
+              border: 'none',
+              outline: 'none',
+              appearance: 'auto'
+            }}
+          >
+            <option value="Pending">Pending</option>
+            <option value="Menunggu Verifikasi Pembayaran">Menunggu Verifikasi Pembayaran</option>
+            <option value="Siap Dikirim">Siap Dikirim</option>
+            <option value="Dikirim">Dikirim</option>
+            <option value="Selesai">Selesai</option>
+            <option value="Cancelled">Cancelled</option>
+            <option value="Completed">Completed</option>
+          </select>
           <button 
             className="admin-btn-secondary" 
             style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '6px', color: '#ef4444', borderColor: '#fecaca', backgroundColor: '#fef2f2' }}
