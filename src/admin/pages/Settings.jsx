@@ -492,35 +492,7 @@ export default function Settings() {
                 </div>
               </div>
               
-              <div className="toggle-list">
-                {shippingProviders.map(shipping => (
-                  <div className="toggle-card" key={shipping.id}>
-                    <div className="toggle-card-header">
-                      <div className="toggle-info">
-                        <strong>{shipping.name}</strong>
-                      </div>
-                      <label className="switch">
-                        <input type="checkbox" checked={shipping.active} onChange={() => toggleShipping(shipping.id)} />
-                        <span className="slider round"></span>
-                      </label>
-                    </div>
-                    {shipping.active && shipping.rate !== undefined && (
-                      <div className="toggle-card-body">
-                        <div className="form-group">
-                          <label>Flat Rate Price (IDR)</label>
-                          <input 
-                            type="number" 
-                            value={shipping.rate} 
-                            onChange={(e) => {
-                              setShippingProviders(shippingProviders.map(s => s.id === shipping.id ? { ...s, rate: e.target.value } : s))
-                            }} 
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+
             </div>
           )}
 
