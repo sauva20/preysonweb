@@ -18,8 +18,10 @@ export default function InvoiceModal({ isOpen, onClose, order, isEventMode }) {
       <div className="invoice-modal">
         <div id="printable-invoice" className="invoice-content">
           <div className="invoice-header">
+            <img src="/images/logo_black.png" alt="PREYSON Logo" className="invoice-logo" />
             <h2>PREYSON</h2>
-            <p>Official Store</p>
+            <p>RIDING GEAR & APPAREL</p>
+            <div className="divider"></div>
           </div>
           <div className="invoice-details">
             <p><strong>Date:</strong> {new Date(order.date).toLocaleString('id-ID')}</p>
@@ -74,7 +76,9 @@ export default function InvoiceModal({ isOpen, onClose, order, isEventMode }) {
           </div>
           
           <div className="invoice-footer-message">
-            <p>Thank you for shopping with us!</p>
+            <div className="divider"></div>
+            <p className="font-bold">RIDE SAFE, RIDE PREYSON</p>
+            <p>Thank you for your purchase!</p>
             <p>IG: @preyson</p>
           </div>
         </div>
