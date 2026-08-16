@@ -254,7 +254,7 @@ export default function Checkout() {
                             setShippingCost(rate.price);
                           }}
                         />
-                        <span>{rate.courier} - {rate.service} ({rate.etd})</span>
+                        <span>{rate.courier} - {rate.service} {rate.etd && rate.etd !== 'N/A' && rate.etd !== 'null' ? `(${rate.etd})` : ''}</span>
                       </label>
                       <span>{formatPrice(rate.price)}</span>
                     </div>
