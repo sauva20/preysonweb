@@ -164,10 +164,13 @@ export default function Settings() {
     }
     
     try {
+      const payload = { ...appSettings };
+      delete payload.qrisStaticString;
+      
       await fetch(`${getApiUrl()}/settings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(appSettings)
+        body: JSON.stringify(payload)
       });
     } catch(err) { console.error(err); }
 
