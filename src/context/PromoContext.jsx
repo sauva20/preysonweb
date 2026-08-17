@@ -9,37 +9,12 @@ export function PromoProvider({ children }) {
   // Global Vouchers State (Mapped from Campaigns)
   const [vouchers, setVouchers] = useState([]);
 
-  // Per-Product Discounts State (Not in DB yet, saved to local storage for persistence)
-  const [discounts, setDiscounts] = useState(() => {
-    const cached = localStorage.getItem('offline_discounts');
-    if (cached) {
-      try {
-        return JSON.parse(cached);
-      } catch (e) {
-        console.error("Failed to parse offline_discounts from local storage", e);
-      }
-    }
-    return [
-      {
-        id: 1,
-        name: 'Summer Clearance',
-        productIds: [1, 2], // Array of product IDs
-        type: 'percentage',
-        value: 20,
-        startDate: '2026-07-15',
-        endDate: '2026-07-30',
-        isActive: false,
-        isExpired: new Date('2026-07-30T23:59:59.999Z') < new Date()
-      }
-    ];
-  });
-
-  useEffect(() => {
-    localStorage.setItem('offline_discounts', JSON.stringify(discounts));
-  }, [discounts]);
+  // Per-Product Discounts State (Mapped from Database)
+  const [discounts, setDiscounts] = useState([]);
 
   useEffect(() => {
     fetchVouchers();
+    fetchDiscounts();
   }, []);
 
   const fetchVouchers = async () => {
@@ -72,6 +47,27 @@ export function PromoProvider({ children }) {
       setVouchers(mapped);
     } catch (err) {
       console.error('Error fetching campaigns:', err);
+    }
+  };
+
+  const fetchDiscounts = async () => {
+    try {
+      const res = await fetch(`${API_URL}/discounts`);
+      if (!res.ok) throw new Error('Failed to fetch discounts');
+      const data = await res.json();
+      
+      const mapped = data.map(d => {
+        const expireDate = new Date(d.endDate);
+        expireDate.setHours(23, 59, 59, 999);
+        const isExpired = expireDate < new Date();
+        return {
+          ...d,
+          isExpired
+        };
+      });
+      setDiscounts(mapped);
+    } catch (err) {
+      console.error('Error fetching discounts:', err);
     }
   };
 
@@ -132,20 +128,60 @@ export function PromoProvider({ children }) {
   };
 
   // Discount Methods
-  const addDiscount = (discount) => {
-    setDiscounts([...discounts, { ...discount, id: Date.now() }]);
+  const addDiscount = async (discount) => {
+    try {
+      const res = await fetch(`${API_URL}/discounts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(discount)
+      });
+      if (!res.ok) throw new Error('Failed to add discount');
+      fetchDiscounts();
+    } catch (err) {
+      console.error('Error adding discount:', err);
+    }
   };
 
-  const updateDiscount = (id, updatedDiscount) => {
-    setDiscounts(discounts.map(d => d.id === id ? { ...d, ...updatedDiscount } : d));
+  const updateDiscount = async (id, updatedDiscount) => {
+    try {
+      const res = await fetch(`${API_URL}/discounts/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedDiscount)
+      });
+      if (!res.ok) throw new Error('Failed to update discount');
+      fetchDiscounts();
+    } catch (err) {
+      console.error('Error updating discount:', err);
+    }
   };
 
-  const deleteDiscount = (id) => {
-    setDiscounts(discounts.filter(d => d.id !== id));
+  const deleteDiscount = async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/discounts/${id}`, {
+        method: 'DELETE'
+      });
+      if (!res.ok) throw new Error('Failed to delete discount');
+      fetchDiscounts();
+    } catch (err) {
+      console.error('Error deleting discount:', err);
+    }
   };
 
-  const toggleDiscountStatus = (id) => {
-    setDiscounts(discounts.map(d => d.id === id ? { ...d, isActive: !d.isActive } : d));
+  const toggleDiscountStatus = async (id) => {
+    const discount = discounts.find(d => d.id === id);
+    if (!discount) return;
+    try {
+      const res = await fetch(`${API_URL}/discounts/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: !discount.isActive })
+      });
+      if (!res.ok) throw new Error('Failed to toggle discount status');
+      fetchDiscounts();
+    } catch (err) {
+      console.error('Error toggling discount status:', err);
+    }
   };
 
   const applyDiscounts = (productsList) => {
@@ -187,7 +223,7 @@ export function PromoProvider({ children }) {
   return (
     <PromoContext.Provider value={{
       vouchers, addVoucher, updateVoucher, deleteVoucher, toggleVoucherStatus, fetchVouchers,
-      discounts, addDiscount, updateDiscount, deleteDiscount, toggleDiscountStatus,
+      discounts, addDiscount, updateDiscount, deleteDiscount, toggleDiscountStatus, fetchDiscounts,
       applyDiscounts, getDiscountedProduct
     }}>
       {children}

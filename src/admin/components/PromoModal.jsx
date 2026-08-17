@@ -26,6 +26,7 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
 
   // Product Search for Discount
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   useEffect(() => {
     if (isOpen) {
@@ -57,6 +58,8 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
         setName('');
         setProductIds([]);
       }
+      setSearchQuery('');
+      setSelectedCategory('All');
     }
   }, [isOpen, initialData, type]);
 
@@ -101,11 +104,33 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
     }
   };
 
+  const uniqueCategories = ['All', ...new Set(products.map(p => {
+    return (typeof p.category === 'object' && p.category !== null) ? p.category.name : p.category;
+  }).filter(Boolean))];
+
   const filteredProducts = products.filter(p => {
     const nameMatch = p.name ? p.name.toLowerCase().includes(searchQuery.toLowerCase()) : false;
     const skuMatch = p.sku ? p.sku.toLowerCase().includes(searchQuery.toLowerCase()) : false;
-    return nameMatch || skuMatch;
+    
+    const catName = (typeof p.category === 'object' && p.category !== null) ? p.category.name : p.category;
+    const categoryMatch = selectedCategory === 'All' || catName === selectedCategory;
+
+    return (nameMatch || skuMatch) && categoryMatch;
   });
+
+  const handleSelectAll = () => {
+    const filteredIds = filteredProducts.map(p => p.id);
+    const allSelected = filteredIds.length > 0 && filteredIds.every(id => productIds.includes(id));
+
+    if (allSelected) {
+      // Deselect all filtered
+      setProductIds(productIds.filter(id => !filteredIds.includes(id)));
+    } else {
+      // Select all filtered
+      const newIds = new Set([...productIds, ...filteredIds]);
+      setProductIds(Array.from(newIds));
+    }
+  };
 
   return (
     <div className="modal-backdrop promo-modal-backdrop" onClick={onClose}>
@@ -207,16 +232,39 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
             {/* PRODUCT SELECTOR FOR DISCOUNT */}
             {type === 'discount' && (
               <div className="form-group full-width product-selector">
-                <label>Select Products</label>
-                <div className="search-box">
-                  <Search size={16} />
-                  <input
-                    type="text"
-                    placeholder="Search products..."
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                  />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '8px' }}>
+                  <label style={{ margin: 0 }}>Select Products</label>
+                  <button 
+                    type="button" 
+                    className="action-btn-outline" 
+                    style={{ fontSize: '0.8rem', padding: '4px 8px' }}
+                    onClick={handleSelectAll}
+                  >
+                    {(filteredProducts.length > 0 && filteredProducts.every(p => productIds.includes(p.id))) ? 'Deselect All Filtered' : 'Select All Filtered'}
+                  </button>
                 </div>
+                
+                <div className="search-filter-row" style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                  <div className="search-box" style={{ flex: 1, margin: 0 }}>
+                    <Search size={16} />
+                    <input
+                      type="text"
+                      placeholder="Search products..."
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+                  <select 
+                    value={selectedCategory} 
+                    onChange={e => setSelectedCategory(e.target.value)}
+                    style={{ flex: '0 0 150px', padding: '8px', border: '1px solid var(--admin-border)', borderRadius: '4px', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
+                  >
+                    {uniqueCategories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+
                 <div className="product-list-selectable">
                   {filteredProducts.map(product => (
                     <label key={product.id} className={`product-select-item ${productIds.includes(product.id) ? 'selected' : ''}`}>

@@ -80,6 +80,32 @@ export default function Reports() {
   const lowStock = [...products].filter(p => p.stock <= 5 && p.stock > 0).sort((a, b) => a.stock - b.stock);
   const outOfStock = [...products].filter(p => p.stock === 0);
 
+  // --- Discounted Products Performance ---
+  const discountedItemsSold = [];
+  
+  completedOrders.forEach(order => {
+    order.items.forEach(item => {
+      // item.product contains the original product details. item.price is what they paid.
+      if (item.product && item.price < item.product.price) {
+        const existing = discountedItemsSold.find(d => d.productId === item.productId);
+        if (existing) {
+          existing.quantity += item.quantity;
+          existing.revenue += (item.price * item.quantity);
+        } else {
+          discountedItemsSold.push({
+            productId: item.productId,
+            name: item.product.name,
+            sku: item.product.sku,
+            originalPrice: item.product.price,
+            soldPrice: item.price,
+            quantity: item.quantity,
+            revenue: (item.price * item.quantity)
+          });
+        }
+      }
+    });
+  });
+
   const formatCurrency = (amount) => {
     return formatPrice(amount); 
   };
@@ -308,6 +334,52 @@ export default function Reports() {
               </tbody>
             </table>
           </div>
+
+          {/* DISCOUNTED ITEMS SOLD */}
+          <div className="report-card" style={{ gridColumn: '1 / -1' }}>
+            <div className="card-header">
+              <div className="title-with-icon">
+                <DollarSign size={20} color="#3b82f6" />
+                <h3>Discounted Products Sold</h3>
+              </div>
+              <p>Products sold at a discount during the selected period.</p>
+            </div>
+            {discountedItemsSold.length > 0 ? (
+              <table className="report-table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Original Price</th>
+                    <th>Sold At</th>
+                    <th>Quantity Sold</th>
+                    <th>Total Revenue</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {discountedItemsSold.map(item => (
+                    <tr key={item.productId}>
+                      <td>
+                        <div className="product-name-sku">
+                          <strong>{item.name}</strong>
+                          <span>{item.sku}</span>
+                        </div>
+                      </td>
+                      <td style={{ textDecoration: 'line-through', color: '#888' }}>{formatCurrency(item.originalPrice)}</td>
+                      <td style={{ color: '#10b981', fontWeight: 'bold' }}>{formatCurrency(item.soldPrice)}</td>
+                      <td><span className="badge warning">{item.quantity} units</span></td>
+                      <td>{formatCurrency(item.revenue)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div style={{ padding: '20px', textAlign: 'center', color: 'var(--admin-text-muted)' }}>
+                No discounted products sold during this period.
+              </div>
+            )}
+          </div>
+
+
 
           {/* RESTOCK ALERTS */}
           <div className="report-card full-width">

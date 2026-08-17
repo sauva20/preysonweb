@@ -61,10 +61,15 @@ export default function ProductGrid({ title, subtitle, items, columns = 4, categ
                 <h3>{item.name}</h3>
                 <p className="price">
                   {item.discountPrice ? (
-                    <>
-                      <span style={{ textDecoration: 'line-through', marginRight: '8px', color: '#888', fontSize: '0.9em' }}>{formatPrice(item.price)}</span>
-                      <span style={{ color: '#d92929', fontWeight: 'bold' }}>{formatPrice(item.discountPrice)}</span>
-                    </>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ textDecoration: 'line-through', color: '#888', fontSize: '0.9em' }}>{formatPrice(item.price)}</span>
+                        <span style={{ color: '#d92929', fontWeight: 'bold' }}>{formatPrice(item.discountPrice)}</span>
+                      </div>
+                      <span style={{ color: '#10b981', fontSize: '0.85em', fontWeight: 'bold' }}>
+                        You saved {formatPrice(item.price - item.discountPrice)}!
+                      </span>
+                    </div>
                   ) : (
                     typeof item.price === 'number' ? formatPrice(item.price) : item.price
                   )}

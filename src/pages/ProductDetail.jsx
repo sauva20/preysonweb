@@ -209,10 +209,15 @@ export default function ProductDetail() {
           </h1>
           <div className="pdp-price">
             {product.discountPrice ? (
-              <>
-                <span className="pdp-price-original">{formatRupiah(product.price)}</span>
-                <span>{formatRupiah(product.discountPrice)}</span>
-              </>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span className="pdp-price-original" style={{ textDecoration: 'line-through', color: '#888', fontSize: '1.2rem' }}>{formatRupiah(product.price)}</span>
+                  <span style={{ color: '#d92929', fontWeight: 'bold', fontSize: '1.8rem' }}>{formatRupiah(product.discountPrice)}</span>
+                </div>
+                <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '6px 12px', borderRadius: '4px', display: 'inline-block', fontWeight: 'bold', fontSize: '0.9rem', width: 'fit-content', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                  🎉 You saved {formatRupiah(product.price - product.discountPrice)}!
+                </div>
+              </div>
             ) : (
               formatRupiah(product.price)
             )}

@@ -213,10 +213,15 @@ export default function Catalog() {
                     <p className="category">{typeof product.category === 'object' && product.category !== null ? product.category.name : product.category}</p>
                     <p className="price">
                       {product.discountPrice ? (
-                        <>
-                          <span style={{ textDecoration: 'line-through', marginRight: '8px', color: '#888', fontSize: '0.9em' }}>{formatRupiah(product.price)}</span>
-                          <span style={{ color: '#d92929', fontWeight: 'bold' }}>{formatRupiah(product.discountPrice)}</span>
-                        </>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ textDecoration: 'line-through', color: '#888', fontSize: '0.9em' }}>{formatRupiah(product.price)}</span>
+                            <span style={{ color: '#d92929', fontWeight: 'bold' }}>{formatRupiah(product.discountPrice)}</span>
+                          </div>
+                          <span style={{ color: '#10b981', fontSize: '0.85em', fontWeight: 'bold' }}>
+                            You saved {formatRupiah(product.price - product.discountPrice)}!
+                          </span>
+                        </div>
                       ) : (
                         formatRupiah(product.price)
                       )}
