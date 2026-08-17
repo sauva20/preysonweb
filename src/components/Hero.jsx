@@ -26,7 +26,6 @@ export default function Hero({ images = [], title = "EXPLORE THE JOURNEY OF A LI
           style={{ backgroundImage: `url('${img}')` }}
         ></div>
       ))}
-      <div className="hero-overlay"></div>
       <div className="hero-content">
         {title && title.trim() !== '' && (
           <h2>

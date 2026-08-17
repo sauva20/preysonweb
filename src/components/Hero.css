@@ -85,7 +85,6 @@
   line-height: 1.2;
   
   color: var(--pure-white);
-  text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.8);
 }
 
 @media (max-width: 1024px) {
@@ -109,7 +108,6 @@
     font-size: 2rem;
     letter-spacing: 1.5px;
     line-height: 1.2;
-    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
   }
 }
 
