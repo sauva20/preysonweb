@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useProducts } from '../context/ProductContext';
 import { useCart } from '../context/CartContext';
+import { usePromos } from '../context/PromoContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { Filter, X, ChevronDown, ShoppingBag, Plus } from 'lucide-react';
 import Navbar from '../components/Navbar';
@@ -11,6 +12,7 @@ import './Catalog.css';
 
 export default function Catalog() {
   const { products, categories: dbCategories } = useProducts();
+  const { applyDiscounts } = usePromos();
   const { addToCart } = useCart();
   const { formatPrice } = useCurrency();
   const navigate = useNavigate();
@@ -58,7 +60,7 @@ export default function Catalog() {
 
   // Filter and Sort Logic
   const filteredAndSortedProducts = useMemo(() => {
-    let result = [...products];
+    let result = applyDiscounts([...products]);
 
     // Filter by category
     if (activeCategory !== 'All') {
@@ -107,14 +109,15 @@ export default function Catalog() {
     }
 
     return result;
-  }, [products, activeCategory, activeSize, sortOption]);
+  }, [products, activeCategory, activeSize, sortOption, applyDiscounts]);
 
   const handleAddToCart = () => {
     if (!selectedQuickSize) {
       alert("Please select a size first");
       return;
     }
-    addToCart(quickAddProduct, selectedQuickSize, 1);
+    const cartProduct = { ...quickAddProduct, price: quickAddProduct.discountPrice || quickAddProduct.price };
+    addToCart(cartProduct, selectedQuickSize, 1);
     setQuickAddProduct(null);
     setSelectedQuickSize('');
   };
@@ -208,7 +211,16 @@ export default function Catalog() {
                   <div className="catalog-product-info">
                     <h3>{product.name}</h3>
                     <p className="category">{typeof product.category === 'object' && product.category !== null ? product.category.name : product.category}</p>
-                    <p className="price">{formatRupiah(product.price)}</p>
+                    <p className="price">
+                      {product.discountPrice ? (
+                        <>
+                          <span style={{ textDecoration: 'line-through', marginRight: '8px', color: '#888', fontSize: '0.9em' }}>{formatRupiah(product.price)}</span>
+                          <span style={{ color: '#d92929', fontWeight: 'bold' }}>{formatRupiah(product.discountPrice)}</span>
+                        </>
+                      ) : (
+                        formatRupiah(product.price)
+                      )}
+                    </p>
                   </div>
                 </div>
               ))}

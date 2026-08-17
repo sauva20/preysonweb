@@ -67,7 +67,20 @@ export default function Cart() {
                       <div className="item-details">
                         <h3>{item.product.name}</h3>
                         <p className="item-variant">Size: {item.size}</p>
-                        <p className="item-price">{formatRupiah(item.product.price)}</p>
+                        <div className="item-price">
+                          {item.product.originalPrice && item.product.originalPrice > item.product.price ? (
+                            <>
+                              <span style={{ textDecoration: 'line-through', color: '#888', marginRight: '8px', fontSize: '0.9em' }}>
+                                {formatRupiah(item.product.originalPrice)}
+                              </span>
+                              <span style={{ color: '#d92929', fontWeight: 'bold' }}>
+                                {formatRupiah(item.product.price)}
+                              </span>
+                            </>
+                          ) : (
+                            formatRupiah(item.product.price)
+                          )}
+                        </div>
                       </div>
                     </div>
                     
@@ -97,7 +110,21 @@ export default function Cart() {
                     </div>
                     
                     <div className="item-total-price">
-                      {formatRupiah(item.product.price * item.quantity)}
+                      {item.product.originalPrice && item.product.originalPrice > item.product.price ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
+                          <span style={{ textDecoration: 'line-through', color: '#888', fontSize: '0.9em' }}>
+                            {formatRupiah(item.product.originalPrice * item.quantity)}
+                          </span>
+                          <span style={{ color: '#d92929', fontWeight: 'bold' }}>
+                            {formatRupiah(item.product.price * item.quantity)}
+                          </span>
+                          <span style={{ color: '#22c55e', fontSize: '0.85em', marginTop: '4px', fontWeight: '600' }}>
+                            You saved {formatRupiah((item.product.originalPrice - item.product.price) * item.quantity)}
+                          </span>
+                        </div>
+                      ) : (
+                        formatRupiah(item.product.price * item.quantity)
+                      )}
                     </div>
                   </div>
                 ))}

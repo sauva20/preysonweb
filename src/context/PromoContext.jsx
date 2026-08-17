@@ -8,21 +8,35 @@ const API_URL = getApiUrl();
 export function PromoProvider({ children }) {
   // Global Vouchers State (Mapped from Campaigns)
   const [vouchers, setVouchers] = useState([]);
-  
-  // Per-Product Discounts State (Not in DB yet, keep mock for UI)
-  const [discounts, setDiscounts] = useState([
-    {
-      id: 1,
-      name: 'Summer Clearance',
-      productIds: [1, 2], // Array of product IDs
-      type: 'percentage',
-      value: 20,
-      startDate: '2026-07-15',
-      endDate: '2026-07-30',
-      isActive: false,
-      isExpired: new Date('2026-07-30T23:59:59.999Z') < new Date()
+
+  // Per-Product Discounts State (Not in DB yet, saved to local storage for persistence)
+  const [discounts, setDiscounts] = useState(() => {
+    const cached = localStorage.getItem('offline_discounts');
+    if (cached) {
+      try {
+        return JSON.parse(cached);
+      } catch (e) {
+        console.error("Failed to parse offline_discounts from local storage", e);
+      }
     }
-  ]);
+    return [
+      {
+        id: 1,
+        name: 'Summer Clearance',
+        productIds: [1, 2], // Array of product IDs
+        type: 'percentage',
+        value: 20,
+        startDate: '2026-07-15',
+        endDate: '2026-07-30',
+        isActive: false,
+        isExpired: new Date('2026-07-30T23:59:59.999Z') < new Date()
+      }
+    ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('offline_discounts', JSON.stringify(discounts));
+  }, [discounts]);
 
   useEffect(() => {
     fetchVouchers();
@@ -33,7 +47,7 @@ export function PromoProvider({ children }) {
       const res = await fetch(`${API_URL}/campaigns`);
       if (!res.ok) throw new Error('Failed to fetch campaigns');
       const data = await res.json();
-      
+
       const mapped = data.map(c => {
         // Assume end of day for the endDate
         const expireDate = new Date(c.endDate);
@@ -134,10 +148,47 @@ export function PromoProvider({ children }) {
     setDiscounts(discounts.map(d => d.id === id ? { ...d, isActive: !d.isActive } : d));
   };
 
+  const applyDiscounts = (productsList) => {
+    if (!productsList) return [];
+    return productsList.map(product => {
+      const activeDiscount = discounts.find(d =>
+        d.isActive && !d.isExpired && d.productIds.includes(product.id)
+      );
+      if (activeDiscount) {
+        let discountPrice = product.price;
+        if (activeDiscount.type === 'percentage') {
+          discountPrice = product.price * (1 - activeDiscount.value / 100);
+        } else if (activeDiscount.type === 'fixed') {
+          discountPrice = Math.max(0, product.price - activeDiscount.value);
+        }
+        return { ...product, discountPrice, discountData: activeDiscount };
+      }
+      return product;
+    });
+  };
+
+  const getDiscountedProduct = (product) => {
+    if (!product) return null;
+    const activeDiscount = discounts.find(d =>
+      d.isActive && !d.isExpired && d.productIds.includes(product.id)
+    );
+    if (activeDiscount) {
+      let discountPrice = product.price;
+      if (activeDiscount.type === 'percentage') {
+        discountPrice = product.price * (1 - activeDiscount.value / 100);
+      } else if (activeDiscount.type === 'fixed') {
+        discountPrice = Math.max(0, product.price - activeDiscount.value);
+      }
+      return { ...product, discountPrice, discountData: activeDiscount };
+    }
+    return product;
+  };
+
   return (
     <PromoContext.Provider value={{
       vouchers, addVoucher, updateVoucher, deleteVoucher, toggleVoucherStatus, fetchVouchers,
-      discounts, addDiscount, updateDiscount, deleteDiscount, toggleDiscountStatus
+      discounts, addDiscount, updateDiscount, deleteDiscount, toggleDiscountStatus,
+      applyDiscounts, getDiscountedProduct
     }}>
       {children}
     </PromoContext.Provider>

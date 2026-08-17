@@ -292,8 +292,22 @@ export default function Checkout() {
                     <h4>{item.product.name}</h4>
                     <p>{item.size}</p>
                   </div>
-                  <div className="item-price">
-                    {formatPrice(item.product.price * item.quantity)}
+                  <div className="item-price" style={{ textAlign: 'right' }}>
+                    {item.product.originalPrice && item.product.originalPrice > item.product.price ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                        <span style={{ textDecoration: 'line-through', color: '#888', fontSize: '0.85em' }}>
+                          {formatPrice(item.product.originalPrice * item.quantity)}
+                        </span>
+                        <span style={{ color: '#d92929', fontWeight: 'bold' }}>
+                          {formatPrice(item.product.price * item.quantity)}
+                        </span>
+                        <span style={{ color: '#22c55e', fontSize: '0.75em', marginTop: '2px', fontWeight: '600' }}>
+                          Saved {formatPrice((item.product.originalPrice - item.product.price) * item.quantity)}
+                        </span>
+                      </div>
+                    ) : (
+                      formatPrice(item.product.price * item.quantity)
+                    )}
                   </div>
                 </div>
               ))}

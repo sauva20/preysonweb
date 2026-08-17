@@ -15,6 +15,8 @@ export default function Reports() {
   const [activeTab, setActiveTab] = useState('overview');
   const [dateFilter, setDateFilter] = useState('All Time');
   const [isDateDropdownOpen, setIsDateDropdownOpen] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   // --- Calculations for Executive Summary ---
   const filteredOrders = orders.filter(order => {
@@ -30,6 +32,17 @@ export default function Reports() {
       } else if (dateFilter === 'This Month') {
         const monthAgo = new Date(now.setMonth(now.getMonth() - 1));
         matchesDate = orderDate >= monthAgo;
+      } else if (dateFilter === 'Custom') {
+        if (startDate && endDate) {
+          const start = new Date(startDate);
+          start.setHours(0, 0, 0, 0);
+          const end = new Date(endDate);
+          end.setHours(23, 59, 59, 999);
+          matchesDate = orderDate >= start && orderDate <= end;
+        } else {
+          // If custom dates are not fully selected, maybe show all or nothing. Let's default to true until both are picked.
+          matchesDate = true;
+        }
       }
     }
     return matchesDate;
@@ -100,7 +113,7 @@ export default function Reports() {
             </button>
             {isDateDropdownOpen && (
               <div className="custom-dropdown-menu" style={{ right: 0, left: 'auto' }}>
-                {['All Time', 'Today', 'This Week', 'This Month'].map(d => (
+                {['All Time', 'Today', 'This Week', 'This Month', 'Custom'].map(d => (
                   <div 
                     key={d}
                     className={`dropdown-item ${dateFilter === d ? 'active' : ''}`}
@@ -112,6 +125,25 @@ export default function Reports() {
               </div>
             )}
           </div>
+
+          {dateFilter === 'Custom' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '8px' }}>
+              <input 
+                type="date" 
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                style={{ padding: '6px', borderRadius: '4px', border: '1px solid var(--admin-border)', backgroundColor: 'var(--admin-bg)', color: 'var(--admin-text)', fontSize: '0.9rem' }}
+              />
+              <span style={{ color: 'var(--admin-text-muted)' }}>-</span>
+              <input 
+                type="date" 
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                style={{ padding: '6px', borderRadius: '4px', border: '1px solid var(--admin-border)', backgroundColor: 'var(--admin-bg)', color: 'var(--admin-text)', fontSize: '0.9rem' }}
+              />
+            </div>
+          )}
+
         </div>
       </div>
     </div>

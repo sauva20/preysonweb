@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProducts } from '../context/ProductContext';
+import { usePromos } from '../context/PromoContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { slugify } from '../utils/slugify';
 import './ProductGrid.css';
@@ -8,6 +9,7 @@ import './ProductGrid.css';
 export default function ProductGrid({ title, subtitle, items, columns = 4, categoryId, productIds, viewAllLink }) {
   const navigate = useNavigate();
   const { products } = useProducts();
+  const { applyDiscounts } = usePromos();
   const { formatPrice } = useCurrency();
 
   const displayItems = useMemo(() => {
@@ -20,12 +22,13 @@ export default function ProductGrid({ title, subtitle, items, columns = 4, categ
       } else if (productIds && productIds.length > 0) {
         filtered = filtered.filter(p => productIds.includes(p.id));
       }
+      filtered = applyDiscounts(filtered);
       return filtered.slice(0, columns > 0 ? columns * 2 : 8); // Just show a couple of rows
     }
     
     // Default empty state
     return [];
-  }, [items, products, categoryId, productIds, columns]);
+  }, [items, products, categoryId, productIds, columns, applyDiscounts]);
 
   const handleViewAll = () => {
     if (viewAllLink) {
@@ -57,9 +60,14 @@ export default function ProductGrid({ title, subtitle, items, columns = 4, categ
               <div className="product-info">
                 <h3>{item.name}</h3>
                 <p className="price">
-                  {typeof item.price === 'number' 
-                    ? formatPrice(item.price) 
-                    : item.price}
+                  {item.discountPrice ? (
+                    <>
+                      <span style={{ textDecoration: 'line-through', marginRight: '8px', color: '#888', fontSize: '0.9em' }}>{formatPrice(item.price)}</span>
+                      <span style={{ color: '#d92929', fontWeight: 'bold' }}>{formatPrice(item.discountPrice)}</span>
+                    </>
+                  ) : (
+                    typeof item.price === 'number' ? formatPrice(item.price) : item.price
+                  )}
                 </p>
               </div>
             </div>

@@ -7,13 +7,13 @@ import './PromoModal.css';
 export default function PromoModal({ isOpen, onClose, type, onSubmit, initialData }) {
   const { products } = useProducts();
   const { formatPrice } = useCurrency();
-  
+
   // Common Fields
   const [promoType, setPromoType] = useState('percentage'); // 'percentage' or 'fixed'
   const [value, setValue] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  
+
   // Voucher Specific
   const [code, setCode] = useState('');
   const [minSpend, setMinSpend] = useState('');
@@ -23,7 +23,7 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
   // Discount Specific
   const [name, setName] = useState('');
   const [productIds, setProductIds] = useState([]);
-  
+
   // Product Search for Discount
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -34,7 +34,7 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
         setValue(initialData.value || '');
         setStartDate(initialData.startDate || '');
         setEndDate(initialData.endDate || '');
-        
+
         if (type === 'voucher') {
           setCode(initialData.code || '');
           setMinSpend(initialData.minSpend || '');
@@ -64,7 +64,7 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     let payload = {
       type: promoType,
       value: Number(value),
@@ -101,10 +101,11 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
     }
   };
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    p.sku.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = products.filter(p => {
+    const nameMatch = p.name ? p.name.toLowerCase().includes(searchQuery.toLowerCase()) : false;
+    const skuMatch = p.sku ? p.sku.toLowerCase().includes(searchQuery.toLowerCase()) : false;
+    return nameMatch || skuMatch;
+  });
 
   return (
     <div className="modal-backdrop promo-modal-backdrop" onClick={onClose}>
@@ -113,10 +114,10 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
           <h3>{initialData ? 'Edit' : 'Create'} {type === 'voucher' ? 'Voucher' : 'Product Discount'}</h3>
           <button className="close-btn" onClick={onClose}><X size={20} /></button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="promo-form">
           <div className="form-grid">
-            
+
             {/* VOUCHER FIELDS */}
             {type === 'voucher' && (
               <>
@@ -126,12 +127,12 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
                 </div>
                 <div className="form-group">
                   <label>Usage Limit (Total)</label>
-                  <input 
-                    type="number" 
-                    value={usageLimit} 
-                    onChange={e => setUsageLimit(e.target.value)} 
+                  <input
+                    type="number"
+                    value={usageLimit}
+                    onChange={e => setUsageLimit(e.target.value)}
                     onKeyDown={(e) => ['e', 'E', '+', '-'].includes(e.key) && e.preventDefault()}
-                    placeholder="Leave blank for unlimited" 
+                    placeholder="Leave blank for unlimited"
                   />
                 </div>
               </>
@@ -155,14 +156,14 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
             </div>
             <div className="form-group">
               <label>Discount Value</label>
-              <input 
-                type="number" 
-                value={value} 
-                onChange={e => setValue(e.target.value)} 
+              <input
+                type="number"
+                value={value}
+                onChange={e => setValue(e.target.value)}
                 onKeyDown={(e) => ['e', 'E', '+', '-'].includes(e.key) && e.preventDefault()}
-                required 
-                min="1" 
-                max={promoType === 'percentage' ? 100 : 999999999} 
+                required
+                min="1"
+                max={promoType === 'percentage' ? 100 : 999999999}
               />
             </div>
 
@@ -171,23 +172,23 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
               <>
                 <div className="form-group">
                   <label>Minimum Spend (Rp)</label>
-                  <input 
-                    type="number" 
-                    value={minSpend} 
-                    onChange={e => setMinSpend(e.target.value)} 
+                  <input
+                    type="number"
+                    value={minSpend}
+                    onChange={e => setMinSpend(e.target.value)}
                     onKeyDown={(e) => ['e', 'E', '+', '-'].includes(e.key) && e.preventDefault()}
-                    placeholder="0" 
+                    placeholder="0"
                   />
                 </div>
                 {promoType === 'percentage' && (
                   <div className="form-group">
                     <label>Maximum Discount (Rp)</label>
-                    <input 
-                      type="number" 
-                      value={maxDiscount} 
-                      onChange={e => setMaxDiscount(e.target.value)} 
+                    <input
+                      type="number"
+                      value={maxDiscount}
+                      onChange={e => setMaxDiscount(e.target.value)}
                       onKeyDown={(e) => ['e', 'E', '+', '-'].includes(e.key) && e.preventDefault()}
-                      placeholder="No limit" 
+                      placeholder="No limit"
                     />
                   </div>
                 )}
@@ -209,9 +210,9 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
                 <label>Select Products</label>
                 <div className="search-box">
                   <Search size={16} />
-                  <input 
-                    type="text" 
-                    placeholder="Search products..." 
+                  <input
+                    type="text"
+                    placeholder="Search products..."
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                   />
@@ -219,8 +220,8 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
                 <div className="product-list-selectable">
                   {filteredProducts.map(product => (
                     <label key={product.id} className={`product-select-item ${productIds.includes(product.id) ? 'selected' : ''}`}>
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         checked={productIds.includes(product.id)}
                         onChange={() => toggleProductSelection(product.id)}
                       />
@@ -237,7 +238,7 @@ export default function PromoModal({ isOpen, onClose, type, onSubmit, initialDat
               </div>
             )}
           </div>
-          
+
           <div className="modal-actions">
             <button type="button" className="btn-cancel" onClick={onClose}>Cancel</button>
             <button type="submit" className="btn-submit">

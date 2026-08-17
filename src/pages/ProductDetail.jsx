@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useProducts } from '../context/ProductContext';
 import { useCart } from '../context/CartContext';
+import { usePromos } from '../context/PromoContext';
 import { useCurrency } from '../context/CurrencyContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -16,6 +17,7 @@ export default function ProductDetail() {
   const slugOrId = params.slug || params.id;
   const navigate = useNavigate();
   const { products } = useProducts();
+  const { getDiscountedProduct } = usePromos();
   const { addToCart } = useCart();
   const { formatPrice } = useCurrency();
   
@@ -100,7 +102,7 @@ export default function ProductDetail() {
     });
 
     if (found) {
-      setProduct(found);
+      setProduct(getDiscountedProduct(found));
       setMainImage(found.image);
       setSelectedSize('');
       setQuantity(1);
@@ -109,7 +111,7 @@ export default function ProductDetail() {
         .then(res => res.json())
         .then(data => {
           if (data && data.id) {
-            setProduct(data);
+            setProduct(getDiscountedProduct(data));
             setMainImage(data.image);
             setSelectedSize('');
             setQuantity(1);
@@ -129,7 +131,13 @@ export default function ProductDetail() {
       alert("Please select a size first");
       return;
     }
-    addToCart(product, selectedSize, quantity);
+    // addToCart needs the discounted price, but we preserve the original price
+    const cartProduct = { 
+      ...product, 
+      originalPrice: product.price, // the price property holds original in ProductDetail
+      price: product.discountPrice || product.price 
+    };
+    addToCart(cartProduct, selectedSize, quantity);
     setToastMessage('✓ Berhasil ditambahkan ke keranjang!');
     setTimeout(() => setToastMessage(''), 3000);
   };
