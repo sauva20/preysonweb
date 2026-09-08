@@ -26,7 +26,8 @@ export default function Settings() {
 
 
   const [paymentMethods, setPaymentMethods] = useState([
-    { id: 'qris_manual', name: 'QRIS Dinamis & Notifikasi WA (Fonnte)', active: true }
+    { id: 'qris_manual', name: 'QRIS Dinamis & Notifikasi WA (Fonnte)', active: true },
+    { id: 'doku', name: 'Doku Checkout (Jokul)', active: true }
   ]);
 
   const [localQrisString, setLocalQrisString] = useState(qrisStaticString);
@@ -114,7 +115,10 @@ export default function Settings() {
     store_city: 'Bandung',
     store_province: 'Jawa Barat',
     store_postal_code: '40115',
-    store_timezone: 'Asia/Jakarta'
+    store_timezone: 'Asia/Jakarta',
+    doku_client_id: '',
+    doku_secret_key: '',
+    doku_is_production: 'false'
   });
 
   const fetchSettings = async () => {
@@ -453,7 +457,39 @@ export default function Settings() {
                         </div>
                       </div>
                     )}
-                    {payment.active && payment.id !== 'qris_manual' && (
+                    {payment.active && payment.id === 'doku' && (
+                      <div className="toggle-card-body">
+                        <div className="form-group">
+                          <label>Doku Client ID</label>
+                          <input 
+                            type="text" 
+                            value={appSettings.doku_client_id || ''} 
+                            onChange={(e) => setAppSettings({...appSettings, doku_client_id: e.target.value})} 
+                            placeholder="MCH-..."
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Doku Secret Key</label>
+                          <input 
+                            type="password" 
+                            value={appSettings.doku_secret_key || ''} 
+                            onChange={(e) => setAppSettings({...appSettings, doku_secret_key: e.target.value})} 
+                            placeholder="SK-..."
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <input 
+                              type="checkbox" 
+                              checked={appSettings.doku_is_production === 'true'} 
+                              onChange={(e) => setAppSettings({...appSettings, doku_is_production: e.target.checked ? 'true' : 'false'})} 
+                            />
+                            Production Mode (Jokul Live)
+                          </label>
+                        </div>
+                      </div>
+                    )}
+                    {payment.active && payment.id !== 'qris_manual' && payment.id !== 'doku' && (
                       <div className="toggle-card-body">
                         <div className="form-group">
                           <label>API Key / Account Info</label>

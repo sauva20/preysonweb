@@ -155,7 +155,11 @@ export default function Checkout() {
       
       if (data.orderId) {
         clearCart();
-        navigate('/payment/' + data.orderId);
+        if (data.paymentUrl) {
+          window.location.href = data.paymentUrl;
+        } else {
+          navigate('/payment/' + data.orderId);
+        }
       } else {
         alert("Failed to initiate payment.");
       }
