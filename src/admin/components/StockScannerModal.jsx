@@ -65,9 +65,9 @@ export default function StockScannerModal({ onClose }) {
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content" style={{ maxWidth: '500px', width: '90%', textAlign: 'center' }}>
-        <button className="close-btn" onClick={onClose}>
+    <div className="modal-backdrop">
+      <div className="edit-modal" style={{ maxWidth: '500px', width: '90%', textAlign: 'center', padding: '30px', background: '#fff', borderRadius: '12px', position: 'relative' }}>
+        <button className="close-modal-btn" onClick={onClose} style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', cursor: 'pointer' }}>
           <X size={20} />
         </button>
         

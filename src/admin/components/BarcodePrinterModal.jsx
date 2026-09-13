@@ -15,49 +15,52 @@ export default function BarcodePrinterModal({ product, onClose }) {
 
   const handlePrint = () => {
     const printContent = printAreaRef.current.innerHTML;
-    const originalContent = document.body.innerHTML;
+    if (!printContent.trim()) {
+      alert("Tidak ada barcode yang bisa dicetak. Pastikan produk memiliki SKU dan Qty > 0.");
+      return;
+    }
 
-    // Create a temporary style for printing
-    const style = document.createElement('style');
-    style.innerHTML = `
-      @media print {
-        body * {
-          visibility: hidden;
-        }
-        #print-area, #print-area * {
-          visibility: visible;
-        }
-        #print-area {
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 100%;
-        }
-        .barcode-item {
-          page-break-inside: avoid;
-          margin-bottom: 20px;
-          text-align: center;
-        }
-        @page {
-          margin: 0;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Give it a small delay for styles to apply, then print
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Print Barcodes</title>
+          <style>
+            body { font-family: sans-serif; margin: 0; padding: 20px; }
+            .barcode-item {
+              page-break-inside: avoid;
+              margin-bottom: 20px;
+              text-align: center;
+              display: inline-block;
+              margin-right: 15px;
+            }
+            @media print {
+              @page { margin: 0; }
+              body { padding: 0; }
+            }
+          </style>
+        </head>
+        <body>
+          ${printContent}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    
+    // Slight delay to ensure barcodes are rendered before print dialog opens
     setTimeout(() => {
-      window.print();
-      document.head.removeChild(style);
-    }, 100);
+      printWindow.print();
+      printWindow.close();
+    }, 500);
   };
 
   const sizes = product.sizes || [];
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content" style={{ maxWidth: '600px', width: '90%' }}>
-        <button className="close-btn" onClick={onClose}>
+    <div className="modal-backdrop">
+      <div className="edit-modal" style={{ maxWidth: '600px', width: '90%', padding: '30px', background: '#fff', borderRadius: '12px', position: 'relative' }}>
+        <button className="close-modal-btn" onClick={onClose} style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', cursor: 'pointer' }}>
           <X size={20} />
         </button>
         <h2>Print Barcodes - {product.name}</h2>
