@@ -134,18 +134,32 @@ export default function Products() {
       const mainImage = formData.thumbnails.length > 0 ? formData.thumbnails[0] : '';
       const additionalThumbs = formData.thumbnails.slice(1);
 
+      const generateSKU = (prodName, sizeName) => {
+        const prodPrefix = (prodName || 'PRD').replace(/[^a-zA-Z0-9]/g, '').substring(0, 3).toUpperCase();
+        const sizePrefix = (sizeName || 'X').replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        const random = Math.floor(1000 + Math.random() * 9000);
+        return `PRD-${prodPrefix}-${sizePrefix}-${random}`;
+      };
+
+      const finalSizes = formData.sizes.map(s => {
+        if (!s.sku || s.sku.trim() === '') {
+          return { ...s, sku: generateSKU(formData.name, s.name) };
+        }
+        return s;
+      });
+
       const productData = {
         name: formData.name,
         sku: finalSku,
         price: parseFloat(formData.price),
         eventPrice: parseFloat(formData.eventPrice) || 0,
-        stock: formData.sizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0),
+        stock: finalSizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0),
         eventStock: parseInt(formData.eventStock) || 0,
         image: mainImage,
         categoryId: formData.categoryId ? parseInt(formData.categoryId) : null,
         description: formData.description,
         thumbnails: additionalThumbs,
-        sizes: formData.sizes,
+        sizes: finalSizes,
         sizeGuide: formData.sizeGuide,
         aestheticImage: formData.aestheticImage,
         features: formData.features.filter(f => f.trim() !== ''),
@@ -291,7 +305,24 @@ export default function Products() {
           <p>Manage your products, stock, categories and aesthetic details.</p>
         </div>
         <div className="products-header-actions">
-          <button className="manage-cat-btn" onClick={() => setIsScannerModalOpen(true)} style={{ height: 'auto', padding: '10px 16px', fontSize: '14px', borderRadius: '8px', backgroundColor: '#10b981', color: 'white' }}>
+          <button 
+            className="manage-cat-btn" 
+            onClick={async () => {
+              if (window.confirm('Auto-generate missing SKUs for all products?')) {
+                try {
+                  const res = await fetch(getBackendUrl('/api/products/auto-generate-skus'), { method: 'POST' });
+                  const data = await res.json();
+                  showSuccess(data.message);
+                  window.location.reload();
+                } catch (e) {
+                  showError('Failed to generate SKUs');
+                }
+              }
+            }} 
+            style={{ height: 'auto', padding: '10px 16px', fontSize: '14px', borderRadius: '8px', backgroundColor: '#f59e0b', color: 'white', border: 'none' }}>
+            AUTO-FILL SKUS
+          </button>
+          <button className="manage-cat-btn" onClick={() => setIsScannerModalOpen(true)} style={{ height: 'auto', padding: '10px 16px', fontSize: '14px', borderRadius: '8px', backgroundColor: '#10b981', color: 'white', border: 'none' }}>
             SCAN IN STOCK
           </button>
           <button className="manage-cat-btn" onClick={() => setIsCatModalOpen(true)} style={{ height: 'auto', padding: '10px 16px', fontSize: '14px', borderRadius: '8px' }}>
