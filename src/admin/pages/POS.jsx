@@ -68,11 +68,49 @@ export default function POS() {
   }, [scanBuffer, products, cartItems]);
 
   const handleScan = (sku) => {
+    // 1. Try to find if the scanned SKU matches a specific size SKU
+    for (const product of products) {
+      let sizesObj = [];
+      try {
+        sizesObj = typeof product.sizes === 'string' ? JSON.parse(product.sizes) : (product.sizes || []);
+      } catch (e) { }
+
+      if (sizesObj && sizesObj.length > 0 && typeof sizesObj[0] === 'object') {
+        const matchedSize = sizesObj.find(s => s.sku === sku);
+        if (matchedSize) {
+          const stockToUse = isEventMode ? product.eventStock : matchedSize.stock;
+          const priceToUse = isEventMode ? product.eventPrice : product.price;
+          
+          addToCart(product, matchedSize.name, stockToUse, priceToUse);
+          
+          // Optional visual feedback for successful scan
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: `${product.name} (${matchedSize.name}) ditambahkan`,
+            showConfirmButton: false,
+            timer: 1000
+          });
+          return;
+        }
+      }
+    }
+
+    // 2. Fallback to base product SKU (for One Size products)
     const product = products.find(p => p.sku === sku);
     if (product) {
       handleProductClick(product);
     } else {
       console.warn('Scanned SKU not found:', sku);
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: `SKU ${sku} tidak ditemukan!`,
+        showConfirmButton: false,
+        timer: 1500
+      });
     }
   };
 

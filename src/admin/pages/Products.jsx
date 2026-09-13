@@ -310,7 +310,7 @@ export default function Products() {
             onClick={async () => {
               if (window.confirm('Auto-generate missing SKUs for all products?')) {
                 try {
-                  const res = await fetch(getBackendUrl('/api/products/auto-generate-skus'), { method: 'POST' });
+                  const res = await fetch(`${getBackendUrl()}/api/products/auto-generate-skus`, { method: 'POST' });
                   const data = await res.json();
                   showSuccess(data.message);
                   window.location.reload();
