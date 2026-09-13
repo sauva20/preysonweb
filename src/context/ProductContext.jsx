@@ -150,6 +150,26 @@ export function ProductProvider({ children }) {
     }
   };
 
+  const scanAddStock = async (sku, qty) => {
+    try {
+      const res = await fetch(`${API_URL}/products/scan-stock`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sku, qty })
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to scan and add stock');
+      }
+      const updatedProduct = await res.json();
+      setProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+      return updatedProduct;
+    } catch (err) {
+      console.error('Error scanning stock:', err);
+      throw err;
+    }
+  };
+
   const deductStockLocally = (items, isEventMode) => {
     setProducts(prev => {
       const newProducts = prev.map(p => {
@@ -198,7 +218,7 @@ export function ProductProvider({ children }) {
 
   return (
     <ProductContext.Provider value={{
-      products, addProduct, updateProduct, deleteProduct, toggleSoldOut, fetchProducts, deductStockLocally,
+      products, addProduct, updateProduct, deleteProduct, toggleSoldOut, fetchProducts, deductStockLocally, scanAddStock,
       categories, addCategory, deleteCategory, fetchCategories
     }}>
       {children}

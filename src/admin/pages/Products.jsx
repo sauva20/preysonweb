@@ -1,12 +1,14 @@
 import { getApiUrl, getBackendUrl } from '../../utils/apiConfig';
 import React, { useState } from 'react';
 import { useProducts } from '../../context/ProductContext';
-import { Plus, Edit2, Trash2, X, Image as ImageIcon, ChevronDown, Search, Upload, Flame, Eye, EyeOff } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Image as ImageIcon, ChevronDown, Search, Upload, Flame, Eye, EyeOff, Printer, Scan } from 'lucide-react';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useActivity } from '../../context/ActivityContext';
 import Barcode from 'react-barcode';
 import { confirmDelete, showSuccess, showError } from '../utils/alert';
 import Swal from 'sweetalert2';
+import BarcodePrinterModal from '../components/BarcodePrinterModal';
+import StockScannerModal from '../components/StockScannerModal';
 import './Products.css';
 
 export default function Products() {
@@ -17,6 +19,9 @@ export default function Products() {
   const [isCatModalOpen, setIsCatModalOpen] = useState(false);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [isScannerModalOpen, setIsScannerModalOpen] = useState(false);
+  const [isPrinterModalOpen, setIsPrinterModalOpen] = useState(false);
+  const [productToPrint, setProductToPrint] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [sortOrder, setSortOrder] = useState('latest');
@@ -75,7 +80,7 @@ export default function Products() {
         eventStock: product.eventStock || 0,
         description: product.description || '',
         thumbnails: [product.image, ...(product.thumbnails || [])].filter(Boolean),
-        sizes: (product.sizes || []).map(s => typeof s === 'string' ? { name: s, stock: 0 } : s),
+        sizes: (product.sizes || []).map(s => typeof s === 'string' ? { name: s, sku: '', stock: 0 } : { ...s, sku: s.sku || '' }),
         sizeGuide: product.sizeGuide || { image: '', metrics: [], measurements: {} },
         aestheticImage: product.aestheticImage || '',
         features: product.features || [],
@@ -286,6 +291,9 @@ export default function Products() {
           <p>Manage your products, stock, categories and aesthetic details.</p>
         </div>
         <div className="products-header-actions">
+          <button className="manage-cat-btn" onClick={() => setIsScannerModalOpen(true)} style={{ height: 'auto', padding: '10px 16px', fontSize: '14px', borderRadius: '8px', backgroundColor: '#10b981', color: 'white' }}>
+            SCAN IN STOCK
+          </button>
           <button className="manage-cat-btn" onClick={() => setIsCatModalOpen(true)} style={{ height: 'auto', padding: '10px 16px', fontSize: '14px', borderRadius: '8px' }}>
             MANAGE CATEGORIES
           </button>
@@ -423,6 +431,9 @@ export default function Products() {
                     </button>
                     <button className="action-btn edit" onClick={() => openModal(product)} title="Edit Produk">
                       <Edit2 size={16} />
+                    </button>
+                    <button className="action-btn" style={{color: '#4b5563'}} onClick={() => { setProductToPrint(product); setIsPrinterModalOpen(true); }} title="Print Barcodes">
+                      <Printer size={16} />
                     </button>
                     <button className="action-btn delete" title="Hapus Produk" onClick={async () => {
                       if (await confirmDelete(`the product "${product.name}"`)) {
@@ -619,7 +630,7 @@ export default function Products() {
                                   if (isSelected) {
                                     newSizes = formData.sizes.filter(s => s.name !== size);
                                   } else {
-                                    newSizes = [...formData.sizes, { name: size, stock: 10 }];
+                                    newSizes = [...formData.sizes, { name: size, sku: '', stock: 10 }];
                                   }
                                   const totalStock = newSizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0);
                                   setFormData({ ...formData, sizes: newSizes, stock: totalStock });
@@ -632,13 +643,25 @@ export default function Products() {
                         </div>
                         {formData.sizes.length > 0 && (
                           <div className="size-stock-inputs" style={{ marginTop: '15px' }}>
-                            <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: '#666' }}>STOCK PER SIZE:</div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                            <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: '#666' }}>STOCK & SKU PER SIZE:</div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
                               {formData.sizes.map((s, index) => (
                                 <div key={s.name} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#f5f5f5', padding: '6px 12px', borderRadius: '4px' }}>
                                   <span style={{ fontWeight: 'bold', width: '30px' }}>{s.name}</span>
                                   <input
+                                    type="text"
+                                    placeholder="SKU"
+                                    value={s.sku || ''}
+                                    onChange={(e) => {
+                                      const newSizes = [...formData.sizes];
+                                      newSizes[index].sku = e.target.value;
+                                      setFormData({ ...formData, sizes: newSizes });
+                                    }}
+                                    style={{ flex: 1, padding: '4px', border: '1px solid #ccc', borderRadius: '4px', minWidth: '80px' }}
+                                  />
+                                  <input
                                     type="number"
+                                    placeholder="Qty"
                                     value={s.stock}
                                     onChange={(e) => {
                                       const newSizes = [...formData.sizes];
@@ -1117,6 +1140,20 @@ export default function Products() {
           </div>
         </div>
       )}
+      {/* Modals */}
+      {isPrinterModalOpen && productToPrint && (
+        <BarcodePrinterModal
+          product={productToPrint}
+          onClose={() => { setIsPrinterModalOpen(false); setProductToPrint(null); }}
+        />
+      )}
+
+      {isScannerModalOpen && (
+        <StockScannerModal
+          onClose={() => setIsScannerModalOpen(false)}
+        />
+      )}
+
     </div>
   );
 }
