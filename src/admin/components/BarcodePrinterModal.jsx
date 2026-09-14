@@ -1,8 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { X, Printer } from 'lucide-react';
 import Barcode from 'react-barcode';
+import { useCurrency } from '../../context/CurrencyContext';
+import { useProducts } from '../../context/ProductContext';
 
 export default function BarcodePrinterModal({ product, onClose }) {
+  const { formatPrice } = useCurrency();
+  const { categories } = useProducts();
+
   // State to hold quantity of barcodes to print for each size
   const [quantities, setQuantities] = useState(
     (product.sizes || []).reduce((acc, size) => {
@@ -12,6 +17,40 @@ export default function BarcodePrinterModal({ product, onClose }) {
   );
 
   const printAreaRef = useRef(null);
+
+  // Helper untuk menyusun label barcode: [Nama Produk] - [Harga] - [Jenis] - [Size]
+  const getBarcodeLabel = (sizeName) => {
+    // 1. Dapatkan nama kategori/jenis
+    const categoryObj = product.category || (categories || []).find(c => c.id === product.categoryId);
+    let categoryName = (categoryObj?.name || '').trim();
+
+    let cleanName = (product.name || '').trim();
+    let jenis = categoryName;
+
+    // Jika nama produk mengandung " - ", periksa apakah bagian terakhir adalah jenis/kategori
+    if (cleanName.includes(' - ')) {
+      const parts = cleanName.split(' - ');
+      const lastPart = parts[parts.length - 1].trim();
+
+      const isKnownCat = (categoryName && lastPart.toLowerCase() === categoryName.toLowerCase()) ||
+                         (categories || []).some(c => c.name.toLowerCase() === lastPart.toLowerCase());
+
+      if (isKnownCat || (!jenis && lastPart)) {
+        jenis = jenis || lastPart;
+        cleanName = parts.slice(0, parts.length - 1).join(' - ').trim();
+      }
+    }
+
+    // 2. Format harga
+    const rawPrice = Number(product.price);
+    const formattedPrice = (rawPrice && !isNaN(rawPrice))
+      ? (formatPrice ? formatPrice(rawPrice).replace(/\s+/g, ' ') : `Rp ${rawPrice.toLocaleString('id-ID')}`)
+      : '';
+
+    // 3. Susun urutan: Nama Produk - Harga - Jenis - Size
+    const labelParts = [cleanName, formattedPrice, jenis, sizeName].filter(Boolean);
+    return labelParts.join(' - ');
+  };
 
   const handlePrint = () => {
     const printContent = printAreaRef.current.innerHTML;
@@ -33,6 +72,11 @@ export default function BarcodePrinterModal({ product, onClose }) {
               text-align: center;
               display: inline-block;
               margin-right: 15px;
+            }
+            .barcode-label {
+              font-size: 12px;
+              font-weight: bold;
+              margin-bottom: 4px;
             }
             @media print {
               @page { margin: 0; }
@@ -72,6 +116,9 @@ export default function BarcodePrinterModal({ product, onClose }) {
               <div>
                 <strong>Size: {size.name}</strong>
                 <div style={{ fontSize: '12px', color: '#666' }}>SKU: {size.sku || 'N/A'}</div>
+                <div style={{ fontSize: '11px', color: '#059669', marginTop: '2px', fontWeight: '500' }}>
+                  Label: {getBarcodeLabel(size.name)}
+                </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <label>Qty:</label>
@@ -106,7 +153,7 @@ export default function BarcodePrinterModal({ product, onClose }) {
               for (let i = 0; i < qty; i++) {
                 barcodes.push(
                   <div key={`${size.name}-${i}`} className="barcode-item" style={{ marginBottom: '10px', textAlign: 'center', padding: '10px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: 'bold' }}>{product.name} - {size.name}</div>
+                    <div className="barcode-label" style={{ fontSize: '12px', fontWeight: 'bold' }}>{getBarcodeLabel(size.name)}</div>
                     <Barcode value={size.sku} width={1.5} height={40} fontSize={14} margin={5} />
                   </div>
                 );
