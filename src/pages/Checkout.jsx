@@ -161,7 +161,7 @@ export default function Checkout() {
           navigate('/payment/' + data.orderId);
         }
       } else {
-        alert("Failed to initiate payment.");
+        alert("Checkout Failed: " + (data.error || "Failed to initiate payment."));
       }
     } catch (error) {
       console.error(error);
