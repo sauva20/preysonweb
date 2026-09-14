@@ -18,7 +18,7 @@ export default function BarcodePrinterModal({ product, onClose }) {
 
   const printAreaRef = useRef(null);
 
-  // Helper untuk menyusun label barcode: [Nama Produk] - [Harga] - [Jenis] - [Size]
+  // Helper untuk menyusun label barcode: [Nama Produk] - [Jenis] - [Size] - [Harga]
   const getBarcodeLabel = (sizeName) => {
     // 1. Dapatkan nama kategori/jenis
     const categoryObj = product.category || (categories || []).find(c => c.id === product.categoryId);
@@ -47,8 +47,8 @@ export default function BarcodePrinterModal({ product, onClose }) {
       ? (formatPrice ? formatPrice(rawPrice).replace(/\s+/g, ' ') : `Rp ${rawPrice.toLocaleString('id-ID')}`)
       : '';
 
-    // 3. Susun urutan: Nama Produk - Harga - Jenis - Size
-    const labelParts = [cleanName, formattedPrice, jenis, sizeName].filter(Boolean);
+    // 3. Susun urutan: Nama Produk - Jenis - Size - Harga
+    const labelParts = [cleanName, jenis, sizeName, formattedPrice].filter(Boolean);
     return labelParts.join(' - ');
   };
 
