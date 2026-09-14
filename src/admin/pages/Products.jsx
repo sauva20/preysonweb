@@ -661,7 +661,8 @@ export default function Products() {
                                   if (isSelected) {
                                     newSizes = formData.sizes.filter(s => s.name !== size);
                                   } else {
-                                    newSizes = [...formData.sizes, { name: size, sku: '', stock: 10 }];
+                                    const existingSize = editingProduct?.sizes?.find(s => s.name === size);
+                                    newSizes = [...formData.sizes, { name: size, sku: existingSize?.sku || '', stock: existingSize?.stock || 0 }];
                                   }
                                   const totalStock = newSizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0);
                                   setFormData({ ...formData, sizes: newSizes, stock: totalStock });
@@ -674,7 +675,7 @@ export default function Products() {
                         </div>
                         {formData.sizes.length > 0 && (
                           <div className="size-stock-inputs" style={{ marginTop: '15px' }}>
-                            <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: '#666' }}>STOCK & SKU PER SIZE:</div>
+                            <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: '#666' }}>SKU PER SIZE:</div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
                               {formData.sizes.map((s, index) => (
                                 <div key={s.name} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#f5f5f5', padding: '6px 12px', borderRadius: '4px' }}>
@@ -690,20 +691,14 @@ export default function Products() {
                                     }}
                                     style={{ flex: 1, padding: '4px', border: '1px solid #ccc', borderRadius: '4px', minWidth: '80px' }}
                                   />
-                                  <input
-                                    type="number"
-                                    placeholder="Qty"
-                                    value={s.stock}
-                                    onChange={(e) => {
-                                      const newSizes = [...formData.sizes];
-                                      newSizes[index].stock = parseInt(e.target.value) || 0;
-                                      const totalStock = newSizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0);
-                                      setFormData({ ...formData, sizes: newSizes, stock: totalStock });
-                                    }}
-                                    style={{ width: '60px', padding: '4px', border: '1px solid #ccc', borderRadius: '4px' }}
-                                  />
+                                  <span style={{ fontSize: '12px', color: '#4b5563', background: '#e5e7eb', padding: '4px 10px', borderRadius: '4px', whiteSpace: 'nowrap', fontWeight: '600' }} title="Stok inventory reguler hanya dapat ditambah via Stock Scanner">
+                                    Stok: {s.stock || 0}
+                                  </span>
                                 </div>
                               ))}
+                            </div>
+                            <div style={{ fontSize: '11px', color: '#888', marginTop: '6px' }}>
+                              *Stok inventory reguler tidak dapat diisi manual di sini (diisi via Stock In / Scanner). Event Stock dapat diisi di bawah.
                             </div>
                           </div>
                         )}

@@ -11,7 +11,7 @@ export default function BarcodePrinterModal({ product, onClose }) {
   // State to hold quantity of barcodes to print for each size
   const [quantities, setQuantities] = useState(
     (product.sizes || []).reduce((acc, size) => {
-      acc[size.name] = 1; // Default to 1
+      acc[size.name] = 0; // Default to 0
       return acc;
     }, {})
   );
