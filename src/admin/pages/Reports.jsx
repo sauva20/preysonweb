@@ -107,11 +107,34 @@ export default function Reports() {
   });
 
   // --- Category and Payment Summaries ---
-  const categoryStock = (categories || []).map(cat => {
+  const categoryStockDetail = (categories || []).map(cat => {
     const catProducts = products.filter(p => p.categoryId === cat.id);
-    const totalStock = catProducts.reduce((sum, p) => sum + p.stock, 0);
-    return { name: cat.name, totalStock };
-  }).sort((a, b) => b.totalStock - a.totalStock);
+    
+    let totalSizeRows = 0;
+    const details = catProducts.map(p => {
+      let sizes = [];
+      try {
+        sizes = typeof p.sizes === 'string' ? JSON.parse(p.sizes) : (p.sizes || []);
+      } catch (e) {}
+
+      let parsedSizes = [];
+      if (sizes.length === 0) {
+        parsedSizes = [{ sizeName: 'All Size', stock: p.stock }];
+      } else {
+        parsedSizes = sizes.map(s => ({
+          sizeName: typeof s === 'string' ? s : s.name,
+          stock: typeof s === 'string' ? p.stock : (s.stock || 0)
+        }));
+      }
+      
+      totalSizeRows += parsedSizes.length;
+      return { productName: p.name, sizes: parsedSizes };
+    });
+
+    if (totalSizeRows === 0) totalSizeRows = 1;
+
+    return { name: cat.name, totalSizeRows, details };
+  });
 
   const categorySales = (categories || []).map(cat => {
     const catProductsIds = products.filter(p => p.categoryId === cat.id).map(p => p.id);
@@ -336,40 +359,64 @@ export default function Reports() {
             <div className="alerts-grid">
               <div className="alert-column">
                 <h4 className="alert-subtitle" style={{ marginBottom: '10px' }}>Penjualan per Kategori</h4>
-                <table className="report-table">
+                <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #000', fontSize: '13px', color: '#000' }}>
                   <thead>
-                    <tr>
-                      <th>Kategori</th>
-                      <th>Qty Terjual</th>
-                      <th>Total Penjualan</th>
+                    <tr style={{ backgroundColor: '#e5e7eb', borderBottom: '2px solid #000' }}>
+                      <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>Kategori</th>
+                      <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center', fontWeight: 'bold' }}>Qty Terjual</th>
+                      <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'right', fontWeight: 'bold' }}>Total Penjualan</th>
                     </tr>
                   </thead>
                   <tbody>
                     {categorySales.map(cat => (
                       <tr key={cat.name}>
-                        <td><strong>{cat.name}</strong></td>
-                        <td>{cat.qtySold}</td>
-                        <td>{formatCurrency(cat.totalRevenue)}</td>
+                        <td style={{ border: '1px solid #000', padding: '8px' }}>{cat.name}</td>
+                        <td style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>{cat.qtySold}</td>
+                        <td style={{ border: '1px solid #000', padding: '8px', textAlign: 'right' }}>{formatCurrency(cat.totalRevenue)}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <div className="alert-column">
-                <h4 className="alert-subtitle" style={{ marginBottom: '10px' }}>Jumlah Stok per Kategori</h4>
-                <table className="report-table">
+            </div>
+            
+            <div className="alerts-grid" style={{ marginTop: '20px' }}>
+              <div className="alert-column" style={{ gridColumn: '1 / -1' }}>
+                <h4 className="alert-subtitle" style={{ marginBottom: '10px' }}>Detail Stok per Kategori</h4>
+                <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #000', fontSize: '13px', color: '#000' }}>
                   <thead>
-                    <tr>
-                      <th>Kategori</th>
-                      <th>Total Stok</th>
+                    <tr style={{ backgroundColor: '#e5e7eb', borderBottom: '2px solid #000' }}>
+                      <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>Kategori</th>
+                      <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>Nama Produk</th>
+                      <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center', fontWeight: 'bold' }}>Size</th>
+                      <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'center', fontWeight: 'bold' }}>Jumlah</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {categoryStock.map(cat => (
-                      <tr key={cat.name}>
-                        <td><strong>{cat.name}</strong></td>
-                        <td><span className={`badge ${cat.totalStock < 10 ? 'warning' : 'success'}`}>{cat.totalStock} pcs</span></td>
-                      </tr>
+                    {categoryStockDetail.map(cat => (
+                      <React.Fragment key={cat.name}>
+                        {cat.details.length === 0 ? (
+                          <tr>
+                            <td style={{ border: '1px solid #000', padding: '8px', fontWeight: 'bold', backgroundColor: '#f3f4f6' }}>{cat.name}</td>
+                            <td colSpan="3" style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>- Kosong -</td>
+                          </tr>
+                        ) : (
+                          cat.details.map((prod, pIdx) => (
+                            prod.sizes.map((sz, sIdx) => (
+                              <tr key={`${cat.name}-${prod.productName}-${sz.sizeName}`}>
+                                {pIdx === 0 && sIdx === 0 && (
+                                  <td rowSpan={cat.totalSizeRows} style={{ border: '1px solid #000', padding: '8px', verticalAlign: 'top', fontWeight: 'bold', backgroundColor: '#f3f4f6' }}>{cat.name}</td>
+                                )}
+                                {sIdx === 0 && (
+                                  <td rowSpan={prod.sizes.length} style={{ border: '1px solid #000', padding: '8px', verticalAlign: 'top' }}>{prod.productName}</td>
+                                )}
+                                <td style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>{sz.sizeName}</td>
+                                <td style={{ border: '1px solid #000', padding: '8px', textAlign: 'center' }}>{sz.stock}</td>
+                              </tr>
+                            ))
+                          ))
+                        )}
+                      </React.Fragment>
                     ))}
                   </tbody>
                 </table>
