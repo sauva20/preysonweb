@@ -461,7 +461,7 @@ export default function POS() {
         <div className="cart-footer">
           <div className="payment-method-section">
             <span className="section-label">PAYMENT METHOD</span>
-            <div className="payment-buttons">
+            <div className="payment-buttons" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
               <button
                 className={`pay-btn ${paymentMethod === 'CASH' ? 'active' : ''}`}
                 onClick={() => setPaymentMethod('CASH')}
@@ -473,6 +473,12 @@ export default function POS() {
                 onClick={() => setPaymentMethod('QRIS')}
               >
                 QRIS
+              </button>
+              <button
+                className={`pay-btn ${paymentMethod === 'ECOMMERCE' ? 'active' : ''}`}
+                onClick={() => setPaymentMethod('ECOMMERCE')}
+              >
+                ECOMMERCE
               </button>
             </div>
           </div>

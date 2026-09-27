@@ -32,6 +32,7 @@ export default function Products() {
     name: '',
     categoryId: '',
     price: '',
+    hpp: '',
     eventPrice: 0,
     stock: '',
     eventStock: 0,
@@ -75,6 +76,7 @@ export default function Products() {
         name: product.name,
         categoryId: product.categoryId || '',
         price: product.price,
+        hpp: product.hpp || '',
         eventPrice: product.eventPrice || 0,
         stock: product.stock,
         eventStock: product.eventStock || 0,
@@ -89,7 +91,7 @@ export default function Products() {
       });
     } else {
       setEditingProduct(null);
-      setFormData({ name: '', categoryId: '', price: '', eventPrice: 0, stock: '', eventStock: 0, description: '', thumbnails: [], sizes: [], sizeGuide: { image: '', metrics: [], measurements: {} }, aestheticImage: '', features: [], materials: [], washing: [] });
+      setFormData({ name: '', categoryId: '', price: '', hpp: '', eventPrice: 0, stock: '', eventStock: 0, description: '', thumbnails: [], sizes: [], sizeGuide: { image: '', metrics: [], measurements: {} }, aestheticImage: '', features: [], materials: [], washing: [] });
     }
     setIsModalOpen(true);
   };
@@ -152,6 +154,7 @@ export default function Products() {
         name: formData.name,
         sku: finalSku,
         price: parseFloat(formData.price),
+        hpp: parseFloat(formData.hpp) || 0,
         eventPrice: parseFloat(formData.eventPrice) || 0,
         stock: finalSizes.reduce((acc, curr) => acc + (parseInt(curr.stock) || 0), 0),
         eventStock: parseInt(formData.eventStock) || 0,
@@ -400,7 +403,7 @@ export default function Products() {
               <th>IMAGE</th>
               <th>NAME & SKU</th>
               <th>CATEGORY</th>
-              <th>PRICE (Reg/Event)</th>
+              <th>PRICE (Reg/Event/HPP)</th>
               <th>STOCK (Reg/Event)</th>
               <th>ACTIONS</th>
             </tr>
@@ -427,6 +430,7 @@ export default function Products() {
                   <div style={{display:'flex', flexDirection:'column', gap:'2px'}}>
                     <span>{formatPrice(product.price)}</span>
                     <span style={{fontSize:'11px', color:'#f59e0b'}}>{formatEventPrice(product.eventPrice || 0)} (Event)</span>
+                    <span style={{fontSize:'11px', color:'#4f46e5'}}>{formatPrice(product.hpp || 0)} (HPP)</span>
                   </div>
                 </td>
                 <td>
@@ -626,6 +630,20 @@ export default function Products() {
                             onChange={e => {
                               const rawValue = e.target.value.replace(/\D/g, '');
                               setFormData({ ...formData, price: rawValue });
+                            }}
+                            placeholder="Harga Jual"
+                          />
+                        </div>
+                        <div style={{display: 'flex', alignItems: 'center', background: '#eef2ff', padding: '4px 8px', borderRadius: '4px', border: '1px solid #c7d2fe'}}>
+                          <span className="currency-symbol" style={{color: '#4f46e5', fontSize: '14px', marginRight: '4px'}}>HPP: {currency === 'IDR' ? 'Rp' : currency}</span>
+                          <input
+                            type="text"
+                            className="invisible-input pdp-price-preview"
+                            style={{color: '#4f46e5', fontSize: '16px'}}
+                            value={formData.hpp ? Number(formData.hpp).toLocaleString('id-ID') : ''}
+                            onChange={e => {
+                              const rawValue = e.target.value.replace(/\D/g, '');
+                              setFormData({ ...formData, hpp: rawValue });
                             }}
                             placeholder="0"
                           />

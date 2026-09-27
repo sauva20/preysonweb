@@ -10,7 +10,7 @@ import './Reports.css';
 
 export default function Reports() {
   const { orders } = useOrders();
-  const { products } = useProducts();
+  const { products, categories } = useProducts();
   const { formatPrice } = useCurrency();
   const [activeTab, setActiveTab] = useState('overview');
   const [dateFilter, setDateFilter] = useState('All Time');
@@ -105,6 +105,39 @@ export default function Reports() {
       }
     });
   });
+
+  // --- Category and Payment Summaries ---
+  const categoryStock = (categories || []).map(cat => {
+    const catProducts = products.filter(p => p.categoryId === cat.id);
+    const totalStock = catProducts.reduce((sum, p) => sum + p.stock, 0);
+    return { name: cat.name, totalStock };
+  }).sort((a, b) => b.totalStock - a.totalStock);
+
+  const categorySales = (categories || []).map(cat => {
+    const catProductsIds = products.filter(p => p.categoryId === cat.id).map(p => p.id);
+    let qtySold = 0;
+    let catRevenue = 0;
+    completedOrders.forEach(order => {
+      order.items.forEach(item => {
+        if (catProductsIds.includes(item.productId)) {
+          qtySold += item.quantity;
+          catRevenue += (item.price * item.quantity);
+        }
+      });
+    });
+    return { name: cat.name, qtySold, totalRevenue: catRevenue };
+  }).sort((a, b) => b.totalRevenue - a.totalRevenue);
+
+  const paymentMethodSummary = completedOrders.reduce((acc, order) => {
+    const method = order.paymentMethod || 'Unknown';
+    if (!acc[method]) {
+      acc[method] = { method, revenue: 0, count: 0 };
+    }
+    acc[method].revenue += order.total;
+    acc[method].count += 1;
+    return acc;
+  }, {});
+  const paymentMethodsArray = Object.values(paymentMethodSummary).sort((a, b) => b.revenue - a.revenue);
 
   const formatCurrency = (amount) => {
     return formatPrice(amount); 
@@ -259,11 +292,90 @@ export default function Reports() {
               </div>
             </div>
           </div>
+
+          <div className="report-section" style={{ marginTop: '20px' }}>
+            <div className="section-header">
+              <h3>Ringkasan Metode Pembayaran</h3>
+              <p>Total penjualan berdasarkan cara pembayaran (CASH, QRIS, ECOMMERCE, dll)</p>
+            </div>
+            <table className="report-table">
+              <thead>
+                <tr>
+                  <th>Cara Pembayaran</th>
+                  <th>Jumlah Transaksi</th>
+                  <th>Total Penjualan</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paymentMethodsArray.map(pm => (
+                  <tr key={pm.method}>
+                    <td><strong>{pm.method}</strong></td>
+                    <td><span className="badge neutral">{pm.count}</span></td>
+                    <td>{formatCurrency(pm.revenue)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
         </div>
       )}
 
       {activeTab === 'products' && (
         <div className="tab-content product-reports-grid">
+
+          {/* CATEGORY SALES & STOCK */}
+          <div className="report-card full-width">
+            <div className="card-header">
+              <div className="title-with-icon">
+                <ShoppingBag size={20} color="#8b5cf6" />
+                <h3>Laporan Berdasarkan Kategori</h3>
+              </div>
+              <p>Ringkasan stok dan penjualan untuk tiap kategori produk.</p>
+            </div>
+            <div className="alerts-grid">
+              <div className="alert-column">
+                <h4 className="alert-subtitle" style={{ marginBottom: '10px' }}>Penjualan per Kategori</h4>
+                <table className="report-table">
+                  <thead>
+                    <tr>
+                      <th>Kategori</th>
+                      <th>Qty Terjual</th>
+                      <th>Total Penjualan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {categorySales.map(cat => (
+                      <tr key={cat.name}>
+                        <td><strong>{cat.name}</strong></td>
+                        <td>{cat.qtySold}</td>
+                        <td>{formatCurrency(cat.totalRevenue)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="alert-column">
+                <h4 className="alert-subtitle" style={{ marginBottom: '10px' }}>Jumlah Stok per Kategori</h4>
+                <table className="report-table">
+                  <thead>
+                    <tr>
+                      <th>Kategori</th>
+                      <th>Total Stok</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {categoryStock.map(cat => (
+                      <tr key={cat.name}>
+                        <td><strong>{cat.name}</strong></td>
+                        <td><span className={`badge ${cat.totalStock < 10 ? 'warning' : 'success'}`}>{cat.totalStock} pcs</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
           
           {/* TOP SELLERS */}
           <div className="report-card">
